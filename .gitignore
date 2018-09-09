@@ -1,0 +1,5 @@
+data
+*.out
+gursShp2geoJson
+CREDENTIALS*
+GeoCoordinateConverter
