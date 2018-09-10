@@ -276,7 +276,7 @@ func ReadShapefile(shapefilename string) *geojson.FeatureCollection {
 	return featureCollection
 }
 
-// SortFeatureCollection sorts the Features of the given FeatureCollection for reproducable results and better compression
+// SortFeatureCollection sorts the Features of the given FeatureCollection for reproducible results and better compression
 func SortFeatureCollection(featureCollection geojson.FeatureCollection) {
 
 	sort.Slice(featureCollection.Features[:], func(i, j int) bool {
