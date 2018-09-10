@@ -1,6 +1,8 @@
-# Scripts for preparing addresses of Slovenia for import into OpenStreetMap
+# Prepare addresses of Slovenia for import into OpenStreetMap
 
-See project description in OpenStreetMap wiki: https://wiki.openstreetmap.org/wiki/Slovenia_Address_Import
+Do **NOT** import anything until the process is defined and approved by community! See project description in OpenStreetMap wiki: https://wiki.openstreetmap.org/wiki/Slovenia_Address_Import
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/openstreetmap-si/GursAddressesForOSM)](https://goreportcard.com/report/github.com/openstreetmap-si/GursAddressesForOSM)
 
 ### Steps:
 1. Register as user at http://egp.gu.gov.si/egp, wait for the email with the password, login
