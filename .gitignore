@@ -1,5 +1,24 @@
 data
+
+# profiler files
 *.out
+
+# golang binary
 gursShp2geoJson
+
+# secrets
 CREDENTIALS*
+
+# external tool as 
 GeoCoordinateConverter
+
+# MacOS
+.DS_Store
+
+# IDE folders
+.idea
+.vscode
+
+# generally ignored
+*.tmp
+*.bak
