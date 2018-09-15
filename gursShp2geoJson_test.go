@@ -182,6 +182,9 @@ func BenchmarkReadLookups(b *testing.B) {
 }
 
 func TestReadLookups(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test in short mode.")
+	}
 	ReadLookups()
 
 	// just check the length ranges

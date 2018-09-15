@@ -45,6 +45,10 @@ clean:
 test:
 	go test -v -cover
 
+.PHONY: testShort
+testShort:
+	go test -v -short -cover
+
 .PHONY: bench
 bench:
 	go test -cover -bench=.
