@@ -1,13 +1,14 @@
 # Prepare addresses of Slovenia for import into OpenStreetMap
 
-Do **NOT** import anything until the process is defined and approved by community! See [Slovenia Address Import project description in OpenStreetMap wiki](https://wiki.openstreetmap.org/wiki/Slovenia_Address_Import).
+See [Slovenia Address Import project description in OpenStreetMap wiki](https://wiki.openstreetmap.org/wiki/Slovenia_Address_Import).
+Do **NOT** import anything until the process is defined and approved by community!
 
 [![Build Status](https://travis-ci.org/openstreetmap-si/GursAddressesForOSM.svg?branch=master)](https://travis-ci.org/openstreetmap-si/GursAddressesForOSM)
 [![Go Report Card](https://goreportcard.com/badge/github.com/openstreetmap-si/GursAddressesForOSM)](https://goreportcard.com/report/github.com/openstreetmap-si/GursAddressesForOSM)
 
 ### Steps:
 1. Register as user at http://egp.gu.gov.si/egp, wait for the email with the password, login
-2. Run GNU `make` in this folder (requires `wget` and `go` (>1.11))
+2. Run GNU `make` in this folder (requires `wget` and `go` (>1.10))
 3. When prompted enter your credentials (they can be saved for later reuse)
 4. Wait a minute or two for processing to finish.
 
@@ -41,6 +42,7 @@ Note:
 ### TODO: 
 * [ ] Use buffered channels + goroutines for concurrent processing when reading shapefile
 * [ ] Split into smaller files by areas (cadastral communities?)
-* [ ] [CGO](https://golang.org/cmd/cgo/) wrapper around GeoCoordinateConverter reprojection functionality ([geo.h](https://github.com/mrihtar/GeoCoordinateConverter/blob/master/geo.h))
-* [ ] Travis CI, with badges etc
-* [ ] add linter: https://github.com/alecthomas/gometalinter
+* [ ] Optional: [CGO](https://golang.org/cmd/cgo/) wrapper around GeoCoordinateConverter reprojection functionality ([geo.h](https://github.com/mrihtar/GeoCoordinateConverter/blob/master/geo.h))
+* [X] Travis CI, with badges etc
+* [ ] add golang linter: https://github.com/alecthomas/gometalinter
+* [ ] use https://wiki.openstreetmap.org/wiki/OSM_Conflator to prepare .osc files
