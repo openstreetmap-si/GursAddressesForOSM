@@ -1,7 +1,8 @@
 # Prepare addresses of Slovenia for import into OpenStreetMap
 
-Do **NOT** import anything until the process is defined and approved by community! See project description in OpenStreetMap wiki: https://wiki.openstreetmap.org/wiki/Slovenia_Address_Import
+Do **NOT** import anything until the process is defined and approved by community! See [Slovenia Address Import project description in OpenStreetMap wiki](https://wiki.openstreetmap.org/wiki/Slovenia_Address_Import).
 
+[![Build Status](https://travis-ci.org/openstreetmap-si/GursAddressesForOSM.svg?branch=master)](https://travis-ci.org/openstreetmap-si/GursAddressesForOSM)
 [![Go Report Card](https://goreportcard.com/badge/github.com/openstreetmap-si/GursAddressesForOSM)](https://goreportcard.com/report/github.com/openstreetmap-si/GursAddressesForOSM)
 
 ### Steps:
