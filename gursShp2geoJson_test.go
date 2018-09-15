@@ -149,6 +149,9 @@ func BenchmarkAll(b *testing.B) {
 }
 */
 func BenchmarkReadShapefile(b *testing.B) {
+	if testing.Short() {
+		b.Skip("skipping test in short mode.")
+	}
 	b.ReportAllocs()
 	ReadLookups()
 	b.ResetTimer()
@@ -159,6 +162,9 @@ func BenchmarkReadShapefile(b *testing.B) {
 }
 
 func BenchmarkSort(b *testing.B) {
+	if testing.Short() {
+		b.Skip("skipping test in short mode.")
+	}
 	b.ReportAllocs()
 	ReadLookups()
 	featureCollection := ReadShapefile("data/temp/HS-etrs89/SI.GURS.RPE.PUB.HS-etrs89.shp")
@@ -173,6 +179,9 @@ func BenchmarkSort(b *testing.B) {
 }
 
 func BenchmarkReadLookups(b *testing.B) {
+	if testing.Short() {
+		b.Skip("skipping test in short mode.")
+	}
 	b.ReportAllocs()
 	//for n := 0; n < b.N; n++ {
 	ReadLookups()

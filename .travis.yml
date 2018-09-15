@@ -9,4 +9,4 @@ install:
     - go get github.com/paulmach/go.geojson
     - go get golang.org/x/text/encoding/charmap
 script:
-  - make testShort
+  - make testNoData
