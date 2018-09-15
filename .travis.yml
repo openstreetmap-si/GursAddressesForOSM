@@ -5,5 +5,9 @@ go:
   - "1.8"
   - "1.10.x"
   - master
+install:
+    - go get github.com/jonas-p/go-shp
+    - go get github.com/paulmach/go.geojson
+    - go get golang.org/x/text/encoding/charmap
 script:
   - make testShort
