@@ -52,6 +52,10 @@ else
     echo "	Password: *********";
 fi
 
+# Clean up leftovers from previous runs
+rm -f ${dest}cookies.txt
+rm -f ${dest}login.html
+
 # Log in to the server.  This can be done only once.
 wget --quiet \
      --save-cookies ${dest}cookies.txt \
@@ -66,7 +70,6 @@ csrftoken="`sed -n 's/.*name="_csrf"\s\+value="\([^"]\+\).*/\1/p' ${dest}login.h
 #on Mac OS use gsed:
 #csrftoken="`gsed -n 's/.*name="_csrf"\s\+value="\([^"]\+\).*/\1/p' ${dest}login.html`"
 
-rm login.html
 echo Got CSRF token: "${csrftoken}".
 #cat cookies.txt
 
@@ -113,8 +116,6 @@ wget --load-cookies ${dest}cookies.txt \
 #     --ca-certificate=sigov-ca2.pem \
 #     "https://egp.gu.gov.si/egp/download-file.html?id=108&format=10&d96=0"
 
-rm ${dest}cookies.txt
-#rm ${dest}login.htm*
 
 #----- extract: -------
 for file in ${dest}RPE_*.ZIP; do extdir=`basename "$file" .ZIP`; echo $extdir; unzip -o -d "${dest}$extdir" "$file"; done
