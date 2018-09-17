@@ -165,115 +165,110 @@ func ReadShapefile(shapefilename string) *geojson.FeatureCollection {
 	//	fields := shape.Fields()
 
 	featureCollection := geojson.NewFeatureCollection()
-	//i := 0
 
 	// loop through all features in the shapefile
 	for shapeReader.Next() {
-		//i++
-		//		n, p := shapeReader.Shape()
-		_, p := shapeReader.Shape()
 
-		//shapeReader
-		// to benchmark just the reading:
-		//featureCollection.AddFeature(geojson.NewPointFeature([]float64{0,0}))
-		//continue
-
-		//n, _ := shapeReader.Shape()
-
-		/*if i>30 {
-			fmt.Println("Had enough")
-			break
-		}*/
-
-		if shapeReader.Attribute(12) != "V" {
-			fmt.Println("skipping invalid...")
-			continue
+		f := processRecord(shapeReader)
+		if f != nil {
+			featureCollection.AddFeature(f)
 		}
-
-		// print feature
-		//		fmt.Println(reflect.TypeOf(p).Elem(), p.BBox())
-
-		bb := p.BBox()
-		// prepare rounded coordinates:
-		lat := math.Round(bb.MinY*roundingFactor) / roundingFactor
-		lon := math.Round(bb.MinX*roundingFactor) / roundingFactor
-		f := geojson.NewPointFeature([]float64{lat, lon})
-
-		/*
-		   http://www.e-prostor.gov.si/fileadmin/struktura/RPE_struktura.pdf
-		   idx#	Ime polja Definicija polja Opis polja
-		   0	ENOTA C 2 Šifra enote
-		   1	HS_MID N 8.0 Identifikator hišne številke
-		   2	HS N 3.0 Hišna številka
-		   3	HD C 1 Dodatek k hišni številki
-		   4	LABELA C 4 Hišna številka z dodatkom – združen zapis polj HS in HD
-		   5	UL_MID N 8.0 Identifikator ulice
-		   6	NA_MID N 8.0 Identifikator naselja
-		   7	OB_MID N 8.0 Identifikator občine
-		   8	PT_MID N 8.0 Identifikator poštnega okoliša
-		   9	PO_MID N 8.0 Identifikator prostorskega okoliša
-		   10	D_OD D 8 Datum veljavnosti
-		   11	DV_OD D 8 Datum vnosa v bazo
-		   12	STATUS C 1 Status veljavnosti zapisa (V – veljavno stanje)
-		   13	Y_C N 6.0 Y koordinata centroida hišne številke
-		   14	X_C N 6.0 X koordinata centroida hišne številke
-		*/
-		labela := shapeReader.Attribute(4)
-
-		f.SetProperty(tagHousenumber, strings.ToLower(DecodeWindows1250(labela)))
-
-		ulMid := shapeReader.Attribute(5)
-
-		if ulName, streetNameExists := ulNameMap[ulMid]; streetNameExists {
-			// street name exists
-
-			if ulNameDj, bilingualStreetNameExists := ulNameDjMap[ulMid]; bilingualStreetNameExists && ulNameDj != ulName {
-				// bilingual street name exists
-				f.SetProperty(tagStreet, ulName+bilingualSeparator+ulNameDj)
-				//f.SetProperty(tagStreet, strings.Join([]string{ulName, bilingualSeparator, ulNameDj}, ""))
-				f.SetProperty(tagStreet+tagLangPostfixSlovenian, ulName)
-				f.SetProperty(ApplyTagLanguagePostfix(tagStreet, lon), ulNameDj)
-			} else {
-				// only slovenian name
-				f.SetProperty(tagStreet, ulName)
-			}
-		} else {
-			// no street name, only place
-			naMid := shapeReader.Attribute(6)
-			naName := naNameMap[naMid]
-
-			if naNameDj, bilingualPlaceNameExists := naNameDjMap[naMid]; bilingualPlaceNameExists && naNameDj != naName {
-				// bilingual place name exists
-				f.SetProperty(tagPlace, naName+bilingualSeparator+naNameDj)
-				//f.SetProperty(tagStreet, strings.Join([]string{naName, bilingualSeparator, naNameDj}, ""))
-				f.SetProperty(tagPlace+tagLangPostfixSlovenian, naName)
-				f.SetProperty(ApplyTagLanguagePostfix(tagPlace, lon), naNameDj)
-			} else {
-				// only slovenian name
-				f.SetProperty(tagPlace, naName)
-			}
-
-		}
-
-		ptMid := shapeReader.Attribute(8)
-		f.SetProperty(tagPostCode, ptCodeMap[ptMid])
-
-		f.SetProperty(tagCity, ptNameMap[ptMid])
-
-		dateOd := shapeReader.Attribute(10)
-		// slice it up into nice iso YYYY-MM-DD format:
-		f.SetProperty(tagSourceDate, dateOd[0:4]+"-"+dateOd[4:6]+"-"+dateOd[6:8])
-		//f.SetProperty(tagSourceDate, fmt.Sprintf("%s-%s-%s", dateOd[0:4], dateOd[4:6], dateOd[6:8]))
-
-		f.SetProperty(tagSource, tagSourceValue)
-
-		hsMid := shapeReader.Attribute(1)
-		f.SetProperty(tagRef, hsMid)
-
-		featureCollection.AddFeature(f)
 	}
 
 	return featureCollection
+}
+
+func processRecord(shapeReader *shp.Reader) *geojson.Feature {
+	//		n, p := shapeReader.Shape()
+	_, p := shapeReader.Shape()
+
+	if shapeReader.Attribute(12) != "V" {
+		fmt.Println("skipping invalid...")
+		return nil
+	}
+
+	// print feature
+	//		fmt.Println(reflect.TypeOf(p).Elem(), p.BBox())
+
+	bb := p.BBox()
+	// prepare rounded coordinates:
+	lat := math.Round(bb.MinY*roundingFactor) / roundingFactor
+	lon := math.Round(bb.MinX*roundingFactor) / roundingFactor
+	f := geojson.NewPointFeature([]float64{lat, lon})
+
+	/*
+	   http://www.e-prostor.gov.si/fileadmin/struktura/RPE_struktura.pdf
+	   idx#	Ime polja Definicija polja Opis polja
+	   0	ENOTA C 2 Šifra enote
+	   1	HS_MID N 8.0 Identifikator hišne številke
+	   2	HS N 3.0 Hišna številka
+	   3	HD C 1 Dodatek k hišni številki
+	   4	LABELA C 4 Hišna številka z dodatkom – združen zapis polj HS in HD
+	   5	UL_MID N 8.0 Identifikator ulice
+	   6	NA_MID N 8.0 Identifikator naselja
+	   7	OB_MID N 8.0 Identifikator občine
+	   8	PT_MID N 8.0 Identifikator poštnega okoliša
+	   9	PO_MID N 8.0 Identifikator prostorskega okoliša
+	   10	D_OD D 8 Datum veljavnosti
+	   11	DV_OD D 8 Datum vnosa v bazo
+	   12	STATUS C 1 Status veljavnosti zapisa (V – veljavno stanje)
+	   13	Y_C N 6.0 Y koordinata centroida hišne številke
+	   14	X_C N 6.0 X koordinata centroida hišne številke
+	*/
+	labela := shapeReader.Attribute(4)
+
+	f.SetProperty(tagHousenumber, strings.ToLower(DecodeWindows1250(labela)))
+
+	ulMid := shapeReader.Attribute(5)
+
+	if ulName, streetNameExists := ulNameMap[ulMid]; streetNameExists {
+		// street name exists
+
+		if ulNameDj, bilingualStreetNameExists := ulNameDjMap[ulMid]; bilingualStreetNameExists && ulNameDj != ulName {
+			// bilingual street name exists
+			f.SetProperty(tagStreet, ulName+bilingualSeparator+ulNameDj)
+			//f.SetProperty(tagStreet, strings.Join([]string{ulName, bilingualSeparator, ulNameDj}, ""))
+			f.SetProperty(tagStreet+tagLangPostfixSlovenian, ulName)
+			f.SetProperty(ApplyTagLanguagePostfix(tagStreet, lon), ulNameDj)
+		} else {
+			// only slovenian name
+			f.SetProperty(tagStreet, ulName)
+		}
+	} else {
+		// no street name, only place
+		naMid := shapeReader.Attribute(6)
+		naName := naNameMap[naMid]
+
+		if naNameDj, bilingualPlaceNameExists := naNameDjMap[naMid]; bilingualPlaceNameExists && naNameDj != naName {
+			// bilingual place name exists
+			f.SetProperty(tagPlace, naName+bilingualSeparator+naNameDj)
+			//f.SetProperty(tagStreet, strings.Join([]string{naName, bilingualSeparator, naNameDj}, ""))
+			f.SetProperty(tagPlace+tagLangPostfixSlovenian, naName)
+			f.SetProperty(ApplyTagLanguagePostfix(tagPlace, lon), naNameDj)
+		} else {
+			// only slovenian name
+			f.SetProperty(tagPlace, naName)
+		}
+
+	}
+
+	ptMid := shapeReader.Attribute(8)
+	f.SetProperty(tagPostCode, ptCodeMap[ptMid])
+
+	f.SetProperty(tagCity, ptNameMap[ptMid])
+
+	dateOd := shapeReader.Attribute(10)
+	// slice it up into nice iso YYYY-MM-DD format:
+	f.SetProperty(tagSourceDate, dateOd[0:4]+"-"+dateOd[4:6]+"-"+dateOd[6:8])
+	//f.SetProperty(tagSourceDate, fmt.Sprintf("%s-%s-%s", dateOd[0:4], dateOd[4:6], dateOd[6:8]))
+
+	f.SetProperty(tagSource, tagSourceValue)
+
+	hsMid := shapeReader.Attribute(1)
+	f.SetProperty(tagRef, hsMid)
+
+	return f
+	//featureCollection.AddFeature(f)
 }
 
 // SortFeatureCollection sorts the Features of the given FeatureCollection for reproducible results and better compression
