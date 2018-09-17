@@ -5,6 +5,9 @@ Do **NOT** import anything until the process is defined and approved by communit
 
 [![Build Status](https://travis-ci.org/openstreetmap-si/GursAddressesForOSM.svg?branch=master)](https://travis-ci.org/openstreetmap-si/GursAddressesForOSM)
 [![Go Report Card](https://goreportcard.com/badge/github.com/openstreetmap-si/GursAddressesForOSM)](https://goreportcard.com/report/github.com/openstreetmap-si/GursAddressesForOSM)
+[![codebeat badge](https://codebeat.co/badges/ef6316aa-ab76-4f86-9c04-cac31f7942c0)](https://codebeat.co/projects/github-com-openstreetmap-si-gursaddressesforosm-master)
+[![Maintainability](https://api.codeclimate.com/v1/badges/9f6ae8b5b2c751481e6c/maintainability)](https://codeclimate.com/github/openstreetmap-si/GursAddressesForOSM/maintainability)
+
 
 ### Steps:
 1. Register as user at http://egp.gu.gov.si/egp, wait for the email with the password, login
