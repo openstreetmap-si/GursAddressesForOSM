@@ -3,6 +3,19 @@ dest="${1}"
 credentialsFile="CREDENTIALS-egp.gu.gov.si.txt"
 maxAge=720
 
+SEDCMD=sed
+STATCMD=stat
+unameOut="$(uname -s)"
+case "${unameOut}" in
+    Linux*)     machine=Linux;;
+    Darwin*)    machine=Mac; SEDCMD=gsed; STATCMD=gstat;;
+    CYGWIN*)    machine=Cygwin;;
+    MINGW*)     machine=MinGw;;
+    *)          machine="UNKNOWN:${unameOut};"
+esac
+echo Running on: "${machine}", using $SEDCMD and $STATCMD commands
+
+
 countTooOld=3
 
 #if [ -f "${dest}RPE_PE.ZIP"  -a -f "${dest}RPE_UL.ZIP" -a -f "${dest}RPE_HS.ZIP" -a -f "${dest}ko_zk_slo.zip" ] ; then
@@ -66,9 +79,7 @@ wget --quiet \
 # example login.html content:
 # <input type="hidden" name="_csrf" value="089070ed-b40a-4e3c-ab22-422de0daffff" />
 
-csrftoken="`sed -n 's/.*name="_csrf"\s\+value="\([^"]\+\).*/\1/p' ${dest}login.html`"
-#on Mac OS use gsed:
-#csrftoken="`gsed -n 's/.*name="_csrf"\s\+value="\([^"]\+\).*/\1/p' ${dest}login.html`"
+csrftoken="`$SEDCMD -n 's/.*name="_csrf"\s\+value="\([^"]\+\).*/\1/p' ${dest}login.html`"
 
 echo Got CSRF token: "${csrftoken}".
 #cat cookies.txt
@@ -123,9 +134,7 @@ for file in ${dest}RPE_*/*.zip; do unzip -o -d "${dest}" "$file"; done
 
 #unzip -o -d "${dest}/ko_zk_slo" "${dest}ko_zk_slo.zip"
 
-stat -c '%y' ${dest}HS/SI.GURS.RPE.PUB.HS.shp  | cut -d' ' -f1 > ${dest}timestamp.txt
-#use gstat on MacOS
-#gstat -c '%y' ${dest}HS/SI.GURS.RPE.PUB.HS.shp  | cut -d' ' -f1 > ${dest}timestamp.txt
+$STATCMD -c '%y' ${dest}HS/SI.GURS.RPE.PUB.HS.shp  | cut -d' ' -f1 > ${dest}timestamp.txt
 
 echo getSource finished.
 

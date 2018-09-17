@@ -38,7 +38,7 @@ Data can be obtained from Geodetska  uprava  Republike  Slovenije - http://egp.g
 
 Note: 
 * For running on Mac OS use: 
-  * `gsed` instead of `sed` and `gstat` instead of `stat` in `getSource.sh`
+  * `gsed` instead of `sed` in `Makefile`
   * Geocoordinate branch `travis` of my fork: https://github.com/stefanb/GeoCoordinateConverter until pull request is merged upstream
 * GoLang program is optimized as a Go learning exercise
 
