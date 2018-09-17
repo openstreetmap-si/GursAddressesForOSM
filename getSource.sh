@@ -3,8 +3,8 @@ dest="${1}"
 credentialsFile="CREDENTIALS-egp.gu.gov.si.txt"
 maxAge=720
 
-SEDCMD=sed
-STATCMD=stat
+var SEDCMD=sed
+var STATCMD=stat
 unameOut="$(uname -s)"
 case "${unameOut}" in
     Linux*)     machine=Linux;;
@@ -19,10 +19,10 @@ echo Running on: "${machine}", using $SEDCMD and $STATCMD commands
 countTooOld=3
 
 #if [ -f "${dest}RPE_PE.ZIP"  -a -f "${dest}RPE_UL.ZIP" -a -f "${dest}RPE_HS.ZIP" -a -f "${dest}ko_zk_slo.zip" ] ; then
-if [ -f "${dest}RPE_PE.ZIP"  -a -f "${dest}RPE_UL.ZIP" -a -f "${dest}RPE_HS.ZIP" ] ; then
+if [ -f "${dest}RPE_PE.ZIP" ] && [ -f "${dest}RPE_UL.ZIP" ] && [ -f "${dest}RPE_HS.ZIP" ] ; then
 	#check age of existing files
 	#countTooOld=`find ${dest}RPE_PE.ZIP ${dest}RPE_UL.ZIP ${dest}RPE_HS.ZIP ${dest}ko_zk_slo.zip -mmin +${maxAge} | wc -l`
-	countTooOld=`find ${dest}RPE_PE.ZIP ${dest}RPE_UL.ZIP ${dest}RPE_HS.ZIP -mmin +${maxAge} | wc -l`
+	countTooOld=$(find "${dest}RPE_PE.ZIP" "${dest}RPE_UL.ZIP" "${dest}RPE_HS.ZIP" -mmin +${maxAge} | wc -l)
 fi
 
 # exit if all are newer than max age
@@ -35,16 +35,15 @@ fi
 
 #------ download all:------
 # read possibly existing credentials...
-source $credentialsFile
+# shellcheck source=/dev/null
+source "$credentialsFile"
 
 echo Credentials for https://egp.gu.gov.si/egp/
 
 if [ -z "$username" ]; then
     echo -n "	Username: ";
     read -r username
-    echo -n 'username="' > $credentialsFile
-    echo -n $username >> $credentialsFile
-    echo  '"' >> $credentialsFile
+    echo "username=\"$username\"" > "$credentialsFile"
 else
     echo "	Username: '$username'";
 fi
@@ -57,21 +56,19 @@ if [ -z "$password" ]; then
     if [[ $REPLY =~ ^[Yy]$ ]]
     then
         # save it only if wanted
-        echo -n 'password="' >> $credentialsFile
-        echo -n $password >> $credentialsFile
-        echo  '"' >> $credentialsFile
+        echo "password=\"$password\"" >> "$credentialsFile"
     fi
 else
     echo "	Password: *********";
 fi
 
 # Clean up leftovers from previous runs
-rm -f ${dest}cookies.txt
-rm -f ${dest}login.html
+rm -f "${dest}cookies.txt"
+rm -f "${dest}login.html"
 
 # Log in to the server.  This can be done only once.
 wget --quiet \
-     --save-cookies ${dest}cookies.txt \
+     --save-cookies "${dest}cookies.txt" \
      --directory-prefix "${dest}" \
      --keep-session-cookies \
      --ca-certificate=sigov-ca2.pem \
@@ -79,7 +76,7 @@ wget --quiet \
 # example login.html content:
 # <input type="hidden" name="_csrf" value="089070ed-b40a-4e3c-ab22-422de0daffff" />
 
-csrftoken="`$SEDCMD -n 's/.*name="_csrf"\s\+value="\([^"]\+\).*/\1/p' ${dest}login.html`"
+csrftoken="$($SEDCMD -n 's/.*name="_csrf"\s\+value="\([^"]\+\).*/\1/p' "${dest}login.html")"
 
 echo Got CSRF token: "${csrftoken}".
 #cat cookies.txt
@@ -88,8 +85,8 @@ loginFormData="username=${username}&password=${password}&_csrf=${csrftoken}"
 #echo login form data: $loginFormData
 
 #exit 1
-wget --quiet --load-cookies ${dest}cookies.txt \
-     --save-cookies ${dest}cookies.txt \
+wget --quiet --load-cookies "${dest}cookies.txt" \
+     --save-cookies "${dest}cookies.txt" \
      --keep-session-cookies \
      --referer https://egp.gu.gov.si/egp/ \
      --post-data "${loginFormData}" \
@@ -100,21 +97,21 @@ wget --quiet --load-cookies ${dest}cookies.txt \
 # Now grab the data we care about.
 
 #RPE_PE.ZIP
-wget --load-cookies ${dest}cookies.txt \
+wget --load-cookies "${dest}cookies.txt" \
      --directory-prefix "${dest}" \
      --content-disposition -N \
      --ca-certificate=sigov-ca2.pem \
      "https://egp.gu.gov.si/egp/download-file.html?id=105&format=10&d96=0"
 
 #RPE_UL.ZIP
-wget --load-cookies ${dest}cookies.txt \
+wget --load-cookies "${dest}cookies.txt" \
      --directory-prefix "${dest}" \
      --content-disposition -N \
      --ca-certificate=sigov-ca2.pem \
     "https://egp.gu.gov.si/egp/download-file.html?id=106&format=10&d96=0"
 
 #RPE_HS.ZIP
-wget --load-cookies ${dest}cookies.txt \
+wget --load-cookies "${dest}cookies.txt" \
      --directory-prefix "${dest}" \
      --content-disposition -N \
      --ca-certificate=sigov-ca2.pem \
@@ -129,12 +126,12 @@ wget --load-cookies ${dest}cookies.txt \
 
 
 #----- extract: -------
-for file in ${dest}RPE_*.ZIP; do extdir=`basename "$file" .ZIP`; echo $extdir; unzip -o -d "${dest}$extdir" "$file"; done
-for file in ${dest}RPE_*/*.zip; do unzip -o -d "${dest}" "$file"; done
+for file in "${dest}"RPE_*.ZIP; do extdir=$(basename "$file" .ZIP); echo "$extdir"; unzip -o -d "${dest}$extdir" "$file"; done
+for file in "${dest}"RPE_*/*.zip; do unzip -o -d "${dest}" "$file"; done
 
 #unzip -o -d "${dest}/ko_zk_slo" "${dest}ko_zk_slo.zip"
 
-$STATCMD -c '%y' ${dest}HS/SI.GURS.RPE.PUB.HS.shp  | cut -d' ' -f1 > ${dest}timestamp.txt
+$STATCMD -c '%y' "${dest}HS/SI.GURS.RPE.PUB.HS.shp"  | cut -d' ' -f1 > "${dest}timestamp.txt"
 
 echo getSource finished.
 
