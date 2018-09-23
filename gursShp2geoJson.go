@@ -219,8 +219,27 @@ func processRecord(shapeReader *shp.Reader) *geojson.Feature {
 
 	f.SetProperty(tagHousenumber, strings.ToLower(DecodeWindows1250(labela)))
 
-	ulMid := shapeReader.Attribute(5)
+	determineStreetOrPlaceName(shapeReader, f, lon)
 
+	ptMid := shapeReader.Attribute(8)
+	f.SetProperty(tagPostCode, ptCodeMap[ptMid])
+
+	f.SetProperty(tagCity, ptNameMap[ptMid])
+
+	dateOd := shapeReader.Attribute(10)
+	// slice it up into nice iso YYYY-MM-DD format:
+	f.SetProperty(tagSourceDate, dateOd[0:4]+"-"+dateOd[4:6]+"-"+dateOd[6:8])
+
+	f.SetProperty(tagSource, tagSourceValue)
+
+	hsMid := shapeReader.Attribute(1)
+	f.SetProperty(tagRef, hsMid)
+
+	return f
+}
+
+func determineStreetOrPlaceName(shapeReader *shp.Reader, f *geojson.Feature, lon float64) {
+	ulMid := shapeReader.Attribute(5)
 	if ulName, streetNameExists := ulNameMap[ulMid]; streetNameExists {
 		// street name exists
 
@@ -249,26 +268,7 @@ func processRecord(shapeReader *shp.Reader) *geojson.Feature {
 			// only slovenian name
 			f.SetProperty(tagPlace, naName)
 		}
-
 	}
-
-	ptMid := shapeReader.Attribute(8)
-	f.SetProperty(tagPostCode, ptCodeMap[ptMid])
-
-	f.SetProperty(tagCity, ptNameMap[ptMid])
-
-	dateOd := shapeReader.Attribute(10)
-	// slice it up into nice iso YYYY-MM-DD format:
-	f.SetProperty(tagSourceDate, dateOd[0:4]+"-"+dateOd[4:6]+"-"+dateOd[6:8])
-	//f.SetProperty(tagSourceDate, fmt.Sprintf("%s-%s-%s", dateOd[0:4], dateOd[4:6], dateOd[6:8]))
-
-	f.SetProperty(tagSource, tagSourceValue)
-
-	hsMid := shapeReader.Attribute(1)
-	f.SetProperty(tagRef, hsMid)
-
-	return f
-	//featureCollection.AddFeature(f)
 }
 
 // SortFeatureCollection sorts the Features of the given FeatureCollection for reproducible results and better compression
