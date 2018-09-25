@@ -3,8 +3,8 @@ dest="${1}"
 credentialsFile="CREDENTIALS-egp.gu.gov.si.txt"
 maxAge=720
 
-var SEDCMD=sed
-var STATCMD=stat
+SEDCMD=sed
+STATCMD=stat
 unameOut="$(uname -s)"
 case "${unameOut}" in
 Linux*) machine=Linux ;;
