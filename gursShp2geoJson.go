@@ -184,8 +184,8 @@ func processRecord(shapeReader *shp.Reader) *geojson.Feature {
 
 	bb := p.BBox()
 	// prepare rounded coordinates:
-	lat := math.Round(bb.MinY*roundingFactor) / roundingFactor
-	lon := math.Round(bb.MinX*roundingFactor) / roundingFactor
+	lat := round(bb.MinY)
+	lon := round(bb.MinX)
 	f := geojson.NewPointFeature([]float64{lat, lon})
 
 	/*
@@ -228,6 +228,10 @@ func processRecord(shapeReader *shp.Reader) *geojson.Feature {
 	f.SetProperty(tagRef, hsMid)
 
 	return f
+}
+
+func round(number float64) float64 {
+	return math.Round(number*roundingFactor) / roundingFactor
 }
 
 func determineStreetOrPlaceName(shapeReader *shp.Reader, f *geojson.Feature, lon float64) {
