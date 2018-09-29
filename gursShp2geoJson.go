@@ -25,36 +25,14 @@ var outputGeoJSONFileName = flag.String("out", "data/slovenia-housenumbers.geojs
 func readShapefileToMap(shapeFileName string, keyColumnName, valueColumnName string) map[string]string {
 	result := make(map[string]string)
 
-	var keyColumnIndex, valueColumnIndex = -1, -1
-
-	//log.Printf("Reading %s... into map %s:%s", shapeFileName, keyColumnName, valueColumnName)
 	shapeReader, err := shp.Open(shapeFileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer shapeReader.Close()
 
-	for i, v := range shapeReader.Fields() {
-		/*
-			if keyColumnIndex != -1 && v.String() == keyColumnName {
-				keyColumnIndex = i
-			} else if valueColumnIndex != -1 && v.String() == valueColumnName {
-				valueColumnIndex = i
-			}
-		*/
-		if v.String() == keyColumnName {
-			keyColumnIndex = i
-		} else if v.String() == valueColumnName {
-			valueColumnIndex = i
-		}
+	keyColumnIndex, valueColumnIndex := getKeyValueColumnIndexes(shapeReader, keyColumnName, valueColumnName)
 
-		if valueColumnIndex != -1 && keyColumnIndex != -1 {
-			break
-		}
-	}
-
-	// loop through all features in the shapefile
-	//i := 0
 	var valueUtf string
 	for shapeReader.Next() {
 		//i++
@@ -66,22 +44,43 @@ func readShapefileToMap(shapeFileName string, keyColumnName, valueColumnName str
 		}
 	}
 
-	// Convert map to slice of key-value pairs to show as sample records.
-	const maxSamplesCount = 10
-	samples := [][]string{}
-	for key, value := range result {
-		samples = append(samples, []string{key, value})
-		if len(samples) >= maxSamplesCount {
+	/*
+		// Convert map to slice of key-value pairs to show as sample records.
+		const maxSamplesCount = 10
+		samples := [][]string{}
+		for key, value := range result {
+			samples = append(samples, []string{key, value})
+			if len(samples) >= maxSamplesCount {
+				break
+			}
+		}
+
+		if len(result) == 0 {
+			log.Printf("WARNING: %s read NO records!", shapeFileName)
+		} else {
+			//log.Printf("%s: read %d/%d records, eg: %s", shapeFileName, len(result), i, samples)
+		}
+	*/
+	return result
+}
+
+func getKeyValueColumnIndexes(shapeReader *shp.Reader, keyColumnName, valueColumnName string) (int, int) {
+
+	var keyColumnIndex, valueColumnIndex = -1, -1
+	for i, v := range shapeReader.Fields() {
+
+		if v.String() == keyColumnName {
+			keyColumnIndex = i
+		} else if v.String() == valueColumnName {
+			valueColumnIndex = i
+		}
+
+		if valueColumnIndex != -1 && keyColumnIndex != -1 {
 			break
 		}
 	}
 
-	if len(result) == 0 {
-		log.Printf("WARNING: %s read NO records!", shapeFileName)
-	} else {
-		//log.Printf("%s: read %d/%d records, eg: %s", shapeFileName, len(result), i, samples)
-	}
-	return result
+	return keyColumnIndex, valueColumnIndex
 }
 
 const (
