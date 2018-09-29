@@ -277,34 +277,40 @@ func SortFeatureCollection(featureCollection geojson.FeatureCollection) {
 			return false
 		}
 
-		if featureCollection.Features[i].Properties[tagStreet] != nil {
-			if featureCollection.Features[j].Properties[tagStreet] != nil {
-				StreetLeft := featureCollection.Features[i].Properties[tagStreet].(string)
-				StreetRight := featureCollection.Features[j].Properties[tagStreet].(string)
-				if StreetLeft < StreetRight {
-					return true
-				}
-				if StreetLeft > StreetRight {
-					return false
-				}
-			}
+		switch compareTags(featureCollection.Features[i].Properties[tagStreet], featureCollection.Features[j].Properties[tagStreet]) {
+		case -1:
+			return true
+		case 1:
+			return false
 		}
 
-		if featureCollection.Features[i].Properties[tagPlace] != nil {
-			if featureCollection.Features[j].Properties[tagPlace] != nil {
-				PlaceLeft := featureCollection.Features[i].Properties[tagPlace].(string)
-				PlaceRight := featureCollection.Features[j].Properties[tagPlace].(string)
-				if PlaceLeft < PlaceRight {
-					return true
-				}
-				if PlaceLeft > PlaceRight {
-					return false
-				}
-			}
+		switch compareTags(featureCollection.Features[i].Properties[tagPlace], featureCollection.Features[j].Properties[tagPlace]) {
+		case -1:
+			return true
+		case 1:
+			return false
 		}
 
 		return NormalizeHouseNumber(featureCollection.Features[i].Properties[tagHousenumber].(string)) < NormalizeHouseNumber(featureCollection.Features[j].Properties[tagHousenumber].(string))
 	})
+}
+
+func compareTags(tag1, tag2 interface{}) int8 {
+	if tag1 != nil {
+		if tag2 != nil {
+			value1 := tag1.(string)
+			value2 := tag2.(string)
+			if value1 < value2 {
+				return -1
+			}
+			if value1 > value2 {
+				return 1
+			}
+		}
+	}
+
+	// equal or cannot be compared
+	return 0
 }
 
 // NormalizeHouseNumber returns comparable house number (4 digits, followed by one letter or _)
