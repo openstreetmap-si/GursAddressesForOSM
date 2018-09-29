@@ -296,17 +296,15 @@ func SortFeatureCollection(featureCollection geojson.FeatureCollection) {
 }
 
 func compareTags(tag1, tag2 interface{}) int8 {
-	if tag1 != nil {
-		if tag2 != nil {
-			value1 := tag1.(string)
-			value2 := tag2.(string)
-			if value1 < value2 {
-				return -1
-			}
-			if value1 > value2 {
-				return 1
-			}
-		}
+	if tag1 == nil || tag2 == nil {
+		return 0
+	}
+
+	if tag1.(string) < tag2.(string) {
+		return -1
+	}
+	if tag1.(string) > tag2.(string) {
+		return 1
 	}
 
 	// equal or cannot be compared
