@@ -110,40 +110,33 @@ const (
 // lookup maps
 var ptCodeMap, ptNameMap, ulNameMap, ulNameDjMap, naNameMap, naNameDjMap map[string]string
 
+type lookupSource struct {
+	filename string
+	keyCol   string
+	valueCol string
+	mapVar   *map[string]string
+}
+
+var lookupSources = [...]lookupSource{
+	{"PT/SI.GURS.RPE.PUB.PT.shp", "PT_MID", "PT_ID", &ptCodeMap},
+	{"PT/SI.GURS.RPE.PUB.PT.shp", "PT_MID", "PT_UIME", &ptNameMap},
+	{"UL/SI.GURS.RPE.PUB.UL.shp", "UL_MID", "UL_UIME", &ulNameMap},
+	{"UL/SI.GURS.RPE.PUB.UL.shp", "UL_MID", "UL_DJ", &ulNameDjMap},
+	{"NA/SI.GURS.RPE.PUB.NA.shp", "NA_MID", "NA_UIME", &naNameMap},
+	{"NA/SI.GURS.RPE.PUB.NA.shp", "NA_MID", "NA_DJ", &naNameDjMap},
+}
+
 // ReadLookups reads all needed shapefiles in parallel to maps memory for later use
 func ReadLookups() {
 	var wg sync.WaitGroup
-	wg.Add(6)
 
-	go func() {
-		ptCodeMap = readShapefileToMap("data/temp/PT/SI.GURS.RPE.PUB.PT.shp", "PT_MID", "PT_ID")
-		wg.Done()
-	}()
-
-	go func() {
-		ptNameMap = readShapefileToMap("data/temp/PT/SI.GURS.RPE.PUB.PT.shp", "PT_MID", "PT_UIME")
-		wg.Done()
-	}()
-
-	go func() {
-		ulNameMap = readShapefileToMap("data/temp/UL/SI.GURS.RPE.PUB.UL.shp", "UL_MID", "UL_UIME")
-		wg.Done()
-	}()
-
-	go func() {
-		ulNameDjMap = readShapefileToMap("data/temp/UL/SI.GURS.RPE.PUB.UL.shp", "UL_MID", "UL_DJ")
-		wg.Done()
-	}()
-
-	go func() {
-		naNameMap = readShapefileToMap("data/temp/NA/SI.GURS.RPE.PUB.NA.shp", "NA_MID", "NA_UIME")
-		wg.Done()
-	}()
-
-	go func() {
-		naNameDjMap = readShapefileToMap("data/temp/NA/SI.GURS.RPE.PUB.NA.shp", "NA_MID", "NA_DJ")
-		wg.Done()
-	}()
+	for _, element := range lookupSources {
+		wg.Add(1)
+		go func(element lookupSource) {
+			*element.mapVar = readShapefileToMap("data/temp/"+element.filename, element.keyCol, element.valueCol)
+			wg.Done()
+		}(element)
+	}
 
 	wg.Wait()
 }
