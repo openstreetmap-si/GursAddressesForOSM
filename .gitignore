@@ -3,6 +3,9 @@ data
 # profiler files
 *.out
 
+# codecov coverage report
+coverage.txt
+
 # golang binary
 gursShp2geoJson
 

@@ -43,12 +43,12 @@ clean:
 
 .PHONY: test
 test:
-	go test -v -cover
+	go test -v -cover -race -coverprofile=coverage.txt -covermode=atomic
 
 .PHONY: benchNoData
 benchNoData:
-	go test -v -short -cover -bench=.
+	go test -v -short -cover -race -coverprofile=coverage.txt -covermode=atomic -bench=.
 
 .PHONY: bench
 bench:
-	go test -cover -bench=.
+	go test -cover -race -coverprofile=coverage.txt -covermode=atomic -bench=.
