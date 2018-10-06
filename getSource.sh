@@ -2,6 +2,7 @@
 dest="${1}"
 credentialsFile="CREDENTIALS-egp.gu.gov.si.txt"
 maxAge=720
+baseUrl="http://egp.gu.gov.si/egp/"
 
 SEDCMD="sed"
 STATCMD="stat"
@@ -36,12 +37,12 @@ else
 	exit 0
 fi
 
-#------ download all:------
+#------ username & password: ------
 # read possibly existing credentials...
 # shellcheck source=/dev/null
 source "$credentialsFile"
 
-echo Credentials for https://egp.gu.gov.si/egp/
+echo Credentials for ${baseUrl}
 
 if [ -z "$username" ]; then
 	echo -n "	Username: "
@@ -68,63 +69,59 @@ fi
 rm -f "${dest}cookies.txt"
 rm -f "${dest}login.html"
 
-# Log in to the server.  This can be done only once.
-wget --quiet \
-	--save-cookies "${dest}cookies.txt" \
-	--directory-prefix "${dest}" \
-	--keep-session-cookies \
-	--ca-certificate=sigov-ca2.pem \
-	"https://egp.gu.gov.si/egp/login.html"
+commonWgetParams=(--load-cookies "${dest}cookies.txt" --save-cookies "${dest}cookies.txt" --directory-prefix "${dest}" --keep-session-cookies --no-hsts --ca-certificate "sigov-ca2.pem")
+# --quiet
+# --ciphers "HIGH:!aNULL:!MD5:!RC4" \
+# --secure-protocol=TLSv1 \	
+# --referer "${baseUrl}" \
+
+
+#------ Log in to the server.  This can be done only once ------
+wget "${commonWgetParams[@]}" \
+    "${baseUrl}login.html"
+
 # example login.html content:
 # <input type="hidden" name="_csrf" value="089070ed-b40a-4e3c-ab22-422de0daffff" />
-
 csrftoken="$($SEDCMD -n 's/.*name="_csrf"\s\+value="\([^"]\+\).*/\1/p' "${dest}login.html")"
 
-echo Got CSRF token: "${csrftoken}".
-#cat cookies.txt
+if [ -z "${csrftoken}" ]; then
+	echo "No CSRF token found, exitting!"
+	exit 1
+fi
+
+echo "Got CSRF token: \"${csrftoken}\"."
+
 
 loginFormData="username=${username}&password=${password}&_csrf=${csrftoken}"
 #echo login form data: $loginFormData
 
 #exit 1
-wget --quiet --load-cookies "${dest}cookies.txt" \
-	--save-cookies "${dest}cookies.txt" \
-	--keep-session-cookies \
-	--referer https://egp.gu.gov.si/egp/ \
-	--post-data "${loginFormData}" \
+wget "${commonWgetParams[@]}" \
+    --post-data "${loginFormData}" \
 	--delete-after \
-	--ca-certificate=sigov-ca2.pem \
-	"https://egp.gu.gov.si/egp/login.html"
+	"${baseUrl}login.html"
 
-# Now grab the data we care about.
+#------ Download all data we care about: ------
 
 #RPE_PE.ZIP
-wget --load-cookies "${dest}cookies.txt" \
-	--directory-prefix "${dest}" \
+wget "${commonWgetParams[@]}" \
 	--content-disposition -N \
-	--ca-certificate=sigov-ca2.pem \
-	"https://egp.gu.gov.si/egp/download-file.html?id=105&format=10&d96=0"
+	"${baseUrl}download-file.html?id=105&format=10&d96=0"
 
 #RPE_UL.ZIP
-wget --load-cookies "${dest}cookies.txt" \
-	--directory-prefix "${dest}" \
+wget "${commonWgetParams[@]}" \
 	--content-disposition -N \
-	--ca-certificate=sigov-ca2.pem \
-	"https://egp.gu.gov.si/egp/download-file.html?id=106&format=10&d96=0"
+	"${baseUrl}download-file.html?id=106&format=10&d96=0"
 
 #RPE_HS.ZIP
-wget --load-cookies "${dest}cookies.txt" \
-	--directory-prefix "${dest}" \
+wget "${commonWgetParams[@]}" \
 	--content-disposition -N \
-	--ca-certificate=sigov-ca2.pem \
-	"https://egp.gu.gov.si/egp/download-file.html?id=107&format=10&d96=0"
+	"${baseUrl}download-file.html?id=107&format=10&d96=0"
 
 #ko_zk_slo.zip
-#wget --load-cookies ${dest}cookies.txt \
-#     --directory-prefix "${dest}" \
+#wget "${commonWgetParams[@]}" \
 #     --content-disposition -N \
-#     --ca-certificate=sigov-ca2.pem \
-#     "https://egp.gu.gov.si/egp/download-file.html?id=108&format=10&d96=0"
+#     "${baseUrl}download-file.html?id=108&format=10&d96=0"
 
 #----- extract: -------
 for file in "${dest}"RPE_*.ZIP; do
