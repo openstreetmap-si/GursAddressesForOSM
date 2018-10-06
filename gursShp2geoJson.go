@@ -31,7 +31,8 @@ func readShapefileToMap(shapeFileName string, keyColumnName, valueColumnName str
 	}
 	defer shapeReader.Close()
 
-	keyColumnIndex, valueColumnIndex := getKeyValueColumnIndexes(shapeReader.Fields(), keyColumnName, valueColumnName)
+	keyColumnIndex := getColumnIndex(shapeReader.Fields(), keyColumnName)
+	valueColumnIndex := getColumnIndex(shapeReader.Fields(), valueColumnName)
 
 	var valueUtf string
 	for shapeReader.Next() {
@@ -64,23 +65,16 @@ func readShapefileToMap(shapeFileName string, keyColumnName, valueColumnName str
 	return result
 }
 
-func getKeyValueColumnIndexes(fields []shp.Field, keyColumnName, valueColumnName string) (int, int) {
+func getColumnIndex(fields []shp.Field, columnName string) int {
 
-	var keyColumnIndex, valueColumnIndex = -1, -1
 	for i, v := range fields {
 
-		if v.String() == keyColumnName {
-			keyColumnIndex = i
-		} else if v.String() == valueColumnName {
-			valueColumnIndex = i
-		}
-
-		if valueColumnIndex != -1 && keyColumnIndex != -1 {
-			break
+		if v.String() == columnName {
+			return i
 		}
 	}
 
-	return keyColumnIndex, valueColumnIndex
+	return -1
 }
 
 const (
