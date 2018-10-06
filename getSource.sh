@@ -37,6 +37,35 @@ else
 	exit 0
 fi
 
+
+# Clean up leftovers from previous runs
+rm -f "${dest}cookies.txt"
+rm -f "${dest}login.html"
+
+commonWgetParams=(--load-cookies "${dest}cookies.txt" --save-cookies "${dest}cookies.txt" --directory-prefix "${dest}" --keep-session-cookies --no-hsts --ca-certificate "sigov-ca2.pem")
+# --quiet
+# --ciphers "HIGH:!aNULL:!MD5:!RC4" \
+# --secure-protocol=TLSv1 \	
+# --referer "${baseUrl}" \
+
+
+#------ Log in to the server.  This can be done only once ------
+wget "${commonWgetParams[@]}" \
+	--quiet \
+    "${baseUrl}login.html"
+
+# example login.html content:
+# <input type="hidden" name="_csrf" value="089070ed-b40a-4e3c-ab22-422de0daffff" />
+csrftoken="$($SEDCMD -n 's/.*name="_csrf"\s\+value="\([^"]\+\).*/\1/p' "${dest}login.html")"
+
+if [ -z "${csrftoken}" ]; then
+	echo "No CSRF token found, exitting!"
+	exit 1
+fi
+
+echo "Got CSRF token: \"${csrftoken}\"."
+
+
 #------ username & password: ------
 # read possibly existing credentials...
 # shellcheck source=/dev/null
@@ -65,32 +94,6 @@ else
 	echo "	Password: *********"
 fi
 
-# Clean up leftovers from previous runs
-rm -f "${dest}cookies.txt"
-rm -f "${dest}login.html"
-
-commonWgetParams=(--load-cookies "${dest}cookies.txt" --save-cookies "${dest}cookies.txt" --directory-prefix "${dest}" --keep-session-cookies --no-hsts --ca-certificate "sigov-ca2.pem")
-# --quiet
-# --ciphers "HIGH:!aNULL:!MD5:!RC4" \
-# --secure-protocol=TLSv1 \	
-# --referer "${baseUrl}" \
-
-
-#------ Log in to the server.  This can be done only once ------
-wget "${commonWgetParams[@]}" \
-    "${baseUrl}login.html"
-
-# example login.html content:
-# <input type="hidden" name="_csrf" value="089070ed-b40a-4e3c-ab22-422de0daffff" />
-csrftoken="$($SEDCMD -n 's/.*name="_csrf"\s\+value="\([^"]\+\).*/\1/p' "${dest}login.html")"
-
-if [ -z "${csrftoken}" ]; then
-	echo "No CSRF token found, exitting!"
-	exit 1
-fi
-
-echo "Got CSRF token: \"${csrftoken}\"."
-
 
 loginFormData="username=${username}&password=${password}&_csrf=${csrftoken}"
 #echo login form data: $loginFormData
@@ -99,6 +102,7 @@ loginFormData="username=${username}&password=${password}&_csrf=${csrftoken}"
 wget "${commonWgetParams[@]}" \
     --post-data "${loginFormData}" \
 	--delete-after \
+	--quiet \
 	"${baseUrl}login.html"
 
 #------ Download all data we care about: ------
