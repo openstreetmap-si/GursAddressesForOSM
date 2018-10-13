@@ -187,7 +187,7 @@ func BenchmarkReadLookups(b *testing.B) {
 	ReadLookups()
 	//}
 	b.StopTimer()
-	b.N = len(ptCodeMap) + len(ptNameMap) + len(ulNameMap) + len(ulNameDjMap) + len(naNameMap) + len(naNameDjMap)
+	b.N = len(ptCodeMap) + len(ptNameMap) + len(ulNameMap) + len(ulNameDjMap) + len(naNameMap) + len(naNameDjMap) + len(obNameMap)
 }
 
 func TestReadLookups(t *testing.T) {
@@ -203,4 +203,5 @@ func TestReadLookups(t *testing.T) {
 	assertBetween(t, len(ulNameDjMap), 600, 700)
 	assertBetween(t, len(naNameMap), 6000, 7000)
 	assertBetween(t, len(naNameDjMap), 50, 60)
+	assertBetween(t, len(obNameMap), 210, 220)
 }

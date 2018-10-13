@@ -101,7 +101,7 @@ const (
 )
 
 // lookup maps
-var ptCodeMap, ptNameMap, ulNameMap, ulNameDjMap, naNameMap, naNameDjMap map[string]string
+var ptCodeMap, ptNameMap, ulNameMap, ulNameDjMap, naNameMap, naNameDjMap, obNameMap map[string]string
 
 type lookupSource struct {
 	filename string
@@ -117,6 +117,7 @@ var lookupSources = [...]lookupSource{
 	{"UL/SI.GURS.RPE.PUB.UL.shp", "UL_MID", "UL_DJ", &ulNameDjMap},
 	{"NA/SI.GURS.RPE.PUB.NA.shp", "NA_MID", "NA_UIME", &naNameMap},
 	{"NA/SI.GURS.RPE.PUB.NA.shp", "NA_MID", "NA_DJ", &naNameDjMap},
+	{"OB/SI.GURS.RPE.PUB.OB.shp", "OB_MID", "OB_UIME", &obNameMap},
 }
 
 // ReadLookups reads all needed shapefiles in parallel to maps memory for later use
