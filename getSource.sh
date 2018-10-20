@@ -101,7 +101,7 @@ function login() {
 		prepareCredentials
 	else
 		# TODO: use secure credentials from travis.yml
-		Echo running in TRAVIS CI, aborting for now
+		echo "Running in TRAVIS CI, aborting for now"
 		exit 1
 	fi
 
