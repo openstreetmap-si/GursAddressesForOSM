@@ -42,7 +42,8 @@ fi
 rm -f "${dest}cookies.txt"
 rm -f "${dest}login.html"
 
-commonWgetParams=(--load-cookies "${dest}cookies.txt" --save-cookies "${dest}cookies.txt" --directory-prefix "${dest}" --keep-session-cookies --no-hsts --ca-certificate "sigov-ca2.pem")
+commonWgetParams=(--load-cookies "${dest}cookies.txt" --save-cookies "${dest}cookies.txt" --directory-prefix "${dest}" --keep-session-cookies --ca-certificate "sigov-ca2.pem")
+# --no-hsts
 # --quiet
 # --ciphers "HIGH:!aNULL:!MD5:!RC4" \
 # --secure-protocol=TLSv1 \	
