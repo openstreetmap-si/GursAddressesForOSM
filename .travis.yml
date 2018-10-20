@@ -2,14 +2,20 @@ language: go
 
 go:
   - "1.x"
-  - "1.10.x"
-  - master
+  # - "1.10.x"
+  # - master
+
 install:
     - go get github.com/jonas-p/go-shp
     - go get github.com/paulmach/go.geojson
     - go get golang.org/x/text/encoding/charmap
+
+cache: data
+
 script:
-  - make benchNoData
+  # - make benchNoData
+  - make
+  - ls -la data
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

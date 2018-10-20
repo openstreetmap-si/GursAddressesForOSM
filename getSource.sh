@@ -48,84 +48,97 @@ commonWgetParams=(--load-cookies "${dest}cookies.txt" --save-cookies "${dest}coo
 # --secure-protocol=TLSv1 \	
 # --referer "${baseUrl}" \
 
+function prepareCredentials() {
+	#------ username & password: ------
+	# read possibly existing credentials...
+	# shellcheck source=/dev/null
+	source "$credentialsFile"
 
-#------ Log in to the server.  This can be done only once ------
-wget "${commonWgetParams[@]}" \
-	--quiet \
-    "${baseUrl}login.html"
+	echo Credentials for ${baseUrl}
 
-# example login.html content:
-# <input type="hidden" name="_csrf" value="089070ed-b40a-4e3c-ab22-422de0daffff" />
-csrftoken="$($SEDCMD -n 's/.*name="_csrf"\s\+value="\([^"]\+\).*/\1/p' "${dest}login.html")"
-
-if [ -z "${csrftoken}" ]; then
-	echo "No CSRF token found, exitting!"
-	exit 1
-fi
-
-echo "Got CSRF token: \"${csrftoken}\"."
-
-
-#------ username & password: ------
-# read possibly existing credentials...
-# shellcheck source=/dev/null
-source "$credentialsFile"
-
-echo Credentials for ${baseUrl}
-
-if [ -z "$username" ]; then
-	echo -n "	Username: "
-	read -r username
-	echo "username=\"$username\"" >"$credentialsFile"
-else
-	echo "	Username: '$username'"
-fi
-
-if [ -z "$password" ]; then
-	echo -n "	Password: "
-	read -r password
-	read -p "	Save password in plain text to $credentialsFile for future use? (y/N) " -n 1 -r
-	echo # (optional) move to a new line
-	if [[ $REPLY =~ ^[Yy]$ ]]; then
-		# save it only if wanted
-		echo "password=\"$password\"" >>"$credentialsFile"
+	if [ -z "$username" ]; then
+		echo -n "	Username: "
+		read -r username
+		echo "username=\"$username\"" >"$credentialsFile"
+	else
+		echo "	Username: '$username'"
 	fi
-else
-	echo "	Password: *********"
-fi
+
+	if [ -z "$password" ]; then
+		echo -n "	Password: "
+		read -r password
+		read -p "	Save password in plain text to $credentialsFile for future use? (y/N) " -n 1 -r
+		echo # (optional) move to a new line
+		if [[ $REPLY =~ ^[Yy]$ ]]; then
+			# save it only if wanted
+			echo "password=\"$password\"" >>"$credentialsFile"
+		fi
+	else
+		echo "	Password: *********"
+	fi
+}
+
+function login() {
+	#------ Log in to the server.  This can be done only once ------
+	wget "${commonWgetParams[@]}" \
+		--quiet \
+		"${baseUrl}login.html"
+
+	# example login.html content:
+	# <input type="hidden" name="_csrf" value="089070ed-b40a-4e3c-ab22-422de0daffff" />
+	csrftoken="$($SEDCMD -n 's/.*name="_csrf"\s\+value="\([^"]\+\).*/\1/p' "${dest}login.html")"
+
+	if [ -z "${csrftoken}" ]; then
+		echo "No CSRF token found, exitting!"
+		exit 1
+	fi
+
+	echo "Got CSRF token: \"${csrftoken}\"."
+
+	echo "TRAVIS=${TRAVIS}"
+	if [ "${TRAVIS}" != "true" ]; then
+		prepareCredentials
+	else
+		# TODO: use secure credentials from travis.yml
+		Echo running in TRAVIS CI, aborting for now
+		exit 1
+	fi
 
 
-loginFormData="username=${username}&password=${password}&_csrf=${csrftoken}"
-#echo login form data: $loginFormData
+	loginFormData="username=${username}&password=${password}&_csrf=${csrftoken}"
+	#echo login form data: $loginFormData
 
-#exit 1
-wget "${commonWgetParams[@]}" \
-    --post-data "${loginFormData}" \
-	--delete-after \
-	--quiet \
-	"${baseUrl}login.html"
+	#exit 1
+	wget "${commonWgetParams[@]}" \
+		--post-data "${loginFormData}" \
+		--delete-after \
+		--quiet \
+		"${baseUrl}login.html"
+}
+
+
+# pass numeric file id as parameter
+function downloadFile() {
+	wget "${commonWgetParams[@]}" \
+		--content-disposition -N \
+		"${baseUrl}download-file.html?id=$1&format=10&d96=0"
+}
+
+# ---------------------------------------------
+login
 
 #------ Download all data we care about: ------
-
 #RPE_PE.ZIP
-wget "${commonWgetParams[@]}" \
-	--content-disposition -N \
-	"${baseUrl}download-file.html?id=105&format=10&d96=0"
+downloadFile 105
 
 #RPE_UL.ZIP
-wget "${commonWgetParams[@]}" \
-	--content-disposition -N \
-	"${baseUrl}download-file.html?id=106&format=10&d96=0"
+downloadFile 106
 
 #RPE_HS.ZIP
-wget "${commonWgetParams[@]}" \
-	--content-disposition -N \
-	"${baseUrl}download-file.html?id=107&format=10&d96=0"
+downloadFile 107
 
 #ko_zk_slo.zip
-#wget "${commonWgetParams[@]}" \
-#     --content-disposition -N \
-#     "${baseUrl}download-file.html?id=108&format=10&d96=0"
+#downloadFile 108
 
 #----- extract: -------
 for file in "${dest}"RPE_*.ZIP; do
