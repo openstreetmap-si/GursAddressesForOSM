@@ -15,6 +15,7 @@ cache: data
 script:
   # - make benchNoData
   - make
+  - make bench
   - ls -la data
 
 after_success:
