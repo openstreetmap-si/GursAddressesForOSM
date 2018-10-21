@@ -100,9 +100,7 @@ function login() {
 	if [ "${TRAVIS}" != "true" ]; then
 		prepareCredentials
 	else
-		# TODO: use secure credentials from travis.yml
-		echo "Running in TRAVIS CI, aborting for now"
-		exit 1
+		echo "Running in TRAVIS CI, using encrypted credentials."
 	fi
 
 
