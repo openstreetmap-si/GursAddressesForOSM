@@ -1,23 +1,18 @@
 language: go
-
 go:
-  - "1.x"
-  # - "1.10.x"
-  # - master
-
+- 1.x
+#- 1.10.x
+#- master
 install:
-    - go get github.com/jonas-p/go-shp
-    - go get github.com/paulmach/go.geojson
-    - go get golang.org/x/text/encoding/charmap
-
+- go get github.com/jonas-p/go-shp
+- go get github.com/paulmach/go.geojson
+- go get golang.org/x/text/encoding/charmap
 cache: data
 
 script:
-  # - make benchNoData
-  - make
-  - make bench
-  - ls -la data
-  - ls -la data/temp
-
+- make
+- make bench
+- ls -la data
+- ls -la data/temp
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+- bash <(curl -s https://codecov.io/bash)
