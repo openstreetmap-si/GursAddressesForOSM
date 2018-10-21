@@ -1,11 +1,12 @@
 DATAFOLDER = data/
+DLFOLDER = $(DATAFOLDER)downloaded/
 TMP = $(DATAFOLDER)temp/
 TS = $$(cat $(TMP)timestamp.txt)
 TSYYYY = $$(cat $(TMP)timestamp.txt | cut -b 1-4)
 
 all:
 	mkdir -p $(TMP) || true
-	./getSource.sh $(TMP)
+	./getSource.sh $(DLFOLDER) $(TMP)
 
 	# poor-man's git submodule:
 	if [ ! -d "./GeoCoordinateConverter" ];then \
@@ -36,7 +37,8 @@ all:
 .PHONY: clean
 clean:
 	rm -r $(TMP)
-	#rm -r $(TARGETFOLDER)
+	#rm -r $(DLFOLDER)
+	#rm -r $(DATAFOLDER)
 	if [ -d "./GeoCoordinateConverter" ];then \
 		cd GeoCoordinateConverter && $(MAKE) -f Makefile.unix clean ; \
 	fi

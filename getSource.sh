@@ -1,5 +1,6 @@
 #!/bin/bash
-dest="${1}"
+DownloadDest="${1}"
+TempDest="${2}"
 credentialsFile="CREDENTIALS-egp.gu.gov.si.txt"
 maxAge=720
 baseUrl="http://egp.gu.gov.si/egp/"
@@ -20,13 +21,27 @@ MINGW*) machine=MinGw ;;
 esac
 echo Running on: "${machine}", using $SEDCMD and $STATCMD commands
 
+function extractDownloaded() {
+	#----- extract: -------
+	for file in "${DownloadDest}"RPE_*.ZIP; do
+		extdir=$(basename "$file" .ZIP)
+		echo "$extdir"
+		unzip -o -d "${TempDest}$extdir" "$file"
+	done
+	for file in "${TempDest}"RPE_*/*.zip; do unzip -o -d "${TempDest}" "$file"; done
+
+	#unzip -o -d "${dest}/ko_zk_slo" "${DownloadDest}ko_zk_slo.zip"
+
+	$STATCMD -c '%y' "${TempDest}HS/SI.GURS.RPE.PUB.HS.shp" | cut -d' ' -f1 >"${TempDest}timestamp.txt"
+}
+
 countTooOld=3
 
-#if [ -f "${dest}RPE_PE.ZIP"  -a -f "${dest}RPE_UL.ZIP" -a -f "${dest}RPE_HS.ZIP" -a -f "${dest}ko_zk_slo.zip" ] ; then
-if [ -f "${dest}RPE_PE.ZIP" ] && [ -f "${dest}RPE_UL.ZIP" ] && [ -f "${dest}RPE_HS.ZIP" ]; then
+#if [ -f "${DownloadDest}RPE_PE.ZIP"  -a -f "${DownloadDest}RPE_UL.ZIP" -a -f "${DownloadDest}RPE_HS.ZIP" -a -f "${DownloadDest}ko_zk_slo.zip" ] ; then
+if [ -f "${DownloadDest}RPE_PE.ZIP" ] && [ -f "${DownloadDest}RPE_UL.ZIP" ] && [ -f "${DownloadDest}RPE_HS.ZIP" ]; then
 	#check age of existing files
-	#countTooOld=`find ${dest}RPE_PE.ZIP ${dest}RPE_UL.ZIP ${dest}RPE_HS.ZIP ${dest}ko_zk_slo.zip -mmin +${maxAge} | wc -l`
-	countTooOld=$(find "${dest}RPE_PE.ZIP" "${dest}RPE_UL.ZIP" "${dest}RPE_HS.ZIP" -mmin +${maxAge} | wc -l)
+	#countTooOld=`find ${DownloadDest}RPE_PE.ZIP ${DownloadDest}RPE_UL.ZIP ${DownloadDest}RPE_HS.ZIP ${DownloadDest}ko_zk_slo.zip -mmin +${maxAge} | wc -l`
+	countTooOld=$(find "${DownloadDest}RPE_PE.ZIP" "${DownloadDest}RPE_UL.ZIP" "${DownloadDest}RPE_HS.ZIP" -mmin +${maxAge} | wc -l)
 fi
 
 # exit if all are newer than max age
@@ -34,15 +49,16 @@ if [ "$countTooOld" -gt "0" ]; then
 	echo "Need to download $countTooOld files (they are either missing or older than $maxAge minutes)"
 else
 	echo "No need to download anything (source files are already there and not older than $maxAge minutes)"
+	extractDownloaded
 	exit 0
 fi
 
 
 # Clean up leftovers from previous failed runs
-rm -f "${dest}cookies.txt"
-rm -f "${dest}login.html"
+rm -f "${DownloadDest}cookies.txt"
+rm -f "${DownloadDest}login.html"
 
-commonWgetParams=(--load-cookies "${dest}cookies.txt" --save-cookies "${dest}cookies.txt" --directory-prefix "${dest}" --keep-session-cookies --ca-certificate "sigov-ca2.pem")
+commonWgetParams=(--load-cookies "${DownloadDest}cookies.txt" --save-cookies "${DownloadDest}cookies.txt" --directory-prefix "${DownloadDest}" --keep-session-cookies --ca-certificate "sigov-ca2.pem")
 # --no-hsts
 # --quiet
 # --ciphers "HIGH:!aNULL:!MD5:!RC4" \
@@ -87,7 +103,7 @@ function login() {
 
 	# example login.html content:
 	# <input type="hidden" name="_csrf" value="089070ed-b40a-4e3c-ab22-422de0daffff" />
-	csrftoken="$($SEDCMD -n 's/.*name="_csrf"\s\+value="\([^"]\+\).*/\1/p' "${dest}login.html")"
+	csrftoken="$($SEDCMD -n 's/.*name="_csrf"\s\+value="\([^"]\+\).*/\1/p' "${DownloadDest}login.html")"
 
 	if [ -z "${csrftoken}" ]; then
 		echo "No CSRF token found, exitting!"
@@ -139,19 +155,10 @@ downloadFile 107
 #ko_zk_slo.zip
 #downloadFile 108
 
-# Clean up secrets
-rm -f "${dest}cookies.txt"
+# Clean up secrets so they are not cached
+rm -f "${DownloadDest}cookies.txt"
 
-#----- extract: -------
-for file in "${dest}"RPE_*.ZIP; do
-	extdir=$(basename "$file" .ZIP)
-	echo "$extdir"
-	unzip -o -d "${dest}$extdir" "$file"
-done
-for file in "${dest}"RPE_*/*.zip; do unzip -o -d "${dest}" "$file"; done
 
-#unzip -o -d "${dest}/ko_zk_slo" "${dest}ko_zk_slo.zip"
-
-$STATCMD -c '%y' "${dest}HS/SI.GURS.RPE.PUB.HS.shp" | cut -d' ' -f1 >"${dest}timestamp.txt"
+extractDownloaded
 
 echo getSource finished.
