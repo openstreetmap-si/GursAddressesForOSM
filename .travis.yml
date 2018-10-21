@@ -3,6 +3,7 @@ go:
 - 1.x
 #- 1.10.x
 #- master
+sudo: false
 install:
 - go get github.com/jonas-p/go-shp
 - go get github.com/paulmach/go.geojson
