@@ -19,10 +19,9 @@ Do **NOT** import anything until the process is defined and approved by communit
 ### To manually download the data you should:
 1. Register as user at http://egp.gu.gov.si/egp, wait for the email with the password, login
 2. Expand section "9. Register prostorskih enot" / "9. Register of Spatial Units"
-3. Download the data "Prostorske enote" / "Spatial units" -> `RPE_PE.ZIP` and put it in this folder
-4. Download the data "Ulice" / "Streets" -> `RPE_PUL.ZIP` and put it in this folder
-5. Download the data "Hišne številke" / "House numbers" -> `RPE_PE.ZIP` and put it in this folder
-6. Adjust the scripts to use these ZIPs.
+3. Download the data "Prostorske enote" / "Spatial units" -> `RPE_PE.ZIP` and put it in the `data/downloaded` folder
+4. Download the data "Ulice" / "Streets" -> `RPE_PUL.ZIP` and put it in the `data/downloaded` folder
+5. Download the data "Hišne številke" / "House numbers" -> `RPE_PE.ZIP` and put it in the `data/downloaded` folder
 
 ### Technical info:
 Encoding in source shapefiles is Windows-1250 (`CP1250` in `iconv`), result is UTF8
@@ -35,7 +34,7 @@ Data can be obtained from Geodetska  uprava  Republike  Slovenije - http://egp.g
 ### Dependancies
 1. [GeoCoordinateConverter](http://geocoordinateconverter.tk/) for most accurate reprojection (https://github.com/mrihtar/GeoCoordinateConverter will be checked out and built if it is not existing yet)
 2. GNU Make, bash, wget... (normal linux stuff)
-3. GoLang 1.11 or later
+3. GoLang 1.10 or later
 
 Note: 
 * For running on Mac OS use: 
