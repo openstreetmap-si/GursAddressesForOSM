@@ -38,7 +38,7 @@ else
 fi
 
 
-# Clean up leftovers from previous runs
+# Clean up leftovers from previous failed runs
 rm -f "${dest}cookies.txt"
 rm -f "${dest}login.html"
 
@@ -138,6 +138,9 @@ downloadFile 107
 
 #ko_zk_slo.zip
 #downloadFile 108
+
+# Clean up secrets
+rm -f "${dest}cookies.txt"
 
 #----- extract: -------
 for file in "${dest}"RPE_*.ZIP; do

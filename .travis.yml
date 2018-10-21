@@ -7,7 +7,9 @@ install:
 - go get github.com/jonas-p/go-shp
 - go get github.com/paulmach/go.geojson
 - go get golang.org/x/text/encoding/charmap
-cache: data
+cache: 
+  directories: 
+    - data/temp
 env:
   global:
   - secure: Yb5rK6QhQtcUjEzhpMCuDUtXi7mvZ61xAzCz0R2/GHCekGq0m+Ov9pYuuOP47rM2+J4RX8XsCsszyk7dBqY44UJw/kSmlgyfrrSqz/3ad75Xyrv4BnaI8oEBfJTR/5eGte0CfI0ZngN78bVh/cFkW0gB0vibd2wpsdVFash5F6eAstgc+Xy8V5P+ABfSHoZuvvo2dHat047AYv3hU/fX44aS/+2ZPdhtpgJvAi7/R4TDyV1J2wM6T+XTUDOh3yDczKwfpUGfT1mf/7rF4b5YNKTGGcMeis8nzZNINpTBH9+H7I7q2g6wr5vXJKaOUaAh6ev9dHbJGG7ydiRLzGEewD+mtriCsEhf44q2NARRsbCeWgb2zk7KkKk9Dw1QXUO5X27PPfjQxffYpRM3sEr9DjEFkczmwphmMEi/Dw0l/iPtbHsanKPpWvXyyFkm9FsCUfWbTOuQ0jbjXXsDw/rOMd6WYNBkGCREuz7Y2Yz6vZ+ROXYPLdrBo0Lv9q23eOo/akYMsr9gau56+yaDBdzrblBUNzJI1l6sw90hH3+bpAATuDyOTU9gv99FTL9zI5VLQRRJeVE3xuduP6hyOzDkUpFKSo31Nh/uhzpIburVn1UB2MCF2zOSFeAIEZgSwgGGXLbNFXzj8Ty/zcv4P6o6fKnkoM5BA1hmfSFaXM3dzPI=
