@@ -1,7 +1,9 @@
 # GURS housenumber / address data License
 
 <!-- note: make edits in data-LICENSE-template.md ! -->
+
 ## Slovenščina
+
 Hišne številke izpeljane iz Registra prostorskih enot.
 
 Vir podatkov: [Geodetska uprava Republike Slovenije](http://www.gu.gov.si)
@@ -14,6 +16,7 @@ Polno besedilo dovoljenja je na naslovu: http://www.e-prostor.gov.si/fileadmin/s
 Podatki so preoblikovani za planiran uvoz v OpenStreetMap - glej https://wiki.openstreetmap.org/wiki/Slovenia_Address_Import
 
 ## English
+
 House numbers, derived from Registry of spatial units.
 
 Source of data: [The Surveying and Mapping Authority of the Republic of Slovenia](http://www.gu.gov.si/en/)
