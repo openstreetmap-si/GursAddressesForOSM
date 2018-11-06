@@ -49,3 +49,4 @@ Note:
 * [X] Travis CI, with badges etc
 * [ ] add golang linter: https://github.com/alecthomas/gometalinter
 * [ ] use https://wiki.openstreetmap.org/wiki/OSM_Conflator to prepare .osc files
+* [ ] create `taginfo.json` and add it to to https://github.com/taginfo/taginfo-projects
