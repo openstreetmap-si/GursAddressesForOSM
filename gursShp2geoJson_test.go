@@ -26,22 +26,16 @@ func BenchmarkMergeSort(b *testing.B) {
 }
 */
 
-type encodingTestCase struct {
+var encodingTestCases = [...]struct {
 	win1250, utf string
-}
-
-var encodingTestCases = prepareEncodingTestCases()
-
-func prepareEncodingTestCases() []encodingTestCase {
+}{
 	// https://en.wikipedia.org/wiki/Windows-1250
-	return []encodingTestCase{
-		{"", ""},
-		{" ", " "},
-		{"a", "a"},
-		{"a\nb c123!#", "a\nb c123!#"},
-		{"\xe8", "č"},
-		{"abc \xe8\x9e\x9a\xe6\xf0---\xc8\x8e\x8a\xc6\xd0", "abc čžšćđ---ČŽŠĆĐ"},
-	}
+	{"", ""},
+	{" ", " "},
+	{"a", "a"},
+	{"a\nb c123!#", "a\nb c123!#"},
+	{"\xe8", "č"},
+	{"abc \xe8\x9e\x9a\xe6\xf0---\xc8\x8e\x8a\xc6\xd0", "abc čžšćđ---ČŽŠĆĐ"},
 }
 
 /*
