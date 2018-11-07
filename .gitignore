@@ -6,8 +6,9 @@ data
 # codecov coverage report
 coverage.txt
 
-# golang binary
+# golang binaries
 gursShp2geoJson
+GursAddressesForOSM
 
 # secrets
 CREDENTIALS*
