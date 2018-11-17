@@ -149,10 +149,15 @@ func BenchmarkReadShapefile(b *testing.B) {
 	b.ReportAllocs()
 	ReadLookups()
 	b.ResetTimer()
-	featureCollection := ReadShapefile("data/temp/HS-etrs89/SI.GURS.RPE.PUB.HS-etrs89.shp")
+	featureCollections := ReadShapefile("data/temp/HS-etrs89/SI.GURS.RPE.PUB.HS-etrs89.shp")
 
 	b.StopTimer()
-	b.N = len(featureCollection.Features)
+
+	b.N = 0
+
+	for _, c := range featureCollections {
+		b.N += len(c.Features)
+	}
 }
 
 func BenchmarkSort(b *testing.B) {
@@ -161,15 +166,16 @@ func BenchmarkSort(b *testing.B) {
 	}
 	b.ReportAllocs()
 	ReadLookups()
-	featureCollection := ReadShapefile("data/temp/HS-etrs89/SI.GURS.RPE.PUB.HS-etrs89.shp")
-	//if b.N > len(featureCollection.Features) {
-	b.N = len(featureCollection.Features)
-	//}
-	featureCollection.Features = featureCollection.Features[:b.N]
+	featureCollections := ReadShapefile("data/temp/HS-etrs89/SI.GURS.RPE.PUB.HS-etrs89.shp")
+
+	b.N = 0
+
 	b.ResetTimer()
-	//for n := 0; n < b.N; n++ {
-	SortFeatureCollection(*featureCollection)
-	//}
+	for _, c := range featureCollections {
+		b.N += len(c.Features)
+		SortFeatureCollection(*c)
+	}
+
 }
 
 func BenchmarkReadLookups(b *testing.B) {

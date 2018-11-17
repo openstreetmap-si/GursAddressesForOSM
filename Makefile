@@ -31,7 +31,7 @@ all:
 
 	# make a zip
 	sed "s/%YYYY-MM-DD%/$(TS)/g" data-LICENSE-template.md > $(DATAFOLDER)LICENSE.md
-	zip -9 -j $(DATAFOLDER)slovenia-housenumbers-$(TS).zip $(DATAFOLDER)slovenia-housenumbers.geojson $(DATAFOLDER)LICENSE.md
+	zip -9 -r $(DATAFOLDER)slovenia-housenumbers-$(TS).zip $(DATAFOLDER)slovenia/* $(DATAFOLDER)LICENSE.md
 
 
 .PHONY: clean

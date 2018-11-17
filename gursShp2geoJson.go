@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
+	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
@@ -19,7 +21,7 @@ import (
 )
 
 var inputShapeFileName = flag.String("in", "data/temp/HS-etrs89/SI.GURS.RPE.PUB.HS-etrs89.shp", "Input ShapeFile to read")
-var outputGeoJSONFileName = flag.String("out", "data/slovenia-housenumbers.geojson", "Output GeoJSON file to save")
+var outputGeoJSONFileName = flag.String("out", "data/slovenia/%s-housenumbers.geojson", "Output GeoJSON file to save")
 
 // Reads 2 columns from shapeFileName and returns them as a map
 func readShapefileToMap(shapeFileName string, keyColumnName, valueColumnName string) map[string]string {
@@ -136,7 +138,7 @@ func ReadLookups() {
 }
 
 // ReadShapefile reads the given shapefile and returns the geoJson
-func ReadShapefile(shapefilename string) *geojson.FeatureCollection {
+func ReadShapefile(shapefilename string) map[string]*geojson.FeatureCollection {
 
 	//log.Printf("Reading %s...", shapefilename)
 
@@ -151,27 +153,45 @@ func ReadShapefile(shapefilename string) *geojson.FeatureCollection {
 	// fields from the attribute table (DBF)
 	//	fields := shape.Fields()
 
-	featureCollection := geojson.NewFeatureCollection()
+	featureCollections := make(map[string]*geojson.FeatureCollection)
 
 	// loop through all features in the shapefile
 	for shapeReader.Next() {
 
-		f := processRecord(shapeReader)
+		f, category, subcategory := processRecord(shapeReader)
+
 		if f != nil {
-			featureCollection.AddFeature(f)
+			// allCategory := category + "/!_" + category
+			// if _, ok := featureCollections[allCategory]; !ok {
+			// 	// not yet existing
+			// 	featureCollections[allCategory] = geojson.NewFeatureCollection()
+			// }
+			// featureCollections[allCategory].AddFeature(f)
+
+			cityCategory := category + "/" + subcategory
+			if _, ok := featureCollections[cityCategory]; !ok {
+				// not yet existing
+				featureCollections[cityCategory] = geojson.NewFeatureCollection()
+			}
+			featureCollections[cityCategory].AddFeature(f)
 		}
 	}
 
-	return featureCollection
+	return featureCollections
 }
 
-func processRecord(shapeReader *shp.Reader) *geojson.Feature {
+// processRecord returns the feature and category + subcategory it belongs to (naselje, občina...)
+func processRecord(shapeReader *shp.Reader) (*geojson.Feature, string, string) {
 	//		n, p := shapeReader.Shape()
 	_, p := shapeReader.Shape()
 
+	category := "unknown"
+
+	subcategory := "unknown"
+
 	if shapeReader.Attribute(12) != "V" {
 		fmt.Println("skipping invalid...")
-		return nil
+		return nil, category, subcategory
 	}
 
 	// print feature
@@ -181,7 +201,7 @@ func processRecord(shapeReader *shp.Reader) *geojson.Feature {
 	// prepare rounded coordinates:
 	lat := round(bb.MinY)
 	lon := round(bb.MinX)
-	f := geojson.NewPointFeature([]float64{lat, lon})
+	f := geojson.NewPointFeature([]float64{lon, lat})
 
 	/*
 	   http://www.e-prostor.gov.si/fileadmin/struktura/RPE_struktura.pdf
@@ -222,7 +242,13 @@ func processRecord(shapeReader *shp.Reader) *geojson.Feature {
 	hsMid := shapeReader.Attribute(1)
 	f.SetProperty(tagRef, hsMid)
 
-	return f
+	// prepare a nice category "Ime_občine/Ime_naselja"
+	obMid := shapeReader.Attribute(7)
+	category = strings.Replace(obNameMap[obMid], " ", "_", -1)
+	naMid := shapeReader.Attribute(6)
+	subcategory = strings.Replace(naNameMap[naMid], " ", "_", -1)
+
+	return f, category, subcategory
 }
 
 func round(number float64) float64 {
@@ -346,23 +372,46 @@ func main() {
 	ReadLookups()
 	log.Printf("Reading %s...", *inputShapeFileName)
 
-	featureCollection := ReadShapefile(*inputShapeFileName)
+	featureCollections := ReadShapefile(*inputShapeFileName)
 
-	log.Printf("Sorting %d features...", len(featureCollection.Features))
-	SortFeatureCollection(*featureCollection)
+	//categoriesValues := reflect.ValueOf(featureCollections).MapKeys()
+	// sortedCategories := sort.Slice(categories[:], func(i, j int) bool {
+	// 	return categories[i].String() < categories[j].String()
+	// })
 
-	//rawJSON, err := featureCollection.MarshalJSON()
-	rawJSON, err := json.MarshalIndent(featureCollection, "", "  ")
-	if err != nil {
-		log.Fatal(err)
+	categories := make([]string, 0, len(featureCollections))
+	for k := range featureCollections {
+		categories = append(categories, k)
 	}
 
-	err = ioutil.WriteFile(*outputGeoJSONFileName, rawJSON, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
+	sort.Strings(categories) //sort keys alphabetically
 
-	log.Printf("Saved %d addresses to %s.", len(featureCollection.Features), *outputGeoJSONFileName)
+	for _, category := range categories {
+
+		featureCollection := featureCollections[category]
+
+		log.Printf("Sorting %d features in %s...", len(featureCollection.Features), category)
+		SortFeatureCollection(*featureCollection)
+
+		catGeoJSONFileName := fmt.Sprintf(*outputGeoJSONFileName, category)
+		//rawJSON, err := featureCollection.MarshalJSON()
+		rawJSON, err := json.MarshalIndent(featureCollection, "", "  ")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		dir := filepath.Dir(catGeoJSONFileName)
+		// log.Println("Creating directory:", dir)
+		os.MkdirAll(dir, 0755)
+		err = ioutil.WriteFile(catGeoJSONFileName, rawJSON, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// log.Printf("Saved %d addresses to %s.", len(featureCollection.Features), *outputGeoJSONFileName)
+		log.Printf("Saved %d addresses to %s.", len(featureCollection.Features), catGeoJSONFileName)
+
+	}
 
 }
 

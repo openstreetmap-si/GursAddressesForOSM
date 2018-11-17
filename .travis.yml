@@ -20,6 +20,6 @@ script:
 # - make bench
 - ls -la data
 - ls -la data/downloaded
-- ls -la data/temp
+- ls -la data/slovenia/*
 after_success:
 - bash <(curl -s https://codecov.io/bash)
