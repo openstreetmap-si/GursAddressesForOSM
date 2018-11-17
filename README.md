@@ -42,11 +42,18 @@ Note:
   * Geocoordinate branch `travis` of my fork: https://github.com/stefanb/GeoCoordinateConverter until pull request is merged upstream
 * GoLang program is optimized as a Go learning exercise
 
+### Similar import projects
+
+* https://github.com/pnoll1/bothell_import - house numbers and building outlines
+* https://github.com/SouthFLMappers/OSMImport2018 - Miami-Dade County Address + Building (+POI?) Import
+* https://github.com/cascafico/MilanoHousenumbers - Milano house numbers
+
+
 ### TODO: 
 * [ ] Use buffered channels + goroutines for concurrent processing when reading shapefile
 * [ ] Split into smaller files by areas (cadastral communities?)
 * [ ] Optional: [CGO](https://golang.org/cmd/cgo/) wrapper around GeoCoordinateConverter reprojection functionality ([geo.h](https://github.com/mrihtar/GeoCoordinateConverter/blob/master/geo.h))
 * [X] Travis CI, with badges etc
 * [ ] add golang linter: https://github.com/alecthomas/gometalinter
-* [ ] use https://wiki.openstreetmap.org/wiki/OSM_Conflator to prepare .osc files
+* [ ] use OSM conflator (see https://wiki.openstreetmap.org/wiki/OSM_Conflator and https://github.com/mapsme/osm_conflate ) to prepare .osc files
 * [ ] create `taginfo.json` and add it to to https://github.com/taginfo/taginfo-projects
