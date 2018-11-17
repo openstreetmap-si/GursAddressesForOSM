@@ -9,6 +9,7 @@ coverage.txt
 # golang binaries
 gursShp2geoJson
 GursAddressesForOSM
+GursAddressesForOSM.test
 
 # secrets
 CREDENTIALS*
@@ -26,3 +27,7 @@ GeoCoordinateConverter
 # generally ignored
 *.tmp
 *.bak
+
+#profiler files
+*.prof
+profile0*
