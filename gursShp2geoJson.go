@@ -390,7 +390,7 @@ func main() {
 
 		featureCollection := featureCollections[category]
 
-		log.Printf("Sorting %d features in %s...", len(featureCollection.Features), category)
+		// log.Printf("Sorting %d features in %s...", len(featureCollection.Features), category)
 		SortFeatureCollection(*featureCollection)
 
 		catGeoJSONFileName := fmt.Sprintf(*outputGeoJSONFileName, category)
