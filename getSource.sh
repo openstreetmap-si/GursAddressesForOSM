@@ -30,6 +30,12 @@ function extractDownloaded() {
 	done
 	for file in "${TempDest}"RPE_*/*.zip; do unzip -o -d "${TempDest}" "$file"; done
 
+	for file in "${DownloadDest}"KS_SLO_*.zip; do
+		extdir=$(basename "$file" .zip)
+		echo "$extdir"
+		unzip -o -d "${TempDest}$extdir" "$file"
+	done
+
 	#unzip -o -d "${dest}/ko_zk_slo" "${DownloadDest}ko_zk_slo.zip"
 
 	$STATCMD -c '%y' "${TempDest}HS/SI.GURS.RPE.PUB.HS.shp" | cut -d' ' -f1 >"${TempDest}timestamp.txt"
@@ -139,6 +145,13 @@ function downloadFile() {
 		"${baseUrl}download-file.html?id=$1&format=10&d96=0"
 }
 
+# pass numeric file id as parameter
+function downloadFileCSV() {
+	wget "${commonWgetParams[@]}" \
+		--content-disposition -N \
+		"${baseUrl}download-file.html?id=$1&format=50&d96=0"
+}
+
 # ---------------------------------------------
 login
 
@@ -154,6 +167,12 @@ downloadFile 107
 
 #ko_zk_slo.zip
 #downloadFile 108
+
+#Grafika katastra stavb - KS_SLO_SHP_G.zip
+downloadFile 191
+
+#Opis katastra stavb - KS_SLO_CSV_A_U.zip
+downloadFileCSV 192
 
 # Clean up secrets so they are not cached
 rm -f "${DownloadDest}cookies.txt"

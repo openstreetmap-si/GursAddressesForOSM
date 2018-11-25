@@ -20,6 +20,12 @@ all:
 	mkdir -p $(TMP)HS-etrs89
 	./GeoCoordinateConverter/gk-shp -t 9 -dd $(TMP)HS/SI.GURS.RPE.PUB.HS.shp $(TMP)HS-etrs89/SI.GURS.RPE.PUB.HS-etrs89.shp
 
+    # re-project buildings:
+	rm -r $(TMP)KS_SLO_SHP_G-etrs89 || true
+	mkdir -p $(TMP)KS_SLO_SHP_G-etrs89
+	./GeoCoordinateConverter/gk-shp -t 9 -dd $(TMP)KS_SLO_SHP_G/KS_SLO_TLORISI_20181111.shp $(TMP)KS_SLO_SHP_G-etrs89/KS_SLO_TLORISI_20181111-etrs89.shp
+
+
 	#rm -r $(TMP)ko_zk_slo-etrs89 || true
 	#mkdir -p $(TMP)ko_zk_slo-etrs89
 	#./GeoCoordinateConverter/gk-shp -t 9 -dd $(TMP)ko_zk_slo/SI_GURS_CBZK_KO.shp $(TMP)ko_zk_slo-etrs89/SI_GURS_CBZK_KO-etrs89.shp
