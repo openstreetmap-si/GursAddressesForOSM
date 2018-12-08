@@ -21,7 +21,7 @@ import (
 )
 
 var inputShapeFileName = flag.String("in", "data/temp/HS-etrs89/SI.GURS.RPE.PUB.HS-etrs89.shp", "Input ShapeFile to read")
-var outputGeoJSONFileName = flag.String("out", "data/slovenia/%s-housenumbers.geojson", "Output GeoJSON file to save")
+var outputGeoJSONFileName = flag.String("out", "data/slovenia/%s-housenumbers-gurs.geojson", "Output GeoJSON file to save")
 
 // Reads 2 columns from shapeFileName and returns them as a map
 func readShapefileToMap(shapeFileName string, keyColumnName, valueColumnName string) map[string]string {
