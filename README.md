@@ -18,7 +18,7 @@ Do **NOT** import anything until the process is defined and approved by communit
 
 ### To manually download the data you should:
 1. Register as user at http://egp.gu.gov.si/egp, wait for the email with the password, login
-2. Expand section "9. Register prostorskih enot" / "9. Register of Spatial Units"
+2. Expand section "10. Register prostorskih enot" / "10. Register of Spatial Units"
 3. Download the data "Prostorske enote" / "Spatial units" -> `RPE_PE.ZIP` and put it in the `data/downloaded` folder
 4. Download the data "Ulice" / "Streets" -> `RPE_PUL.ZIP` and put it in the `data/downloaded` folder
 5. Download the data "Hišne številke" / "House numbers" -> `RPE_PE.ZIP` and put it in the `data/downloaded` folder
