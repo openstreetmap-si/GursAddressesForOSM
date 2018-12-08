@@ -56,4 +56,5 @@ Note:
 * [X] Travis CI, with badges etc
 * [ ] add golang linter: https://github.com/alecthomas/gometalinter
 * [ ] use OSM conflator (see https://wiki.openstreetmap.org/wiki/OSM_Conflator and https://github.com/mapsme/osm_conflate ) to prepare .osc files
-* [ ] create `taginfo.json` and add it to to https://github.com/taginfo/taginfo-projects
+* [X] create [`taginfo.json`](taginfo.json)
+* [ ] add [`taginfo.json`](https://raw.githubusercontent.com/openstreetmap-si/GursAddressesForOSM/master/taginfo.json) to https://github.com/taginfo/taginfo-projects

@@ -1,0 +1,30 @@
+{
+    "data_format":  1,
+    "data_url":     "https://raw.githubusercontent.com/openstreetmap-si/GursAddressesForOSM/master/taginfo.json",
+    "data_updated": "20181209T000000Z",
+    "project": {
+        "name":          "Slovenia Address Import (GURS)",
+        "description":   "Describes tags used in the Slovenia Address Import project.",
+        "project_url":   "https://github.com/openstreetmap-si/GursAddressesForOSM",
+        "doc_url":       "https://wiki.openstreetmap.org/wiki/Slovenia_Address_Import",
+        "icon_url":      "https://raw.githubusercontent.com/openstreetmap-si/GursAddressesForOSM/master/GURS-logo.png",
+        "contact_name":  "Štefan Baebler",
+        "contact_email": "stefan.baebler X gmail"
+    },
+    "tags": [
+        { "key": "addr:housenumber",                   "object_types": [ "node", "area" ], "description": "House number, with lowercase suffixes" },
+        { "key": "addr:street",                        "object_types": [ "node", "area" ], "description": "Street name (both names in bilingual regions, separated by '/')" },
+        { "key": "addr:street:sl",                     "object_types": [ "node", "area" ], "description": "Slovenian-only street name (only in bilingual regions)" },
+        { "key": "addr:street:it",                     "object_types": [ "node", "area" ], "description": "Italian street name (South-West part of Slovenia)" },
+        { "key": "addr:street:hu",                     "object_types": [ "node", "area" ], "description": "Hungarian street name (North-East part of Slovenia)" },
+        { "key": "addr:place",                         "object_types": [ "node", "area" ], "description": "Place name (both names in bilingual regions, separated by '/')" },
+        { "key": "addr:place:sl",                      "object_types": [ "node", "area" ], "description": "Slovenian-only place name (only in bilingual regions)" },
+        { "key": "addr:place:it",                      "object_types": [ "node", "area" ], "description": "Italian place name (South-West part of Slovenia)" },
+        { "key": "addr:place:hu",                      "object_types": [ "node", "area" ], "description": "Hungarian place name (North-East part of Slovenia)" },
+        { "key": "addr:postcode",                      "object_types": [ "node", "area" ], "description": "4-digit Slovenian post code" },
+        { "key": "addr:city",                          "object_types": [ "node", "area" ], "description": "City name - postal code description" },
+        { "key": "source:addr",      "value": "GURS",  "object_types": [ "node", "area" ], "description": "The address was obtained from The Surveying and Mapping Authority of Republic of Slovenia (GURS)" },
+        { "key": "source:addr:date",                   "object_types": [ "node", "area" ], "description": "Date of validity in GURS source database" },
+        { "key": "ref:GURS:HS_MID",                    "object_types": [ "node", "area" ], "description": "Preserving numeric id from GURS source database" }
+    ]
+}
