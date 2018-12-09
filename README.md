@@ -57,4 +57,4 @@ Note:
 * [ ] add golang linter: https://github.com/alecthomas/gometalinter
 * [ ] use OSM conflator (see https://wiki.openstreetmap.org/wiki/OSM_Conflator and https://github.com/mapsme/osm_conflate ) to prepare .osc files
 * [X] create [`taginfo.json`](taginfo.json)
-* [ ] add [`taginfo.json`](https://raw.githubusercontent.com/openstreetmap-si/GursAddressesForOSM/master/taginfo.json) to https://github.com/taginfo/taginfo-projects
+* [ ] add [`taginfo.json`](https://raw.githubusercontent.com/openstreetmap-si/GursAddressesForOSM/master/taginfo.json) to https://github.com/taginfo/taginfo-projects - [PR#65](https://github.com/taginfo/taginfo-projects/pull/65)
