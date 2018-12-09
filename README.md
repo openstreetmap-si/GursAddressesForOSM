@@ -51,7 +51,7 @@ Note:
 
 ### TODO: 
 * [ ] Use buffered channels + goroutines for concurrent processing when reading shapefile
-* [ ] Split into smaller files by areas (cadastral communities?)
+* [X] Split into smaller files by areas (municipalities/občine, cities/naselja)
 * [ ] Optional: [CGO](https://golang.org/cmd/cgo/) wrapper around GeoCoordinateConverter reprojection functionality ([geo.h](https://github.com/mrihtar/GeoCoordinateConverter/blob/master/geo.h))
 * [X] Travis CI, with badges etc
 * [ ] add golang linter: https://github.com/alecthomas/gometalinter
