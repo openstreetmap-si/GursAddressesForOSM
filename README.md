@@ -8,6 +8,7 @@ Do **NOT** import anything until the process is defined and approved by communit
 [![codebeat badge](https://codebeat.co/badges/ef6316aa-ab76-4f86-9c04-cac31f7942c0)](https://codebeat.co/projects/github-com-openstreetmap-si-gursaddressesforosm-master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/9f6ae8b5b2c751481e6c/maintainability)](https://codeclimate.com/github/openstreetmap-si/GursAddressesForOSM/maintainability)
 [![codecov](https://codecov.io/gh/openstreetmap-si/GursAddressesForOSM/branch/master/graph/badge.svg)](https://codecov.io/gh/openstreetmap-si/GursAddressesForOSM)
+[![Requirements Status](https://requires.io/github/openstreetmap-si/GursAddressesForOSM/requirements.svg?branch=master)](https://requires.io/github/openstreetmap-si/GursAddressesForOSM/requirements/?branch=master)
 
 
 ### Steps:

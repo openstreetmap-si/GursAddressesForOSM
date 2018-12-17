@@ -1,3 +1,4 @@
+SHELL:=/bin/bash
 DATAFOLDER = data/
 DLFOLDER = $(DATAFOLDER)downloaded/
 TMP = $(DATAFOLDER)temp/
@@ -31,7 +32,7 @@ all:
 
 	# make a zip
 	sed "s/%YYYY-MM-DD%/$(TS)/g" data-LICENSE-template.md > $(DATAFOLDER)LICENSE.md
-	zip -9 -r $(DATAFOLDER)slovenia-housenumbers-$(TS).zip $(DATAFOLDER)slovenia/* $(DATAFOLDER)LICENSE.md
+	zip -9 -q -r $(DATAFOLDER)slovenia-housenumbers-$(TS).zip $(DATAFOLDER)slovenia/* $(DATAFOLDER)LICENSE.md
 
 
 .PHONY: clean
@@ -42,6 +43,7 @@ clean:
 	if [ -d "./GeoCoordinateConverter" ];then \
 		cd GeoCoordinateConverter && $(MAKE) -f Makefile.unix clean ; \
 	fi
+	rm -rf venv
 
 .PHONY: test
 test:
@@ -54,3 +56,26 @@ benchNoData:
 .PHONY: bench
 bench:
 	go test -cover -race -coverprofile=coverage.txt -covermode=atomic -bench=.
+
+requirements: requirements.txt.out
+	# install requirements if requirements.txt.out is missing or older than requirements.txt
+
+requirements.txt.out: venv requirements.txt
+	# install the requirements into virtual environments and record the action to requirements.txt.out
+	source venv/bin/activate && pip install -r requirements.txt | tee requirements.txt.out
+
+.PHONY: conflate
+conflate: requirements
+	source venv/bin/activate; \
+	for gursGeoJson in $$(find data/slovenia -name 'Mor*-gurs.geojson'); \
+	do \
+		DIRNAME=$$(dirname $$gursGeoJson); \
+		BASENAME=$$(basename $$gursGeoJson -gurs.geojson); \
+		echo "***** Conflating: $$DIRNAME/$$BASENAME *****"; \
+		conflate -i $$gursGeoJson -v -c $$DIRNAME/$$BASENAME-preview.geojson -o $$DIRNAME/$$BASENAME.osm gursAddressesConflationProfile.py --verbose; \
+	done 
+
+venv:
+	# basic setup
+	pip install virtualenv
+	virtualenv -p `which python3` venv

@@ -94,7 +94,7 @@ const (
 	tagSourceValue = "GURS"
 
 	// could be either "source:addr:ref", "source:ref", "ref:GURS:HS_MID"
-	tagRef = "ref:GURS:HS_MID"
+	tagRef = "ref:gurs:hs_mid"
 
 	tagLangPostfixSlovenian = ":sl"
 	tagLangPostfixItalian   = ":it"
