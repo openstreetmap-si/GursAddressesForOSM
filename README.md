@@ -8,6 +8,7 @@ Do **NOT** import anything until the process is defined and approved by communit
 [![codebeat badge](https://codebeat.co/badges/ef6316aa-ab76-4f86-9c04-cac31f7942c0)](https://codebeat.co/projects/github-com-openstreetmap-si-gursaddressesforosm-master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/9f6ae8b5b2c751481e6c/maintainability)](https://codeclimate.com/github/openstreetmap-si/GursAddressesForOSM/maintainability)
 [![codecov](https://codecov.io/gh/openstreetmap-si/GursAddressesForOSM/branch/master/graph/badge.svg)](https://codecov.io/gh/openstreetmap-si/GursAddressesForOSM)
+[![Requirements Status](https://requires.io/github/openstreetmap-si/GursAddressesForOSM/requirements.svg?branch=master)](https://requires.io/github/openstreetmap-si/GursAddressesForOSM/requirements/?branch=master)
 
 
 ### Steps:
@@ -18,7 +19,7 @@ Do **NOT** import anything until the process is defined and approved by communit
 
 ### To manually download the data you should:
 1. Register as user at http://egp.gu.gov.si/egp, wait for the email with the password, login
-2. Expand section "9. Register prostorskih enot" / "9. Register of Spatial Units"
+2. Expand section "10. Register prostorskih enot" / "10. Register of Spatial Units"
 3. Download the data "Prostorske enote" / "Spatial units" -> `RPE_PE.ZIP` and put it in the `data/downloaded` folder
 4. Download the data "Ulice" / "Streets" -> `RPE_PUL.ZIP` and put it in the `data/downloaded` folder
 5. Download the data "Hišne številke" / "House numbers" -> `RPE_PE.ZIP` and put it in the `data/downloaded` folder
@@ -51,9 +52,10 @@ Note:
 
 ### TODO: 
 * [ ] Use buffered channels + goroutines for concurrent processing when reading shapefile
-* [ ] Split into smaller files by areas (cadastral communities?)
+* [X] Split into smaller files by areas (municipalities/občine, cities/naselja)
 * [ ] Optional: [CGO](https://golang.org/cmd/cgo/) wrapper around GeoCoordinateConverter reprojection functionality ([geo.h](https://github.com/mrihtar/GeoCoordinateConverter/blob/master/geo.h))
 * [X] Travis CI, with badges etc
 * [ ] add golang linter: https://github.com/alecthomas/gometalinter
 * [ ] use OSM conflator (see https://wiki.openstreetmap.org/wiki/OSM_Conflator and https://github.com/mapsme/osm_conflate ) to prepare .osc files
-* [ ] create `taginfo.json` and add it to to https://github.com/taginfo/taginfo-projects
+* [X] create [`taginfo.json`](taginfo.json)
+* [X] add [`taginfo.json`](https://raw.githubusercontent.com/openstreetmap-si/GursAddressesForOSM/master/taginfo.json) to https://github.com/taginfo/taginfo-projects - [PR#65](https://github.com/taginfo/taginfo-projects/pull/65) - https://taginfo.openstreetmap.org/projects/slovenia_address_import

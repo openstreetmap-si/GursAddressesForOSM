@@ -31,3 +31,7 @@ GeoCoordinateConverter
 #profiler files
 *.prof
 profile0*
+
+# python virtual environment
+venv
+requirements.txt.out
