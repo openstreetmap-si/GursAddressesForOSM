@@ -67,7 +67,7 @@ requirements.txt.out: venv requirements.txt
 .PHONY: conflate
 conflate: requirements
 	source venv/bin/activate; \
-	for gursGeoJson in $$(find data/slovenia -name 'Mor*-gurs.geojson'); \
+	for gursGeoJson in $$(find data/slovenia -name '*-gurs.geojson'); \
 	do \
 		DIRNAME=$$(dirname $$gursGeoJson); \
 		BASENAME=$$(basename $$gursGeoJson -gurs.geojson); \

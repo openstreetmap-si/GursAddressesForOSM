@@ -23,8 +23,10 @@ overpass_timeout = 300
 #query = [('addr:housenumber','~.*')]  e se lettera e interno non hanno stesso case?
 #query = [('addr:street','~.*')]  
 
-#query = [('addr:housenumber','~.*')]
-query = [('addr:housenumber')],[('addr:street')] #or condition
+# query = [('addr:housenumber','~.*')]
+query = [('addr:housenumber',)]
+#query = [('addr:housenumber')],[('addr:street')] #or condition
+# query = [('addr:housenumber')]
 #query = [('addr:housenumber'),[('addr:street'),('addr:place')]] #or condition
 
 # parameter --osm will use indipendently generated queries, ie:
