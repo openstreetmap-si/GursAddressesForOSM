@@ -71,8 +71,8 @@ conflate: requirements
 	do \
 		DIRNAME=$$(dirname $$gursGeoJson); \
 		BASENAME=$$(basename $$gursGeoJson -gurs.geojson); \
-		echo "***** Conflating: $$DIRNAME/$$BASENAME *****"; \
-		conflate -i $$gursGeoJson -v -c $$DIRNAME/$$BASENAME-preview.geojson -o $$DIRNAME/$$BASENAME.osm gursAddressesConflationProfile.py --verbose; \
+		echo "***** Conflating: $$DIRNAME/$$BASENAME *****" | tee $$DIRNAME/$$BASENAME-conflate-log.txt; \
+		conflate -i $$gursGeoJson -v -c $$DIRNAME/$$BASENAME-preview.geojson -o $$DIRNAME/$$BASENAME.osm gursAddressesConflationProfile.py --verbose 2>&1 | tee -a $$DIRNAME/$$BASENAME-conflate-log.txt; \
 	done 
 
 venv:
