@@ -31,7 +31,7 @@ cat << EOF > $OUT
 	\$(document).ready( function () {
 	    \$('#list').DataTable({
 		    columnDefs: [
-		        { targets: [9, 10, 11, 12], "orderable": false},
+		        { targets: [10, 11, 12, 13], "orderable": false},
 		        //{ targets: '_all', visible: false }
 		    ]
 		});
@@ -49,6 +49,7 @@ cat << EOF > $OUT
 <th>#Upd.</th>
 <th>#Match</th>
 <th>#Add</th>
+<th>%</th>
 <th>Preview</th>
 <th>View</th>
 <th>.osm</th>
@@ -135,6 +136,9 @@ do
 	TOTALADD=$(($TOTALADD+$ADDCOUNT))
 	echo "<td>$ADDCOUNT</td>" >> $OUT
 
+	PERCENT=$((100*$MATCHCOUNT/$GURSCOUNT))
+	echo "<td>$PERCENT%</td>" >> $OUT
+
 	# Preview
 	# http://geojson.io/#data=data:text/x-url,https%3A%2F%2Fd2ad6b4ur7yvpq.cloudfront.net%2Fnaturalearth-3.3.0%2Fne_50m_land.geojson
 	# Mapshaper alternative: https://github.com/mbloch/mapshaper/wiki/Web-Interface , eg: http://www.mapshaper.org/?files=https://rawgit.com/nvkelso/natural-earth-vector/master/110m_physical/ne_110m_land.shp,https://rawgit.com/nvkelso/natural-earth-vector/master/110m_physical/ne_110m_land.dbf
@@ -166,6 +170,7 @@ cat << EOF >> $OUT
 <td>$TOTALUPD</td>
 <td>$TOTALMATCH</td>
 <td>$TOTALADD</td>
+<td>$((100*$TOTALMATCH/$TOTALGURS))%</td>
 <td></td>
 <td></td>
 <td></td>
