@@ -5,10 +5,15 @@ TMP = $(DATAFOLDER)temp/
 TS = $$(cat $(TMP)timestamp.txt)
 TSYYYY = $$(cat $(TMP)timestamp.txt | cut -b 1-4)
 
-all:
+all: download reproject geojson conflate summary
+
+.PHONY: download
+download:
 	mkdir -p $(TMP) || true
 	./getSource.sh $(DLFOLDER) $(TMP)
 
+.PHONY: reproject
+reproject:
 	# poor-man's git submodule:
 	if [ ! -d "./GeoCoordinateConverter" ];then \
 		git clone https://github.com/mrihtar/GeoCoordinateConverter ; \
@@ -25,14 +30,15 @@ all:
 	#mkdir -p $(TMP)ko_zk_slo-etrs89
 	#./GeoCoordinateConverter/gk-shp -t 9 -dd $(TMP)ko_zk_slo/SI_GURS_CBZK_KO.shp $(TMP)ko_zk_slo-etrs89/SI_GURS_CBZK_KO-etrs89.shp
 
-    # geoJson:
+.PHONY: geojson
+geojson:
 	mkdir -p $(DATAFOLDER)
 	go run gursShp2geoJson.go
 
 
 	# make a zip
 	sed "s/%YYYY-MM-DD%/$(TS)/g" data-LICENSE-template.md > $(DATAFOLDER)LICENSE.md
-	zip -9 -q -r $(DATAFOLDER)slovenia-housenumbers-$(TS).zip $(DATAFOLDER)slovenia/* $(DATAFOLDER)LICENSE.md
+	#zip -9 -q -r $(DATAFOLDER)slovenia-housenumbers-$(TS).zip $(DATAFOLDER)slovenia/* $(DATAFOLDER)LICENSE.md
 
 
 .PHONY: clean
@@ -71,9 +77,14 @@ conflate: requirements
 	do \
 		DIRNAME=$$(dirname $$gursGeoJson); \
 		BASENAME=$$(basename $$gursGeoJson -gurs.geojson); \
-		echo "***** Conflating: $$DIRNAME/$$BASENAME *****" | tee $$DIRNAME/$$BASENAME-conflate-log.txt; \
-		conflate -i $$gursGeoJson -v -c $$DIRNAME/$$BASENAME-preview.geojson -o $$DIRNAME/$$BASENAME.osm gursAddressesConflationProfile.py --verbose 2>&1 | tee -a $$DIRNAME/$$BASENAME-conflate-log.txt; \
-	done 
+		echo "***** Conflating: $$DIRNAME/$$BASENAME *****"; \
+		conflate -i $$gursGeoJson -v -c $$DIRNAME/$$BASENAME-preview.geojson -o $$DIRNAME/$$BASENAME.osm gursAddressesConflationProfile.py --verbose 2>&1 | tee $$DIRNAME/$$BASENAME-conflate-log.txt; \
+		sleep 0.3s ;\
+	done
+
+.PHONY: summary
+summary:
+	./summarize.sh
 
 venv:
 	# basic setup
