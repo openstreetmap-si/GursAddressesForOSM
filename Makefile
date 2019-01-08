@@ -29,7 +29,7 @@ reproject:
     # re-project buildings:
 	rm -r $(TMP)KS_SLO_SHP_G-etrs89 || true
 	mkdir -p $(TMP)KS_SLO_SHP_G-etrs89
-	./GeoCoordinateConverter/gk-shp -t 9 -dd $(TMP)KS_SLO_SHP_G/KS_SLO_TLORISI_20181111.shp $(TMP)KS_SLO_SHP_G-etrs89/KS_SLO_TLORISI_20181111-etrs89.shp
+	./GeoCoordinateConverter/gk-shp -t 9 -dd $(TMP)KS_SLO_SHP_G/KS_SLO_TLORISI_20190106.shp $(TMP)KS_SLO_SHP_G-etrs89/KS_SLO_TLORISI_20190106-etrs89.shp
 
 
 	#rm -r $(TMP)ko_zk_slo-etrs89 || true
