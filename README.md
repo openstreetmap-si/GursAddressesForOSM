@@ -59,3 +59,4 @@ Note:
 * [X] use OSM conflator (see https://wiki.openstreetmap.org/wiki/OSM_Conflator and https://github.com/mapsme/osm_conflate ) to prepare .osc files
 * [X] create [`taginfo.json`](taginfo.json)
 * [X] add [`taginfo.json`](https://raw.githubusercontent.com/openstreetmap-si/GursAddressesForOSM/master/taginfo.json) to https://github.com/taginfo/taginfo-projects - [PR#65](https://github.com/taginfo/taginfo-projects/pull/65) - https://taginfo.openstreetmap.org/projects/slovenia_address_import
+* [ ] Find & expand abbreviated names (eg "Sv. Anton na Pohorju, Moravci v Slov. goricah") (Q: Add a tag with original, shortened value, like `short_name`?)
