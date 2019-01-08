@@ -36,6 +36,12 @@ function extractDownloaded() {
 		unzip -o -d "${TempDest}$extdir" "$file"
 	done
 
+	for file in "${DownloadDest}"GJI_SLO_SHP_*.zip; do
+		extdir=$(basename "$file" .zip)
+		echo "$extdir"
+		unzip -o -d "${TempDest}$extdir" "$file"
+	done
+
 	#unzip -o -d "${dest}/ko_zk_slo" "${DownloadDest}ko_zk_slo.zip"
 
 	$STATCMD -c '%y' "${TempDest}HS/SI.GURS.RPE.PUB.HS.shp" | cut -d' ' -f1 >"${TempDest}timestamp.txt"
@@ -173,6 +179,9 @@ downloadFile 191
 
 #Opis katastra stavb - KS_SLO_CSV_A_U.zip
 downloadFileCSV 192
+
+#Ceste
+downloadFile 110
 
 # Clean up secrets so they are not cached
 rm -f "${DownloadDest}cookies.txt"

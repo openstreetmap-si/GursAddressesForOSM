@@ -31,6 +31,10 @@ reproject:
 	mkdir -p $(TMP)KS_SLO_SHP_G-etrs89
 	./GeoCoordinateConverter/gk-shp -t 9 -dd $(TMP)KS_SLO_SHP_G/KS_SLO_TLORISI_20190106.shp $(TMP)KS_SLO_SHP_G-etrs89/KS_SLO_TLORISI_20190106-etrs89.shp
 
+    # re-project roads:
+	rm -r $(TMP)GJI_SLO_SHP_G_1100-etrs89 || true
+	mkdir -p $(TMP)GJI_SLO_SHP_G_1100-etrs89
+	./GeoCoordinateConverter/gk-shp -t 9 -dd $(TMP)GJI_SLO_SHP_G_1100/GJI_SLO_1100_ILL_20190107.shp $(TMP)GJI_SLO_SHP_G_1100-etrs89/GJI_SLO_1100_ILL_20190107-etrs89.shp
 
 	#rm -r $(TMP)ko_zk_slo-etrs89 || true
 	#mkdir -p $(TMP)ko_zk_slo-etrs89
