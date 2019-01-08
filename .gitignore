@@ -35,3 +35,6 @@ profile0*
 # python virtual environment
 venv
 requirements.txt.out
+
+#crontab logs
+crontablog*.txt
