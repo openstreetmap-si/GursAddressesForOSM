@@ -12,7 +12,7 @@ source = 'GURS'
 dataset_id = 'gurs:hs_mid'
 
 #A boolean value, False by default. If True, objects with ref:whatever tag are downloaded only for the import region, not for the whole world.
-bounded_update = true
+bounded_update = True
 
 # Overpass query to use when searching OSM for data
 #overpass_timeout = 120 default
