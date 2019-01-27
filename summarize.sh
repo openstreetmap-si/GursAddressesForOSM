@@ -34,7 +34,7 @@ cat << EOF > $OUT
 		    columnDefs: [
 		        //{ targets: [10, 11, 12, 13], "orderable": false},
 		        { targets: [1], visible: false },
-		        { targets: [2,3,4,5,6,7,8], className: 'text-right' },
+		        { targets: [2,3,4,5,6,7,8,9], className: 'text-right' },
 		        //{ targets: '_all', visible: false }
 		    ]
 		});
@@ -45,13 +45,14 @@ cat << EOF > $OUT
 <tr>
 <th>Municipality</th>
 <th>Cities</th>
-<th>#</th>
+<th>#GURS</th>
+<th>%Conflated</th>
 <th>#Dups</th>
 <th>#DLed</th>
 <th>#Upd.</th>
 <th>#Match</th>
 <th>#Add</th>
-<th>%</th>
+<th>%Done</th>
 </tr>
 </thead>
 <tbody>
@@ -59,6 +60,7 @@ EOF
 #<th>#Read</th>
 
 TOTALGURS=0
+TOTALCONF=0
 #TOTALREAD=0
 TOTALDUPES=0
 TOTALDL=0
@@ -114,14 +116,14 @@ cat << EOF > $MUNOUT
 <thead class="thead-dark">
 <tr>
 <th>City</th>
-<th>#</th>
+<th>#GURS</th>
 <th>Conflated</th>
 <th>#Dups</th>
 <th>#DLed</th>
 <th>#Upd.</th>
 <th>#Match</th>
 <th>#Add</th>
-<th>%</th>
+<th>%Done</th>
 <th>Preview</th>
 <th>View</th>
 <th>.osm</th>
@@ -134,6 +136,7 @@ EOF
 
 MUNCITIES=""
 MUNTOTALGURS=0
+MUNTOTALCONF=0
 #MUNTOTALREAD=0
 MUNTOTALDUPES=0
 MUNTOTALDL=0
@@ -163,6 +166,8 @@ if [ ! -f $DIRNAME/$BASENAME-conflate-log.txt ]; then
         continue
 fi
 
+	TOTALCONF=$(($TOTALCONF+$GURSCOUNT))
+	MUNTOTALCONF=$(($MUNTOTALCONF+$GURSCOUNT))
 	LOGTS=`stat $DIRNAME/$BASENAME-conflate-log.txt | grep Modify | cut -d":" -f 2-3`
 	LOG="<a href='$BASENAME-conflate-log.txt'>$LOGTS</a>"
 	#echo "<td><input type='button' value='Conflate' /></td>" >> $OUT
@@ -236,7 +241,7 @@ fi
 
 	# JOSM import - https://wiki.openstreetmap.org/wiki/JOSM/RemoteControl#import_command
 	OSMLINK="<a href='$BASENAME.osm'>.osm</a>"
-	JOSMIMPORT="<a href='http://localhost:8111/import?url=https%3A%2F%2Faddr.openstreetmap.si%2F$MUNDIR%2F$BASENAME.osm'>Import</a>"
+	JOSMIMPORT="<a href='http://localhost:8111/import?url=https%3A%2F%2Faddr.openstreetmap.si%2F$MUNDIR%2F$BASENAME.osm'>Load</a>"
 	echo "<td>$OSMLINK</td>" >> $MUNOUT
 	echo "<td>$JOSMIMPORT</td>" >> $MUNOUT
 
@@ -251,7 +256,7 @@ cat << EOF >> $MUNOUT
 <tr>
 <th>$MUN TOTAL:</th>
 <th>$MUNTOTALGURS</th>
-<th></th>
+<th>$((100*$MUNTOTALCONF/$MUNTOTALGURS))%</th>
 <th>$MUNTOTALDUPES</th>
 <th>$MUNTOTALDL</th>
 <th>$MUNTOTALUPD</th>
@@ -277,6 +282,7 @@ cat << EOF >> $OUT
 <td><a href="$MUNDIR/">$MUN</a></td>
 <td>$MUNCITIES</td>
 <td>$MUNTOTALGURS</td>
+<td>$((100*$MUNTOTALCONF/$MUNTOTALGURS))%</td>
 <td>$MUNTOTALDUPES</td>
 <td>$MUNTOTALDL</td>
 <td>$MUNTOTALUPD</td>
@@ -296,6 +302,7 @@ cat << EOF >> $OUT
 <th>Slovenia TOTAL:</th>
 <th></th>
 <th>$TOTALGURS</th>
+<th>$((100*$TOTALCONF/$TOTALGURS))%</th>
 <th>$TOTALDUPES</th>
 <th>$TOTALDL</th>
 <th>$TOTALUPD</th>
