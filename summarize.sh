@@ -51,6 +51,7 @@ cat << EOF > $OUT
 <th>#DLed</th>
 <th>#Upd.</th>
 <th>#Match</th>
+<th>#UnMatch</th>
 <th>#Add</th>
 <th>%Done</th>
 </tr>
@@ -66,9 +67,10 @@ TOTALDUPES=0
 TOTALDL=0
 TOTALUPD=0
 TOTALMATCH=0
+TOTALREMUNMATCH=0
 TOTALADD=0
 
-for DIRNAME in $(find data/slovenia -maxdepth 1 -mindepth 1 -type d);
+for DIRNAME in $(find data/slovenia -maxdepth 1 -mindepth 1 -type d | sort);
 do
 MUNDIR=$(echo $DIRNAME | cut -d'/' -f 3 )
 MUN=$(echo $MUNDIR | tr "_" " " )
@@ -105,8 +107,8 @@ cat << EOF > $MUNOUT
 	    \$('#list').DataTable({
 		    stateSave: true,
 		    columnDefs: [
-		        { targets: [9, 10, 11, 12], "orderable": false},
-		        { targets: [1,3,4,5,6,7,8], className: 'text-right' },
+		        { targets: [10,11,12,13], "orderable": false},
+		        { targets: [1,3,4,5,6,7,8,9], className: 'text-right' },
                         //{ targets: '_all', visible: false }
 		    ]
 		});
@@ -122,6 +124,7 @@ cat << EOF > $MUNOUT
 <th>#DLed</th>
 <th>#Upd.</th>
 <th>#Match</th>
+<th>#UnMatch</th>
 <th>#Add</th>
 <th>%Done</th>
 <th>Preview</th>
@@ -142,6 +145,7 @@ MUNTOTALDUPES=0
 MUNTOTALDL=0
 MUNTOTALUPD=0
 MUNTOTALMATCH=0
+MUNTOTALREMUNMATCH=0
 MUNTOTALADD=0
 
 for gursGeoJson in $(find $DIRNAME -name '*-gurs.geojson');
@@ -153,7 +157,8 @@ do
 	GURSCOUNT=`cat $gursGeoJson | grep geometry | wc -l`
 	TOTALGURS=$(($TOTALGURS+$GURSCOUNT))
 	MUNTOTALGURS=$(($MUNTOTALGURS+$GURSCOUNT))
-	GURS="<a href='$MUNDIR/`basename $gursGeoJson`'>$GURSCOUNT</a>"
+#	GURS="<a href='$MUNDIR/`basename $gursGeoJson`'>$GURSCOUNT</a>"
+	GURS="<a href='`basename $gursGeoJson`'>$GURSCOUNT</a>"
 
 	echo "<tr>" >> $MUNOUT
 
@@ -162,7 +167,7 @@ do
 
 if [ ! -f $DIRNAME/$BASENAME-conflate-log.txt ]; then
     echo -n "?"
-	echo "<td>Not yet!</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>"  >> $MUNOUT
+	echo "<td>Not yet!</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>"  >> $MUNOUT
         continue
 fi
 
@@ -172,6 +177,8 @@ fi
 	LOG="<a href='$BASENAME-conflate-log.txt'>$LOGTS</a>"
 	#echo "<td><input type='button' value='Conflate' /></td>" >> $OUT
 	echo "<td>$LOG</td>"  >> $MUNOUT
+
+	conlog=$(cat $DIRNAME/$BASENAME-conflate-log.txt)
 
 	#Parse the log for:
 	#Read 170 items from the dataset
@@ -184,7 +191,7 @@ fi
 	#echo "<td>$READCOUNT</td>" >> $MUNOUT
 
 	#Found 3544 duplicates in the dataset
-	DUPECOUNT=`cat $DIRNAME/$BASENAME-conflate-log.txt | grep -o -E "Found [0-9]* duplicates in the dataset" | sed 's/[^0-9]*//g'`
+	DUPECOUNT=`echo $conlog | grep -o -E "Found [0-9]* duplicates in the dataset" | sed 's/[^0-9]*//g'`
 	if [ -z "$DUPECOUNT" ]; then
 		DUPECOUNT=0
 	fi
@@ -193,7 +200,7 @@ fi
 	echo "<td>$DUPECOUNT</td>" >> $MUNOUT
 
 	#Downloaded 0 objects from OSM
-	DLCOUNT=`cat $DIRNAME/$BASENAME-conflate-log.txt | grep -o -E "Downloaded [0-9]* objects from OSM" | sed 's/[^0-9]*//g'`
+	DLCOUNT=`echo $conlog | grep -o -E "Downloaded [0-9]* objects from OSM" | sed 's/[^0-9]*//g'`
 	if [ -z "$DLCOUNT" ]; then
 		DLCOUNT=0
 	fi
@@ -202,7 +209,7 @@ fi
 	echo "<td>$DLCOUNT</td>" >> $MUNOUT
 
 	#Updated 0 OSM objects with ref:gurs:hs_mid tag
-	UPDCOUNT=`cat $DIRNAME/$BASENAME-conflate-log.txt | grep -o -E "Updated [0-9]* OSM objects with ref" | sed 's/[^0-9]*//g'`
+	UPDCOUNT=`echo $conlog | grep -o -E "Updated [0-9]* OSM objects with ref" | sed 's/[^0-9]*//g'`
 	if [ -z "$UPDCOUNT" ]; then
 		UPDCOUNT=0
 	fi
@@ -211,7 +218,7 @@ fi
 	echo "<td>$UPDCOUNT</td>" >> $MUNOUT
 
 	#Matched 2153 points
-	MATCHCOUNT=`cat $DIRNAME/$BASENAME-conflate-log.txt | grep -o -E "Matched [0-9]* points" | sed 's/[^0-9]*//g'`
+	MATCHCOUNT=`echo $conlog | grep -o -E "Matched [0-9]* points" | sed 's/[^0-9]*//g'`
 	if [ -z "$MATCHCOUNT" ]; then
 		MATCHCOUNT=0
 	fi
@@ -219,8 +226,17 @@ fi
 	MUNTOTALMATCH=$(($MUNTOTALMATCH+$MATCHCOUNT))
 	echo "<td>$MATCHCOUNT</td>" >> $MUNOUT
 
+	#Removed 2305 unmatched duplicates
+	REMUNMATCHCOUNT=`echo $conlog | grep -o -E "Removed [0-9]* unmatched duplicates" | sed 's/[^0-9]*//g'`
+	if [ -z "$REMUNMATCHCOUNT" ]; then
+		REMUNMATCHCOUNT=0
+	fi
+	TOTALREMUNMATCH=$(($TOTALREMUNMATCH+$REMUNMATCHCOUNT))
+	MUNTOTALREMUNMATCH=$(($MUNTOTALREMUNMATCH+$REMUNMATCHCOUNT))
+	echo "<td>$REMUNMATCHCOUNT</td>" >> $MUNOUT
+
 	#Adding 170 unmatched dataset points
-	ADDCOUNT=`cat $DIRNAME/$BASENAME-conflate-log.txt | grep -o -E "Adding [0-9]* unmatched dataset points" | sed 's/[^0-9]*//g'`
+	ADDCOUNT=`echo $conlog | grep -o -E "Adding [0-9]* unmatched dataset points" | sed 's/[^0-9]*//g'`
 	if [ -z "$ADDCOUNT" ]; then
 		ADDCOUNT=0
 	fi
@@ -261,6 +277,7 @@ cat << EOF >> $MUNOUT
 <th>$MUNTOTALDL</th>
 <th>$MUNTOTALUPD</th>
 <th>$MUNTOTALMATCH</th>
+<th>$MUNTOTALREMUNMATCH</th>
 <th>$MUNTOTALADD</th>
 <th>$((100*$MUNTOTALMATCH/$MUNTOTALGURS))%</th>
 <th></th>
@@ -287,6 +304,7 @@ cat << EOF >> $OUT
 <td>$MUNTOTALDL</td>
 <td>$MUNTOTALUPD</td>
 <td>$MUNTOTALMATCH</td>
+<td>$MUNTOTALREMUNMATCH</td>
 <td>$MUNTOTALADD</td>
 <td>$((100*$MUNTOTALMATCH/$MUNTOTALGURS))%</td>
 </tr>
@@ -307,6 +325,7 @@ cat << EOF >> $OUT
 <th>$TOTALDL</th>
 <th>$TOTALUPD</th>
 <th>$TOTALMATCH</th>
+<th>$TOTALREMUNMATCH</th>
 <th>$TOTALADD</th>
 <th>$((100*$TOTALMATCH/$TOTALGURS))%</th>
 </tr>
