@@ -20,7 +20,7 @@ import (
 	"golang.org/x/text/encoding/charmap"
 )
 
-var inputShapeFileName = flag.String("in", "data/temp/HS-etrs89/SI.GURS.RPE.PUB.HS-etrs89.shp", "Input ShapeFile to read")
+var inputShapeFileName = flag.String("in", "data/temp/HS-epsg4326/HS-epsg4326.shp", "Input ShapeFile to read")
 var outputGeoJSONFileName = flag.String("out", "data/slovenia/%s-housenumbers-gurs.geojson", "Output GeoJSON file to save")
 
 // Reads 2 columns from shapeFileName and returns them as a map
@@ -113,13 +113,13 @@ type lookupSource struct {
 }
 
 var lookupSources = [...]lookupSource{
-	{"PT/SI.GURS.RPE.PUB.PT.shp", "PT_MID", "PT_ID", &ptCodeMap},
-	{"PT/SI.GURS.RPE.PUB.PT.shp", "PT_MID", "PT_UIME", &ptNameMap},
-	{"UL/SI.GURS.RPE.PUB.UL.shp", "UL_MID", "UL_UIME", &ulNameMap},
-	{"UL/SI.GURS.RPE.PUB.UL.shp", "UL_MID", "UL_DJ", &ulNameDjMap},
-	{"NA/SI.GURS.RPE.PUB.NA.shp", "NA_MID", "NA_UIME", &naNameMap},
-	{"NA/SI.GURS.RPE.PUB.NA.shp", "NA_MID", "NA_DJ", &naNameDjMap},
-	{"OB/SI.GURS.RPE.PUB.OB.shp", "OB_MID", "OB_UIME", &obNameMap},
+	{"PT/PT.shp", "PT_MID", "PT_ID", &ptCodeMap},
+	{"PT/PT.shp", "PT_MID", "PT_UIME", &ptNameMap},
+	{"UL/UL.shp", "UL_MID", "UL_UIME", &ulNameMap},
+	{"UL/UL.shp", "UL_MID", "UL_DJ", &ulNameDjMap},
+	{"NA/NA.shp", "NA_MID", "NA_UIME", &naNameMap},
+	{"NA/NA.shp", "NA_MID", "NA_DJ", &naNameDjMap},
+	{"OB/OB.shp", "OB_MID", "OB_UIME", &obNameMap},
 }
 
 // ReadLookups reads all needed shapefiles in parallel to maps memory for later use

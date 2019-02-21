@@ -136,7 +136,7 @@ function login() {
 function downloadFile() {
 	wget "${commonWgetParams[@]}" \
 		--content-disposition -N \
-		"${baseUrl}download-file.html?id=$1&format=10&d96=0"
+		"${baseUrl}download-file.html?id=$1&format=10&d96=1"
 }
 
 # ---------------------------------------------

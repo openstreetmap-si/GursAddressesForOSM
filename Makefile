@@ -14,21 +14,9 @@ download:
 
 .PHONY: reproject
 reproject:
-	# poor-man's git submodule:
-	if [ ! -d "./GeoCoordinateConverter" ];then \
-		git clone https://github.com/mrihtar/GeoCoordinateConverter ; \
-	fi
+	#reproject from d96 to epsg4326
+	ogr2ogr -progress -t_srs "EPSG:4326" $(TMP)HS-epsg4326 $(TMP)HS -nln HS-epsg4326
 
-	cd GeoCoordinateConverter && $(MAKE) -f Makefile.unix gk-shp
-
-    # re-project housenumbers:
-	rm -r $(TMP)HS-etrs89 || true
-	mkdir -p $(TMP)HS-etrs89
-	./GeoCoordinateConverter/gk-shp -t 9 -dd $(TMP)HS/SI.GURS.RPE.PUB.HS.shp $(TMP)HS-etrs89/SI.GURS.RPE.PUB.HS-etrs89.shp
-
-	#rm -r $(TMP)ko_zk_slo-etrs89 || true
-	#mkdir -p $(TMP)ko_zk_slo-etrs89
-	#./GeoCoordinateConverter/gk-shp -t 9 -dd $(TMP)ko_zk_slo/SI_GURS_CBZK_KO.shp $(TMP)ko_zk_slo-etrs89/SI_GURS_CBZK_KO-etrs89.shp
 
 .PHONY: geojson
 geojson:
