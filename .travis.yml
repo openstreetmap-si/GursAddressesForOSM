@@ -3,7 +3,9 @@ go:
 - 1.x
 #- 1.10.x
 #- master
-sudo: false
+#sudo: false 
+before_install:
+- sudo apt-get install gdal
 install:
 - go get github.com/jonas-p/go-shp
 - go get github.com/paulmach/go.geojson
