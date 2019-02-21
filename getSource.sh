@@ -32,7 +32,7 @@ function extractDownloaded() {
 
 	#unzip -o -d "${dest}/ko_zk_slo" "${DownloadDest}ko_zk_slo.zip"
 
-	$STATCMD -c '%y' "${TempDest}HS/SI.GURS.RPE.PUB.HS.shp" | cut -d' ' -f1 >"${TempDest}timestamp.txt"
+	$STATCMD -c '%y' "${TempDest}HS/HS.shp" | cut -d' ' -f1 >"${TempDest}timestamp.txt"
 }
 
 countTooOld=3

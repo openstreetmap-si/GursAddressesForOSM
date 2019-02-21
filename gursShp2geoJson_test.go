@@ -131,14 +131,14 @@ func assertBetween(t *testing.T, testedValue, lowBound, upperBound int) {
 /*
 func TestAll(t *testing.T) {
 	ReadLookups()
-	ProcessOne("data/temp/HS-etrs89/SI.GURS.RPE.PUB.HS-etrs89.shp")
+	ProcessOne("data/temp/HS-epsg4326/HS-epsg4326.shp")
 }
 
 func BenchmarkAll(b *testing.B) {
 	b.ReportAllocs()
 	ReadLookups()
 	for n := 0; n < b.N; n++ {
-		ProcessOne("data/temp/HS-etrs89/SI.GURS.RPE.PUB.HS-etrs89.shp")
+		ProcessOne("data/temp/HS-epsg4326/HS-epsg4326.shp")
 	}
 }
 */
@@ -149,7 +149,7 @@ func BenchmarkReadShapefile(b *testing.B) {
 	b.ReportAllocs()
 	ReadLookups()
 	b.ResetTimer()
-	featureCollections := ReadShapefile("data/temp/HS-etrs89/SI.GURS.RPE.PUB.HS-etrs89.shp")
+	featureCollections := ReadShapefile("data/temp/HS-epsg4326/HS-epsg4326.shp")
 
 	b.StopTimer()
 
@@ -166,7 +166,7 @@ func BenchmarkSort(b *testing.B) {
 	}
 	b.ReportAllocs()
 	ReadLookups()
-	featureCollections := ReadShapefile("data/temp/HS-etrs89/SI.GURS.RPE.PUB.HS-etrs89.shp")
+	featureCollections := ReadShapefile("data/temp/HS-epsg4326/HS-epsg4326.shp")
 
 	b.N = 0
 
