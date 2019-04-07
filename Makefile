@@ -5,7 +5,7 @@ TMP = $(DATAFOLDER)temp/
 TS = $$(cat $(TMP)timestamp.txt)
 TSYYYY = $$(cat $(TMP)timestamp.txt | cut -b 1-4)
 
-all: download reproject geojson conflate summary
+all: download reproject geojson conflate reconflate reconflate summary
 
 .PHONY: travis
 travis: download reproject geojson # conflate summary
@@ -70,6 +70,21 @@ conflate: requirements
 		BASENAME=$$(basename $$gursGeoJson -gurs.geojson); \
 		echo "***** Conflating: $$DIRNAME/$$BASENAME *****"; \
 		conflate -i $$gursGeoJson -v -c $$DIRNAME/$$BASENAME-preview.geojson -o $$DIRNAME/$$BASENAME.osm gursAddressesConflationProfile.py --verbose 2>&1 | tee $$DIRNAME/$$BASENAME-conflate-log.txt; \
+		sleep 0.3s ;\
+	done
+
+.PHONY: reconflate
+reconflate: requirements
+	#fgrep --include \*-conflate-log.txt -lri "Failed to download data from Overpass API" data/slovenia/
+	#or log missing!
+	source venv/bin/activate; \
+	for badLog in $$(fgrep --include \*-conflate-log.txt -lri "Failed to download data from Overpass API" data/slovenia/ | sort); \
+	do \
+		echo "***** Conflating: $$badLog *****"; \
+		DIRNAME=$$(dirname $$badLog); \
+		BASENAME=$$(basename $$badLog -conflate-log.txt); \
+		echo "***** Conflating: $$DIRNAME/$$BASENAME *****"; \
+		conflate -i "$$DIRNAME/$$BASENAME-gurs.geojson" -v -c $$DIRNAME/$$BASENAME-preview.geojson -o $$DIRNAME/$$BASENAME.osm gursAddressesConflationProfile.py --verbose 2>&1 | tee $$DIRNAME/$$BASENAME-conflate-log.txt; \
 		sleep 0.3s ;\
 	done
 
