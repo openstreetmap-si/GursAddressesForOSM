@@ -18,6 +18,7 @@ download:
 .PHONY: reproject
 reproject:
 	#reproject from d96 to epsg4326
+	rm -rf $(TMP)HS-epsg4326
 	ogr2ogr -progress -t_srs "EPSG:4326" $(TMP)HS-epsg4326 $(TMP)HS -nln HS-epsg4326
 
 
