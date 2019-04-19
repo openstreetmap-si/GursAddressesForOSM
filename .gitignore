@@ -14,9 +14,6 @@ GursAddressesForOSM.test
 # secrets
 CREDENTIALS*
 
-# external tool as 
-GeoCoordinateConverter
-
 # MacOS
 .DS_Store
 

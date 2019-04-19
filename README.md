@@ -33,14 +33,12 @@ Source shapefile structure is described in [RPE_struktura.pdf](http://www.e-pros
 Data can be obtained from Geodetska  uprava  Republike  Slovenije - http://egp.gu.gov.si/egp/ under CreativeCommons attribution license - [CC-BY 2.5](http://creativecommons.org/licenses/by/2.5/si/legalcode), attribution details in  [General_terms.pdf](http://www.e-prostor.gov.si/fileadmin/struktura/ANG/General_terms.pdf) (or slovene [preberi_me.pdf](http://www.e-prostor.gov.si/fileadmin/struktura/preberi_me.pdf)).
 
 ### Dependancies
-1. [GeoCoordinateConverter](http://geocoordinateconverter.tk/) for most accurate reprojection (https://github.com/mrihtar/GeoCoordinateConverter will be checked out and built if it is not existing yet)
-2. GNU Make, bash, wget... (normal linux stuff)
-3. GoLang 1.10 or later
+1. GNU Make, bash, wget... (normal linux stuff)
+2. GoLang 1.10 or later
 
 Note: 
 * For running on Mac OS use: 
   * `gsed` instead of `sed` in `Makefile`
-  * Geocoordinate branch `travis` of my fork: https://github.com/stefanb/GeoCoordinateConverter until pull request is merged upstream
 * GoLang program is optimized as a Go learning exercise
 
 ### Similar import projects
@@ -53,7 +51,6 @@ Note:
 ### TODO: 
 * [ ] Use buffered channels + goroutines for concurrent processing when reading shapefile
 * [X] Split into smaller files by areas (municipalities/občine, cities/naselja)
-* [ ] Optional: [CGO](https://golang.org/cmd/cgo/) wrapper around GeoCoordinateConverter reprojection functionality ([geo.h](https://github.com/mrihtar/GeoCoordinateConverter/blob/master/geo.h))
 * [X] Travis CI, with badges etc
 * [ ] add golang linter: https://github.com/alecthomas/gometalinter
 * [X] use OSM conflator (see https://wiki.openstreetmap.org/wiki/OSM_Conflator and https://github.com/mapsme/osm_conflate ) to prepare .osc files

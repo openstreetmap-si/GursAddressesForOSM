@@ -38,9 +38,6 @@ clean:
 	rm -r $(TMP)
 	#rm -r $(DLFOLDER)
 	#rm -r $(DATAFOLDER)
-	if [ -d "./GeoCoordinateConverter" ];then \
-		cd GeoCoordinateConverter && $(MAKE) -f Makefile.unix clean ; \
-	fi
 	rm -rf venv
 
 .PHONY: test
