@@ -88,7 +88,7 @@ reconflate: requirements
 
 .PHONY: summary
 summary:
-	cp OSM_Slovenia_favicon.ico $(DATAFOLDER)/slovenia/favicon.ico
+	cp OSM_Slovenia_Logo.ico $(DATAFOLDER)/slovenia/favicon.ico
 	./summarize.sh
 
 venv:
