@@ -72,13 +72,13 @@ TOTALADD=0
 
 for DIRNAME in $(find data/slovenia -maxdepth 1 -mindepth 1 -type d | sort);
 do
-MUNDIR=$(echo $DIRNAME | cut -d'/' -f 3 )
-MUN=$(echo $MUNDIR | tr "_" " " )
+MUNDIR=$(echo "$DIRNAME" | cut -d'/' -f 3 )
+MUN=$(echo "$MUNDIR" | tr "_" " " )
 MUNOUT="$DIRNAME/index.html"
-echo -n Summarizing $MUN
+echo -n "Summarizing $MUN"
 
 
-cat << EOF > $MUNOUT
+cat << EOF > "$MUNOUT"
 <!doctype html>
 <html lang="en">
 <head>
@@ -148,37 +148,37 @@ MUNTOTALMATCH=0
 MUNTOTALREMUNMATCH=0
 MUNTOTALADD=0
 
-for gursGeoJson in $(find $DIRNAME -name '*-gurs.geojson');
+for gursGeoJson in $(find "$DIRNAME" -name '*-gurs.geojson');
 do
 	#DIRNAME=$(dirname $gursGeoJson); \
-	BASENAME=$(basename $gursGeoJson -gurs.geojson)
-	CITY=$(echo `basename $gursGeoJson -housenumbers-gurs.geojson` | tr "_" " ")
+	BASENAME=$(basename "$gursGeoJson" -gurs.geojson)
+	CITY=$(basename "$gursGeoJson" -housenumbers-gurs.geojson | tr "_" " ")
 	MUNCITIES="$MUNCITIES|$CITY"
-	GURSCOUNT=`cat $gursGeoJson | grep geometry | wc -l`
-	TOTALGURS=$(($TOTALGURS+$GURSCOUNT))
-	MUNTOTALGURS=$(($MUNTOTALGURS+$GURSCOUNT))
+	GURSCOUNT=$(cat "$gursGeoJson" | grep -c geometry)
+	TOTALGURS=$((TOTALGURS+GURSCOUNT))
+	MUNTOTALGURS=$((MUNTOTALGURS+GURSCOUNT))
 #	GURS="<a href='$MUNDIR/`basename $gursGeoJson`'>$GURSCOUNT</a>"
-	GURS="<a href='`basename $gursGeoJson`'>$GURSCOUNT</a>"
+	GURS="<a href='$(basename "$gursGeoJson")'>$GURSCOUNT</a>"
 
-	echo "<tr>" >> $MUNOUT
+	echo "<tr>" >> "$MUNOUT"
 
-	echo "<td>$CITY</td>" >> $MUNOUT
-	echo "<td>$GURS</td>" >> $MUNOUT
+	echo "<td>$CITY</td>" >> "$MUNOUT"
+	echo "<td>$GURS</td>" >> "$MUNOUT"
 
-if [ ! -f $DIRNAME/$BASENAME-conflate-log.txt ]; then
+if [ ! -f "$DIRNAME/$BASENAME-conflate-log.txt" ]; then
     echo -n "?"
-	echo "<td>Not yet!</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>"  >> $MUNOUT
+	echo "<td>Not yet!</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>"  >> "$MUNOUT"
         continue
 fi
 
-	TOTALCONF=$(($TOTALCONF+$GURSCOUNT))
-	MUNTOTALCONF=$(($MUNTOTALCONF+$GURSCOUNT))
-	LOGTS=`stat $DIRNAME/$BASENAME-conflate-log.txt | grep Modify | cut -d":" -f 2-3`
+	TOTALCONF=$((TOTALCONF+GURSCOUNT))
+	MUNTOTALCONF=$((MUNTOTALCONF+GURSCOUNT))
+	LOGTS=$(stat "$DIRNAME/$BASENAME-conflate-log.txt" | grep Modify | cut -d":" -f 2-3)
 	LOG="<a href='$BASENAME-conflate-log.txt'>$LOGTS</a>"
 	#echo "<td><input type='button' value='Conflate' /></td>" >> $OUT
-	echo "<td class=\"d-none d-sm-table-cell\">$LOG</td>"  >> $MUNOUT
+	echo "<td class=\"d-none d-sm-table-cell\">$LOG</td>"  >> "$MUNOUT"
 
-	conlog=$(cat $DIRNAME/$BASENAME-conflate-log.txt)
+	conlog=$(cat "$DIRNAME/$BASENAME-conflate-log.txt")
 
 	#Parse the log for:
 	#Read 170 items from the dataset
@@ -191,95 +191,95 @@ fi
 	#echo "<td>$READCOUNT</td>" >> $MUNOUT
 
 	#Found 3544 duplicates in the dataset
-	DUPECOUNT=`echo $conlog | grep -o -E "Found [0-9]* duplicates in the dataset" | sed 's/[^0-9]*//g'`
+	DUPECOUNT=$(echo "$conlog" | grep -o -E "Found [0-9]* duplicates in the dataset" | sed 's/[^0-9]*//g')
 	if [ -z "$DUPECOUNT" ]; then
 		DUPECOUNT=0
 	fi
-	TOTALDUPES=$(($TOTALDUPES+$DUPECOUNT))
-	MUNTOTALDUPES=$(($MUNTOTALDUPES+$DUPECOUNT))
-	echo "<td class=\"d-none d-lg-table-cell\">$DUPECOUNT</td>" >> $MUNOUT
+	TOTALDUPES=$((TOTALDUPES+DUPECOUNT))
+	MUNTOTALDUPES=$((MUNTOTALDUPES+DUPECOUNT))
+	echo "<td class=\"d-none d-lg-table-cell\">$DUPECOUNT</td>" >> "$MUNOUT"
 
 	#Downloaded 0 objects from OSM
-	DLCOUNT=`echo $conlog | grep -o -E "Downloaded [0-9]* objects from OSM" | sed 's/[^0-9]*//g'`
+	DLCOUNT=$(echo "$conlog" | grep -o -E "Downloaded [0-9]* objects from OSM" | sed 's/[^0-9]*//g')
 	if [ -z "$DLCOUNT" ]; then
 		DLCOUNT=0
 	fi
-	TOTALDL=$(($TOTALDL+$DLCOUNT))
-	MUNTOTALDL=$(($MUNTOTALDL+$DLCOUNT))
-	echo "<td class=\"d-none d-lg-table-cell\">$DLCOUNT</td>" >> $MUNOUT
+	TOTALDL=$((TOTALDL+DLCOUNT))
+	MUNTOTALDL=$((MUNTOTALDL+DLCOUNT))
+	echo "<td class=\"d-none d-lg-table-cell\">$DLCOUNT</td>" >> "$MUNOUT"
 
 	#Updated 0 OSM objects with ref:gurs:hs_mid tag
-	UPDCOUNT=`echo $conlog | grep -o -E "Updated [0-9]* OSM objects with ref" | sed 's/[^0-9]*//g'`
+	UPDCOUNT=$(echo "$conlog" | grep -o -E "Updated [0-9]* OSM objects with ref" | sed 's/[^0-9]*//g')
 	if [ -z "$UPDCOUNT" ]; then
 		UPDCOUNT=0
 	fi
-	TOTALUPD=$(($TOTALUPD+$UPDCOUNT))
-	MUNTOTALUPD=$(($MUNTOTALUPD+$UPDCOUNT))
-	echo "<td class=\"d-none d-lg-table-cell\">$UPDCOUNT</td>" >> $MUNOUT
+	TOTALUPD=$((TOTALUPD+UPDCOUNT))
+	MUNTOTALUPD=$((MUNTOTALUPD+UPDCOUNT))
+	echo "<td class=\"d-none d-lg-table-cell\">$UPDCOUNT</td>" >> "$MUNOUT"
 
 	#Matched 2153 points
-	MATCHCOUNT=`echo $conlog | grep -o -E "Matched [0-9]* points" | sed 's/[^0-9]*//g'`
+	MATCHCOUNT=$(echo "$conlog" | grep -o -E "Matched [0-9]* points" | sed 's/[^0-9]*//g')
 	if [ -z "$MATCHCOUNT" ]; then
 		MATCHCOUNT=0
 	fi
-	TOTALMATCH=$(($TOTALMATCH+$MATCHCOUNT))
-	MUNTOTALMATCH=$(($MUNTOTALMATCH+$MATCHCOUNT))
-	echo "<td class=\"d-none d-lg-table-cell\">$MATCHCOUNT</td>" >> $MUNOUT
+	TOTALMATCH=$((TOTALMATCH+MATCHCOUNT))
+	MUNTOTALMATCH=$((MUNTOTALMATCH+MATCHCOUNT))
+	echo "<td class=\"d-none d-lg-table-cell\">$MATCHCOUNT</td>" >> "$MUNOUT"
 
 	#Removed 2305 unmatched duplicates
-	REMUNMATCHCOUNT=`echo $conlog | grep -o -E "Removed [0-9]* unmatched duplicates" | sed 's/[^0-9]*//g'`
+	REMUNMATCHCOUNT=$(echo "$conlog" | grep -o -E "Removed [0-9]* unmatched duplicates" | sed 's/[^0-9]*//g')
 	if [ -z "$REMUNMATCHCOUNT" ]; then
 		REMUNMATCHCOUNT=0
 	fi
-	TOTALREMUNMATCH=$(($TOTALREMUNMATCH+$REMUNMATCHCOUNT))
-	MUNTOTALREMUNMATCH=$(($MUNTOTALREMUNMATCH+$REMUNMATCHCOUNT))
-	echo "<td class=\"d-none d-lg-table-cell\">$REMUNMATCHCOUNT</td>" >> $MUNOUT
+	TOTALREMUNMATCH=$((TOTALREMUNMATCH+REMUNMATCHCOUNT))
+	MUNTOTALREMUNMATCH=$((MUNTOTALREMUNMATCH+REMUNMATCHCOUNT))
+	echo "<td class=\"d-none d-lg-table-cell\">$REMUNMATCHCOUNT</td>" >> "$MUNOUT"
 
 	#Adding 170 unmatched dataset points
-	ADDCOUNT=`echo $conlog | grep -o -E "Adding [0-9]* unmatched dataset points" | sed 's/[^0-9]*//g'`
+	ADDCOUNT=$(echo "$conlog" | grep -o -E "Adding [0-9]* unmatched dataset points" | sed 's/[^0-9]*//g')
 	if [ -z "$ADDCOUNT" ]; then
 		ADDCOUNT=0
 	fi
-	TOTALADD=$(($TOTALADD+$ADDCOUNT))
-	MUNTOTALADD=$(($MUNTOTALADD+$ADDCOUNT))
-	echo "<td class=\"d-none d-sm-table-cell\">$ADDCOUNT</td>"  >> $MUNOUT
+	TOTALADD=$((TOTALADD+ADDCOUNT))
+	MUNTOTALADD=$((MUNTOTALADD+ADDCOUNT))
+	echo "<td class=\"d-none d-sm-table-cell\">$ADDCOUNT</td>"  >> "$MUNOUT"
 
-	PERCENT=$((100*($UPDCOUNT+$MATCHCOUNT)/$GURSCOUNT))
-	echo "<td>$PERCENT%</td>" >> $MUNOUT
+	PERCENT=$((100*(UPDCOUNT+MATCHCOUNT)/GURSCOUNT))
+	echo "<td>$PERCENT%</td>" >> "$MUNOUT"
 
 	# Preview
 	# http://geojson.io/#data=data:text/x-url,https%3A%2F%2Fd2ad6b4ur7yvpq.cloudfront.net%2Fnaturalearth-3.3.0%2Fne_50m_land.geojson
 	# Mapshaper alternative: https://github.com/mbloch/mapshaper/wiki/Web-Interface , eg: http://www.mapshaper.org/?files=https://rawgit.com/nvkelso/natural-earth-vector/master/110m_physical/ne_110m_land.shp,https://rawgit.com/nvkelso/natural-earth-vector/master/110m_physical/ne_110m_land.dbf
 	PREVIEWGJ="<a href='$BASENAME-preview.geojson'>GeoJSON</a>"
 	PREVIEWGJIO="<a href='http://geojson.io/#data=data:text/x-url,https%3A%2F%2Faddr.openstreetmap.si%2F$MUNDIR%2F$BASENAME-preview.geojson'>View</a>"
-	echo "<td class=\"d-none d-xl-table-cell\">$PREVIEWGJ</td>" >> $MUNOUT
-	echo "<td class=\"d-none d-sm-table-cell\">$PREVIEWGJIO</td>" >> $MUNOUT
+	echo "<td class=\"d-none d-xl-table-cell\">$PREVIEWGJ</td>" >> "$MUNOUT"
+	echo "<td class=\"d-none d-sm-table-cell\">$PREVIEWGJIO</td>" >> "$MUNOUT"
 
 	# JOSM import - https://wiki.openstreetmap.org/wiki/JOSM/RemoteControl#import_command
 	OSMLINK="<a href='$BASENAME.osm'>.osm</a>"
 	JOSMIMPORT="<a href='http://localhost:8111/import?url=https%3A%2F%2Faddr.openstreetmap.si%2F$MUNDIR%2F$BASENAME.osm'>Load</a>"
-	echo "<td class=\"d-none d-xl-table-cell\">$OSMLINK</td>" >> $MUNOUT
-	echo "<td class=\"d-none d-lg-table-cell\">$JOSMIMPORT</td>" >> $MUNOUT
+	echo "<td class=\"d-none d-xl-table-cell\">$OSMLINK</td>" >> "$MUNOUT"
+	echo "<td class=\"d-none d-lg-table-cell\">$JOSMIMPORT</td>" >> "$MUNOUT"
 
-	echo "</tr>" >> $MUNOUT
+	echo "</tr>" >> "$MUNOUT"
 	echo -n .
 
 done #cities loop
 
-cat << EOF >> $MUNOUT
+cat << EOF >> "$MUNOUT"
 </tbody>
 <tfoot>
 <tr>
 <th>$MUN TOTAL:</th>
 <th>$MUNTOTALGURS</th>
-<th class="d-none d-sm-table-cell">$((100*$MUNTOTALCONF/$MUNTOTALGURS))%</th>
+<th class="d-none d-sm-table-cell">$((100*MUNTOTALCONF/MUNTOTALGURS))%</th>
 <th class="d-none d-lg-table-cell">$MUNTOTALDUPES</th>
 <th class="d-none d-lg-table-cell">$MUNTOTALDL</th>
 <th class="d-none d-lg-table-cell">$MUNTOTALUPD</th>
 <th class="d-none d-lg-table-cell">$MUNTOTALMATCH</th>
 <th class="d-none d-lg-table-cell">$MUNTOTALREMUNMATCH</th>
 <th class="d-none d-sm-table-cell">$MUNTOTALADD</th>
-<th>$((100*($MUNTOTALUPD+$MUNTOTALMATCH)/$MUNTOTALGURS))%</th>
+<th>$((100*(MUNTOTALUPD+MUNTOTALMATCH)/MUNTOTALGURS))%</th>
 <th class="d-none d-xl-table-cell"></th>
 <th class="d-none d-sm-table-cell"></th>
 <th class="d-none d-xl-table-cell"></th>
@@ -290,8 +290,8 @@ cat << EOF >> $MUNOUT
 </table>
 <a href="https://taginfo.openstreetmap.org/projects/slovenia_address_import#tags">TagInfo statistics</a><br>
 <a href="http://resultmaps.neis-one.org/osm-changesets?comment=GURS-HS">#GURS-HS Changesets</a><br>
-<a href="https://metrics.improveosm.org/address-points/total-metrics-per-interval?duration=weekly&locationType=country&locationId=196&unit=km&from=2016-02-14&to=`date +%Y-%m-%d`">Total Address Points per week in Slovenia</a><br>
-Report finished on `date`
+<a href="https://metrics.improveosm.org/address-points/total-metrics-per-interval?duration=weekly&locationType=country&locationId=196&unit=km&from=2016-02-14&to=$(date +%Y-%m-%d)">Total Address Points per week in Slovenia</a><br>
+Report finished on $(date)
 </div>
 </body>
 </html>
@@ -302,14 +302,14 @@ cat << EOF >> $OUT
 <td><a href="$MUNDIR/">$MUN</a></td>
 <td class="d-none">$MUNCITIES</td>
 <td>$MUNTOTALGURS</td>
-<td class="d-none d-sm-table-cell">$((100*$MUNTOTALCONF/$MUNTOTALGURS))%</td>
+<td class="d-none d-sm-table-cell">$((100*MUNTOTALCONF/MUNTOTALGURS))%</td>
 <td class="d-none d-lg-table-cell">$MUNTOTALDUPES</td>
 <td class="d-none d-lg-table-cell">$MUNTOTALDL</td>
 <td class="d-none d-lg-table-cell">$MUNTOTALUPD</td>
 <td class="d-none d-lg-table-cell">$MUNTOTALMATCH</td>
 <td class="d-none d-lg-table-cell">$MUNTOTALREMUNMATCH</td>
 <td class="d-none d-sm-table-cell">$MUNTOTALADD</td>
-<td>$((100*($MUNTOTALUPD+$MUNTOTALMATCH)/$MUNTOTALGURS))%</td>
+<td>$((100*(MUNTOTALUPD+MUNTOTALMATCH)/MUNTOTALGURS))%</td>
 </tr>
 EOF
 
@@ -323,22 +323,22 @@ cat << EOF >> $OUT
 <th>Slovenia TOTAL:</th>
 <th></th>
 <th>$TOTALGURS</th>
-<th class="d-none d-sm-table-cell">$((100*$TOTALCONF/$TOTALGURS))%</th>
+<th class="d-none d-sm-table-cell">$((100*TOTALCONF/TOTALGURS))%</th>
 <th class="d-none d-lg-table-cell">$TOTALDUPES</th>
 <th class="d-none d-lg-table-cell">$TOTALDL</th>
 <th class="d-none d-lg-table-cell">$TOTALUPD</th>
 <th class="d-none d-lg-table-cell">$TOTALMATCH</th>
 <th class="d-none d-lg-table-cell">$TOTALREMUNMATCH</th>
 <th class="d-none d-sm-table-cell">$TOTALADD</th>
-<th>$((100*($TOTALUPD+$TOTALMATCH)/$TOTALGURS))%</th>
+<th>$((100*(TOTALUPD+TOTALMATCH)/TOTALGURS))%</th>
 </tr>
 
 </tfoot>
 </table>
 <a href="https://taginfo.openstreetmap.org/projects/slovenia_address_import#tags">TagInfo statistics</a><br>
 <a href="http://resultmaps.neis-one.org/osm-changesets?comment=GURS-HS">#GURS-HS Changesets</a><br>
-<a href="https://metrics.improveosm.org/address-points/total-metrics-per-interval?duration=weekly&locationType=country&locationId=196&unit=km&from=2016-02-14&to=`date +%Y-%m-%d`">Total Address Points per week in Slovenia</a><br>
-Report finished on `date`
+<a href="https://metrics.improveosm.org/address-points/total-metrics-per-interval?duration=weekly&locationType=country&locationId=196&unit=km&from=2016-02-14&to=$(date +%Y-%m-%d)">Total Address Points per week in Slovenia</a><br>
+Report finished on $(date)
 </div>
 </body>
 </html>
