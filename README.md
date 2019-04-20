@@ -10,50 +10,49 @@ Do **NOT** import anything until the process is defined and approved by communit
 [![codecov](https://codecov.io/gh/openstreetmap-si/GursAddressesForOSM/branch/master/graph/badge.svg)](https://codecov.io/gh/openstreetmap-si/GursAddressesForOSM)
 [![Requirements Status](https://requires.io/github/openstreetmap-si/GursAddressesForOSM/requirements.svg?branch=master)](https://requires.io/github/openstreetmap-si/GursAddressesForOSM/requirements/?branch=master)
 
+## Steps
 
-### Steps:
-1. Register as user at http://egp.gu.gov.si/egp, wait for the email with the password, login
+1. Register as user at [http://egp.gu.gov.si](http://egp.gu.gov.si/egp), wait for the email with the password, login
 2. Run GNU `make` in this folder (requires `wget` and `go` (>1.10))
 3. When prompted enter your credentials (they can be saved for later reuse)
 4. Wait a minute or two for processing to finish.
 
-### To manually download the data you should:
-1. Register as user at http://egp.gu.gov.si/egp, wait for the email with the password, login
+## To manually download the data you should
+
+1. Register as user at [http://egp.gu.gov.si](http://egp.gu.gov.si/egp), wait for the email with the password, login
 2. Expand section "10. Register prostorskih enot" / "10. Register of Spatial Units"
 3. Download the data "Prostorske enote" / "Spatial units" -> `RPE_PE.ZIP` and put it in the `data/downloaded` folder
 4. Download the data "Ulice" / "Streets" -> `RPE_PUL.ZIP` and put it in the `data/downloaded` folder
 5. Download the data "Hišne številke" / "House numbers" -> `RPE_PE.ZIP` and put it in the `data/downloaded` folder
 
-### Technical info:
+## Technical info
+
 Encoding in source shapefiles is Windows-1250 (`CP1250` in `iconv`), result is UTF8
 
 Source shapefile structure is described in [RPE_struktura.pdf](http://www.e-prostor.gov.si/fileadmin/struktura/RPE_struktura.pdf) (only in Slovenian so far)
 
-### Dataset source
-Data can be obtained from Geodetska  uprava  Republike  Slovenije - http://egp.gu.gov.si/egp/ under CreativeCommons attribution license - [CC-BY 2.5](http://creativecommons.org/licenses/by/2.5/si/legalcode), attribution details in  [General_terms.pdf](http://www.e-prostor.gov.si/fileadmin/struktura/ANG/General_terms.pdf) (or slovene [preberi_me.pdf](http://www.e-prostor.gov.si/fileadmin/struktura/preberi_me.pdf)).
+## Dataset source
 
-### Dependancies
+Data can be obtained from Geodetska  uprava  Republike  Slovenije - [http://egp.gu.gov.si](http://egp.gu.gov.si/egp) under CreativeCommons attribution license - [CC-BY 2.5](http://creativecommons.org/licenses/by/2.5/si/legalcode), attribution details in  [General_terms.pdf](http://www.e-prostor.gov.si/fileadmin/struktura/ANG/General_terms.pdf) (or slovene [preberi_me.pdf](http://www.e-prostor.gov.si/fileadmin/struktura/preberi_me.pdf)).
+
+## Dependancies
+
 1. GNU Make, bash, wget... (normal linux stuff)
-2. GoLang 1.10 or later
-
-Note: 
-* For running on Mac OS use: 
-  * `gsed` instead of `sed` in `Makefile`
-* GoLang program is optimized as a Go learning exercise
+2. GoLang 1.10 or later (program is optimized as a Go learning exercise)
 
 ### Similar import projects
 
-* https://github.com/pnoll1/bothell_import - house numbers and building outlines
-* https://github.com/SouthFLMappers/OSMImport2018 - Miami-Dade County Address + Building (+POI?) Import
-* https://github.com/cascafico/MilanoHousenumbers - Milano house numbers
+* [pnoll1/bothell_import](https://github.com/pnoll1/bothell_import) - house numbers and building outlines
+* [SouthFLMappers/OSMImport2018](https://github.com/SouthFLMappers/OSMImport2018) - Miami-Dade County Address + Building (+POI?) Import
+* [cascafico/MilanoHousenumbers](https://github.com/cascafico/MilanoHousenumbers) - Milano house numbers
 
+## TODO
 
-### TODO: 
 * [ ] Use buffered channels + goroutines for concurrent processing when reading shapefile
 * [X] Split into smaller files by areas (municipalities/občine, cities/naselja)
 * [X] Travis CI, with badges etc
-* [ ] add golang linter: https://github.com/alecthomas/gometalinter
-* [X] use OSM conflator (see https://wiki.openstreetmap.org/wiki/OSM_Conflator and https://github.com/mapsme/osm_conflate ) to prepare .osc files
+* [ ] add golang [gometalinter](https://github.com/alecthomas/gometalinter)
+* [X] use [OSM conflator](https://wiki.openstreetmap.org/wiki/OSM_Conflator) [source code](https://github.com/mapsme/osm_conflate) to prepare .osc files
 * [X] create [`taginfo.json`](taginfo.json)
-* [X] add [`taginfo.json`](https://raw.githubusercontent.com/openstreetmap-si/GursAddressesForOSM/master/taginfo.json) to https://github.com/taginfo/taginfo-projects - [PR#65](https://github.com/taginfo/taginfo-projects/pull/65) - https://taginfo.openstreetmap.org/projects/slovenia_address_import
+* [X] add [`taginfo.json`](https://raw.githubusercontent.com/openstreetmap-si/GursAddressesForOSM/master/taginfo.json) to [taginfo-projects](https://github.com/taginfo/taginfo-projects) - [PR#65](https://github.com/taginfo/taginfo-projects/pull/65) - [DONE](https://taginfo.openstreetmap.org/projects/slovenia_address_import)
 * [ ] Find & expand abbreviated names (eg "Sv. Anton na Pohorju, Moravci v Slov. goricah") (Q: Add a tag with original, shortened value, like `short_name`?)
