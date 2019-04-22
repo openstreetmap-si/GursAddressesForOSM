@@ -55,4 +55,4 @@ Data can be obtained from Geodetska  uprava  Republike  Slovenije - [http://egp.
 * [X] use [OSM conflator](https://wiki.openstreetmap.org/wiki/OSM_Conflator) [source code](https://github.com/mapsme/osm_conflate) to prepare .osc files
 * [X] create [`taginfo.json`](taginfo.json)
 * [X] add [`taginfo.json`](https://raw.githubusercontent.com/openstreetmap-si/GursAddressesForOSM/master/taginfo.json) to [taginfo-projects](https://github.com/taginfo/taginfo-projects) - [PR#65](https://github.com/taginfo/taginfo-projects/pull/65) - [DONE](https://taginfo.openstreetmap.org/projects/slovenia_address_import)
-* [ ] Find & expand abbreviated names (eg "Sv. Anton na Pohorju, Moravci v Slov. goricah") (Q: Add a tag with original, shortened value, like `short_name`?)
+* [X] Find & expand abbreviated names (eg "Moravci v Slov. goricah", "Pristava pri Polh. Gradcu"). Done, see `overrides` folder. (Q: Add a tag with original, shortened value, like `short_name`?)

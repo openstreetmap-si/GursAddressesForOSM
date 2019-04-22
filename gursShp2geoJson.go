@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"encoding/csv"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -9,19 +11,22 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/jonas-p/go-shp"
-	"github.com/paulmach/go.geojson"
+	shp "github.com/jonas-p/go-shp"
+	geojson "github.com/paulmach/go.geojson"
 	"golang.org/x/text/encoding/charmap"
 )
 
 var inputShapeFileName = flag.String("in", "data/temp/HS-epsg4326/HS-epsg4326.shp", "Input ShapeFile to read")
 var outputGeoJSONFileName = flag.String("out", "data/slovenia/%s-housenumbers-gurs.geojson", "Output GeoJSON file to save")
+
+var reAllowedAbbreviations = regexp.MustCompile(`([IVX]+|[0-9]+|(D|d)r|(S|s)v).`)
 
 // Reads 2 columns from shapeFileName and returns them as a map
 func readShapefileToMap(shapeFileName string, keyColumnName, valueColumnName string) map[string]string {
@@ -36,6 +41,9 @@ func readShapefileToMap(shapeFileName string, keyColumnName, valueColumnName str
 	keyColumnIndex := getColumnIndex(shapeReader.Fields(), keyColumnName)
 	valueColumnIndex := getColumnIndex(shapeReader.Fields(), valueColumnName)
 
+	overridesFilename := "overrides/" + valueColumnName + ".csv"
+	overrides := readOverrides(overridesFilename)
+
 	var valueUtf string
 	for shapeReader.Next() {
 		//i++
@@ -43,7 +51,25 @@ func readShapefileToMap(shapeFileName string, keyColumnName, valueColumnName str
 		valueUtf = strings.Trim(valueUtf, "\u0000") // trim null characters to remove null strings (when no bilingual name)
 
 		if len(valueUtf) > 0 {
-			result[DecodeWindows1250(shapeReader.Attribute(keyColumnIndex))] = valueUtf
+
+			key := DecodeWindows1250(shapeReader.Attribute(keyColumnIndex))
+
+			if override, overriden := overrides[valueUtf]; overriden {
+				result[key] = override
+			} else {
+				result[key] = valueUtf
+			}
+
+			if strings.Contains(valueUtf, ".") {
+				valueCleared := reAllowedAbbreviations.ReplaceAllString(valueUtf, "")
+
+				if strings.Contains(valueCleared, ".") {
+					_, loaded := overrides[valueUtf]
+					if !loaded {
+						log.Printf("Possible new abbreviation in %s: %s,%s", valueColumnName, valueUtf, valueUtf)
+					}
+				}
+			}
 		}
 	}
 
@@ -77,6 +103,32 @@ func getColumnIndex(fields []shp.Field, columnName string) int {
 	}
 
 	return -1
+}
+
+func readOverrides(filename string) map[string]string {
+
+	result := make(map[string]string)
+
+	csvFile, err := os.Open(filename)
+	if err != nil {
+		// _, err := os.Create(filename)
+		// if err != nil {
+		// 	log.Fatalf("Error creating %s", filename)
+		// }
+		return result
+	}
+
+	reader := csv.NewReader(bufio.NewReader(csvFile))
+	ss, err := reader.ReadAll()
+	if err != nil {
+		log.Fatalf("Error reading overrides %s: %s", filename, err)
+	}
+
+	for _, s := range ss {
+		result[s[0]] = s[1]
+	}
+
+	return result
 }
 
 const (
