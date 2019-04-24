@@ -245,7 +245,7 @@ fi
 
 	TOTALCONF=$((TOTALCONF+GURSCOUNT))
 	MUNTOTALCONF=$((MUNTOTALCONF+GURSCOUNT))
-	LOGTS=$(gstat "$DIRNAME/$BASENAME-conflate-log.txt" | grep Modify | cut -d":" -f 2-3)
+	LOGTS=$(stat "$DIRNAME/$BASENAME-conflate-log.txt" | grep Modify | cut -d":" -f 2-3)
 	LOG="<a href='$BASENAME-conflate-log.txt'>$LOGTS</a>"
 	#echo "<td><input type='button' value='Conflate' /></td>" >> $OUT
 	echo "<td class=\"d-none d-sm-table-cell text-center\">$LOG</td>"  >> "$MUNOUT"
