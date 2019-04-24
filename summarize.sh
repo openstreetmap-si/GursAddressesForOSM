@@ -17,9 +17,40 @@ cat << EOF > $OUT
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css" crossorigin="anonymous">
 </head>
 <body>
-<div class="container-fluid">
-<h2>Slovenia - GURS Addresses for OpenStreetMap</h2>
-<p><a href="https://wiki.openstreetmap.org/wiki/Slovenia_Address_Import">Slovenia Address Import</a> preparation - do NOT import anything yet!</p>
+
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+	<a class="navbar-brand" href="#">GURS Addresses for OSM</a>
+	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
+	<span class="navbar-toggler-icon"></span>
+	</button>
+
+	<div class="collapse navbar-collapse" id="navbarsExample03">
+	<ul class="navbar-nav mr-auto">
+		<li class="nav-item">
+		<a class="nav-link" href="https://wiki.openstreetmap.org/wiki/Slovenia_Address_Import">Wiki</a>
+		</li>
+		<li class="nav-item">
+		<a class="nav-link" href="https://taginfo.openstreetmap.org/projects/slovenia_address_import#tags">TagInfo</a>
+		</li>
+		<li class="nav-item">
+		<a class="nav-link" href="https://resultmaps.neis-one.org/osm-changesets?comment=GURS-HS">Changesets</a>
+		</li>
+		<li class="nav-item">
+		<a class="nav-link" href="https://metrics.improveosm.org/address-points/total-metrics-per-interval?duration=weekly&locationType=country&locationId=196&unit=km&from=2016-02-14&to=$(date +%Y-%m-%d)">Progress</a>
+		</li>
+	</ul>
+	</div>
+</nav>
+
+<main role="main" class="pt-3 container-fluid">
+<div class="alert alert-warning" role="alert">
+  For evaluation purposes - do NOT import anything yet!
+</div>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item active" aria-current="page">Slovenia</li>
+  </ol>
+</nav>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -41,7 +72,7 @@ cat << EOF > $OUT
 	} );
     </script>
 <table id="list" class="table table-sm table-striped table-bordered table-hover" style="width:100%">
-<thead class="thead-dark">
+<thead class="thead-dark sticky-top">
 <tr>
 <th>Municipality</th>
 <th class="d-none">Cities</th>
@@ -92,9 +123,41 @@ cat << EOF > "$MUNOUT"
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css" crossorigin="anonymous">
 </head>
 <body>
-<div class="container-fluid">
-<h2><a href="..">Slovenia</a> / $MUN - GURS Addresses for OpenStreetMap</h2>
-<p><a href="https://wiki.openstreetmap.org/wiki/Slovenia_Address_Import">Slovenia Address Import</a> preparation - do NOT import anything yet!</p>
+
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+	<a class="navbar-brand" href="..">GURS Addresses for OSM</a>
+	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
+	<span class="navbar-toggler-icon"></span>
+	</button>
+
+	<div class="collapse navbar-collapse" id="navbarsExample03">
+	<ul class="navbar-nav mr-auto">
+		<li class="nav-item">
+		<a class="nav-link" href="https://wiki.openstreetmap.org/wiki/Slovenia_Address_Import">Wiki</a>
+		</li>
+		<li class="nav-item">
+		<a class="nav-link" href="https://taginfo.openstreetmap.org/projects/slovenia_address_import#tags">TagInfo</a>
+		</li>
+		<li class="nav-item">
+		<a class="nav-link" href="https://resultmaps.neis-one.org/osm-changesets?comment=GURS-HS">Changesets</a>
+		</li>
+		<li class="nav-item">
+		<a class="nav-link" href="https://metrics.improveosm.org/address-points/total-metrics-per-interval?duration=weekly&locationType=country&locationId=196&unit=km&from=2016-02-14&to=$(date +%Y-%m-%d)">Progress</a>
+		</li>
+	</ul>
+	</div>
+</nav>
+
+<main role="main" class="pt-3 container-fluid">
+<div class="alert alert-warning" role="alert">
+  For evaluation purposes - do NOT import anything yet!
+</div>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="..">Slovenia</a></li>
+    <li class="breadcrumb-item active" aria-current="page">$MUN</li>
+  </ol>
+</nav>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -115,7 +178,7 @@ cat << EOF > "$MUNOUT"
 	} );
     </script>
 <table id="list" class="table table-sm table-striped table-bordered table-hover" style="width:100%">
-<thead class="thead-dark">
+<thead class="thead-dark sticky-top">
 <tr>
 <th>City</th>
 <th>#GURS</th>
@@ -154,29 +217,38 @@ do
 	BASENAME=$(basename "$gursGeoJson" -gurs.geojson)
 	CITY=$(basename "$gursGeoJson" -housenumbers-gurs.geojson | tr "_" " ")
 	MUNCITIES="$MUNCITIES|$CITY"
-	GURSCOUNT=$(cat "$gursGeoJson" | grep -c geometry)
+	GURSCOUNT=$(grep -c geometry "$gursGeoJson")
 	TOTALGURS=$((TOTALGURS+GURSCOUNT))
 	MUNTOTALGURS=$((MUNTOTALGURS+GURSCOUNT))
 #	GURS="<a href='$MUNDIR/`basename $gursGeoJson`'>$GURSCOUNT</a>"
 	GURS="<a href='$(basename "$gursGeoJson")'>$GURSCOUNT</a>"
 
-	echo "<tr>" >> "$MUNOUT"
-
-	echo "<td>$CITY</td>" >> "$MUNOUT"
-	echo "<td>$GURS</td>" >> "$MUNOUT"
+	echo "<tr><td>$CITY</td><td>$GURS</td>" >> "$MUNOUT"
 
 if [ ! -f "$DIRNAME/$BASENAME-conflate-log.txt" ]; then
     echo -n "?"
-	echo "<td>Not yet!</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>"  >> "$MUNOUT"
+	echo "<td class='text-center'>Not yet!</td><td class='d-none d-lg-table-cell'></td><td class='d-none d-lg-table-cell'></td><td class='d-none d-lg-table-cell'></td><td class='d-none d-lg-table-cell'></td><td class='d-none d-lg-table-cell'></td><td class='d-none d-sm-table-cell'></td><td class='d-none d-sm-table-cell'></td><td class='d-none d-xl-table-cell'></td><td class='d-none d-sm-table-cell'></td><td class='d-none d-xl-table-cell'></td><td class='d-none d-lg-table-cell'></td></tr>"  >> "$MUNOUT"
+# <th class="d-none d-sm-table-cell">Conflated</th>
+# <th class="d-none d-lg-table-cell">#Dups</th>
+# <th class="d-none d-lg-table-cell">#DLed</th>
+# <th class="d-none d-lg-table-cell">#Upd.</th>
+# <th class="d-none d-lg-table-cell">#Match</th>
+# <th class="d-none d-lg-table-cell">#UnMatch</th>
+# <th class="d-none d-sm-table-cell">#Add</th>
+# <th>%Done</th>
+# <th class="d-none d-xl-table-cell">Preview</th>
+# <th class="d-none d-sm-table-cell">View</th>
+# <th class="d-none d-xl-table-cell">.osm</th>
+# <th class="d-none d-lg-table-cell">JOSM</th>
         continue
 fi
 
 	TOTALCONF=$((TOTALCONF+GURSCOUNT))
 	MUNTOTALCONF=$((MUNTOTALCONF+GURSCOUNT))
-	LOGTS=$(stat "$DIRNAME/$BASENAME-conflate-log.txt" | grep Modify | cut -d":" -f 2-3)
+	LOGTS=$(gstat "$DIRNAME/$BASENAME-conflate-log.txt" | grep Modify | cut -d":" -f 2-3)
 	LOG="<a href='$BASENAME-conflate-log.txt'>$LOGTS</a>"
 	#echo "<td><input type='button' value='Conflate' /></td>" >> $OUT
-	echo "<td class=\"d-none d-sm-table-cell\">$LOG</td>"  >> "$MUNOUT"
+	echo "<td class=\"d-none d-sm-table-cell text-center\">$LOG</td>"  >> "$MUNOUT"
 
 	conlog=$(cat "$DIRNAME/$BASENAME-conflate-log.txt")
 
@@ -248,17 +320,19 @@ fi
 	echo "<td>$PERCENT%</td>" >> "$MUNOUT"
 
 	# Preview
+	PREVIEWGJ="<a href='$BASENAME-preview.geojson'>GeoJSON</a>"
+	echo "<td class=\"d-none d-xl-table-cell\">$PREVIEWGJ</td>" >> "$MUNOUT"
+
 	# http://geojson.io/#data=data:text/x-url,https%3A%2F%2Fd2ad6b4ur7yvpq.cloudfront.net%2Fnaturalearth-3.3.0%2Fne_50m_land.geojson
 	# Mapshaper alternative: https://github.com/mbloch/mapshaper/wiki/Web-Interface , eg: http://www.mapshaper.org/?files=https://rawgit.com/nvkelso/natural-earth-vector/master/110m_physical/ne_110m_land.shp,https://rawgit.com/nvkelso/natural-earth-vector/master/110m_physical/ne_110m_land.dbf
-	PREVIEWGJ="<a href='$BASENAME-preview.geojson'>GeoJSON</a>"
 	PREVIEWGJIO="<a href='http://geojson.io/#data=data:text/x-url,https%3A%2F%2Faddr.openstreetmap.si%2F$MUNDIR%2F$BASENAME-preview.geojson'>View</a>"
-	echo "<td class=\"d-none d-xl-table-cell\">$PREVIEWGJ</td>" >> "$MUNOUT"
 	echo "<td class=\"d-none d-sm-table-cell\">$PREVIEWGJIO</td>" >> "$MUNOUT"
 
-	# JOSM import - https://wiki.openstreetmap.org/wiki/JOSM/RemoteControl#import_command
 	OSMLINK="<a href='$BASENAME.osm'>.osm</a>"
-	JOSMIMPORT="<a href='http://localhost:8111/import?url=https%3A%2F%2Faddr.openstreetmap.si%2F$MUNDIR%2F$BASENAME.osm'>Load</a>"
 	echo "<td class=\"d-none d-xl-table-cell\">$OSMLINK</td>" >> "$MUNOUT"
+
+	# JOSM import - https://wiki.openstreetmap.org/wiki/JOSM/RemoteControl#import_command
+	JOSMIMPORT="<a href='http://localhost:8111/import?url=https%3A%2F%2Faddr.openstreetmap.si%2F$MUNDIR%2F$BASENAME.osm'>Load</a>"
 	echo "<td class=\"d-none d-lg-table-cell\">$JOSMIMPORT</td>" >> "$MUNOUT"
 
 	echo "</tr>" >> "$MUNOUT"
@@ -288,11 +362,16 @@ cat << EOF >> "$MUNOUT"
 
 </tfoot>
 </table>
-<a href="https://taginfo.openstreetmap.org/projects/slovenia_address_import#tags">TagInfo statistics</a><br>
-<a href="http://resultmaps.neis-one.org/osm-changesets?comment=GURS-HS">#GURS-HS Changesets</a><br>
-<a href="https://metrics.improveosm.org/address-points/total-metrics-per-interval?duration=weekly&locationType=country&locationId=196&unit=km&from=2016-02-14&to=$(date +%Y-%m-%d)">Total Address Points per week in Slovenia</a><br>
-Report finished on $(date)
-</div>
+</main>
+
+<footer class="footer">
+	<div class="container-fluid py-1 mt-3 mb-0 bg-light">
+		<small class="text-secondary text-center">
+			Data &copy; <a href="http://www.gu.gov.si">GURS</a> &amp; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, $(date)
+		</small>
+	</div>
+</footer>
+
 </body>
 </html>
 EOF
@@ -335,11 +414,16 @@ cat << EOF >> $OUT
 
 </tfoot>
 </table>
-<a href="https://taginfo.openstreetmap.org/projects/slovenia_address_import#tags">TagInfo statistics</a><br>
-<a href="http://resultmaps.neis-one.org/osm-changesets?comment=GURS-HS">#GURS-HS Changesets</a><br>
-<a href="https://metrics.improveosm.org/address-points/total-metrics-per-interval?duration=weekly&locationType=country&locationId=196&unit=km&from=2016-02-14&to=$(date +%Y-%m-%d)">Total Address Points per week in Slovenia</a><br>
-Report finished on $(date)
-</div>
+</main>
+
+<footer class="footer">
+	<div class="container-fluid py-1 mt-3 mb-0 bg-light">
+		<small class="text-secondary text-center">
+			Data &copy; <a href="http://www.gu.gov.si">GURS</a> &amp; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, $(date)
+		</small>
+	</div>
+</footer>
+
 </body>
 </html>
 EOF
