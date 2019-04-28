@@ -70,6 +70,14 @@ func readShapefileToMap(shapeFileName string, keyColumnName, valueColumnName str
 					}
 				}
 			}
+
+			if valueColumnName == "PT_UIME" && strings.Contains(valueUtf, "-") {
+				_, loaded := overrides[valueUtf]
+				if !loaded {
+					log.Printf("Possible new bilingual post in %s: %s,%s", valueColumnName, valueUtf, valueUtf)
+				}
+			}
+
 		}
 	}
 
