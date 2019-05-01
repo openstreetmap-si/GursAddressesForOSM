@@ -36,7 +36,7 @@ cat << EOF > $OUT
 		<a class="nav-link" href="https://resultmaps.neis-one.org/osm-changesets?comment=GURS-HS">Changesets</a>
 		</li>
 		<li class="nav-item">
-		<a class="nav-link" href="https://metrics.improveosm.org/address-points/total-metrics-per-interval?duration=weekly&locationType=country&locationId=196&unit=km&from=2016-02-14&to=$(date +%Y-%m-%d)">Progress</a>
+		<a class="nav-link" href="https://metrics.improveosm.org/address-points/total-metrics-per-interval?duration=weekly&locationType=country&locationId=196&unit=km&from=2016-02-14&to=$(date -dlast-sunday +%Y-%m-%d)">Progress</a>
 		</li>
 	</ul>
 	</div>
@@ -63,9 +63,9 @@ cat << EOF > $OUT
 	    \$('#list').DataTable({
 		    stateSave: true,
 		    columnDefs: [
-		        //{ targets: [10, 11, 12, 13], "orderable": false},
+		        //{ targets: [10, 11, 12, 13, 14], "orderable": false},
 		        { targets: [1], visible: false },
-		        { targets: [2,3,4,5,6,7,8,9], className: 'text-right' },
+		        { targets: [2,3,4,5,6,7,8,9,10], className: 'text-right' },
 		        //{ targets: '_all', visible: false }
 		    ]
 		});
@@ -83,6 +83,7 @@ cat << EOF > $OUT
 <th class="d-none d-lg-table-cell">#Upd.</th>
 <th class="d-none d-lg-table-cell">#Match</th>
 <th class="d-none d-lg-table-cell">#UnMatch</th>
+<th class="d-none d-lg-table-cell">#Del</th>
 <th class="d-none d-sm-table-cell">#Add</th>
 <th>%Done</th>
 </tr>
@@ -99,6 +100,7 @@ TOTALDL=0
 TOTALUPD=0
 TOTALMATCH=0
 TOTALREMUNMATCH=0
+TOTALDEL=0
 TOTALADD=0
 
 for DIRNAME in $(find data/slovenia -maxdepth 1 -mindepth 1 -type d | sort);
@@ -142,7 +144,7 @@ cat << EOF > "$MUNOUT"
 		<a class="nav-link" href="https://resultmaps.neis-one.org/osm-changesets?comment=GURS-HS">Changesets</a>
 		</li>
 		<li class="nav-item">
-		<a class="nav-link" href="https://metrics.improveosm.org/address-points/total-metrics-per-interval?duration=weekly&locationType=country&locationId=196&unit=km&from=2016-02-14&to=$(date +%Y-%m-%d)">Progress</a>
+		<a class="nav-link" href="https://metrics.improveosm.org/address-points/total-metrics-per-interval?duration=weekly&locationType=country&locationId=196&unit=km&from=2016-02-14&to=$(date -dlast-sunday +%Y-%m-%d)">Progress</a>
 		</li>
 	</ul>
 	</div>
@@ -170,8 +172,8 @@ cat << EOF > "$MUNOUT"
 	    \$('#list').DataTable({
 		    stateSave: true,
 		    columnDefs: [
-		        { targets: [10,11,12,13], "orderable": false},
-		        { targets: [1,3,4,5,6,7,8,9], className: 'text-right' },
+		        { targets: [11,12,13,14], "orderable": false},
+		        { targets: [1,3,4,5,6,7,8,9,10], className: 'text-right' },
                         //{ targets: '_all', visible: false }
 		    ]
 		});
@@ -188,6 +190,7 @@ cat << EOF > "$MUNOUT"
 <th class="d-none d-lg-table-cell">#Upd.</th>
 <th class="d-none d-lg-table-cell">#Match</th>
 <th class="d-none d-lg-table-cell">#UnMatch</th>
+<th class="d-none d-lg-table-cell">#Del</th>
 <th class="d-none d-sm-table-cell">#Add</th>
 <th>%Done</th>
 <th class="d-none d-xl-table-cell">Preview</th>
@@ -209,6 +212,7 @@ MUNTOTALDL=0
 MUNTOTALUPD=0
 MUNTOTALMATCH=0
 MUNTOTALREMUNMATCH=0
+MUNTOTALDEL=0
 MUNTOTALADD=0
 
 for gursGeoJson in $(find "$DIRNAME" -name '*-gurs.geojson');
@@ -227,7 +231,7 @@ do
 
 if [ ! -f "$DIRNAME/$BASENAME-conflate-log.txt" ]; then
     echo -n "?"
-	echo "<td class='text-center'>Not yet!</td><td class='d-none d-lg-table-cell'></td><td class='d-none d-lg-table-cell'></td><td class='d-none d-lg-table-cell'></td><td class='d-none d-lg-table-cell'></td><td class='d-none d-lg-table-cell'></td><td class='d-none d-sm-table-cell'></td><td class='d-none d-sm-table-cell'></td><td class='d-none d-xl-table-cell'></td><td class='d-none d-sm-table-cell'></td><td class='d-none d-xl-table-cell'></td><td class='d-none d-lg-table-cell'></td></tr>"  >> "$MUNOUT"
+	echo "<td class='text-center'>Not yet!</td><td class='d-none d-lg-table-cell'></td><td class='d-none d-lg-table-cell'></td><td class='d-none d-lg-table-cell'></td><td class='d-none d-lg-table-cell'></td><td class='d-none d-lg-table-cell'></td><td class='d-none d-sm-table-cell'></td><td class='d-none d-lg-table-cell'></td><td class='d-none d-sm-table-cell'></td><td class='d-none d-xl-table-cell'></td><td class='d-none d-sm-table-cell'></td><td class='d-none d-xl-table-cell'></td><td class='d-none d-lg-table-cell'></td></tr>"  >> "$MUNOUT"
 # <th class="d-none d-sm-table-cell">Conflated</th>
 # <th class="d-none d-lg-table-cell">#Dups</th>
 # <th class="d-none d-lg-table-cell">#DLed</th>
@@ -307,6 +311,15 @@ fi
 	MUNTOTALREMUNMATCH=$((MUNTOTALREMUNMATCH+REMUNMATCHCOUNT))
 	echo "<td class=\"d-none d-lg-table-cell\">$REMUNMATCHCOUNT</td>" >> "$MUNOUT"
 
+	#Deleted 87 and retagged 0 unmatched objects from OSM
+	DELCOUNT=$(echo "$conlog" | grep -o -E "Deleted [0-9]* and retagged" | sed 's/[^0-9]*//g')
+	if [ -z "$DELCOUNT" ]; then
+		DELCOUNT=0
+	fi
+	TOTALDEL=$((TOTALDEL+DELCOUNT))
+	MUNTOTALDEL=$((MUNTOTALDEL+DELCOUNT))
+	echo "<td class=\"d-none d-lg-table-cell\">$DELCOUNT</td>"  >> "$MUNOUT"
+
 	#Adding 170 unmatched dataset points
 	ADDCOUNT=$(echo "$conlog" | grep -o -E "Adding [0-9]* unmatched dataset points" | sed 's/[^0-9]*//g')
 	if [ -z "$ADDCOUNT" ]; then
@@ -352,6 +365,7 @@ cat << EOF >> "$MUNOUT"
 <th class="d-none d-lg-table-cell">$MUNTOTALUPD</th>
 <th class="d-none d-lg-table-cell">$MUNTOTALMATCH</th>
 <th class="d-none d-lg-table-cell">$MUNTOTALREMUNMATCH</th>
+<th class="d-none d-lg-table-cell">$MUNTOTALDEL</th>
 <th class="d-none d-sm-table-cell">$MUNTOTALADD</th>
 <th>$((100*(MUNTOTALUPD+MUNTOTALMATCH)/MUNTOTALGURS))%</th>
 <th class="d-none d-xl-table-cell"></th>
@@ -387,6 +401,7 @@ cat << EOF >> $OUT
 <td class="d-none d-lg-table-cell">$MUNTOTALUPD</td>
 <td class="d-none d-lg-table-cell">$MUNTOTALMATCH</td>
 <td class="d-none d-lg-table-cell">$MUNTOTALREMUNMATCH</td>
+<td class="d-none d-lg-table-cell">$MUNTOTALDEL</td>
 <td class="d-none d-sm-table-cell">$MUNTOTALADD</td>
 <td>$((100*(MUNTOTALUPD+MUNTOTALMATCH)/MUNTOTALGURS))%</td>
 </tr>
@@ -408,6 +423,7 @@ cat << EOF >> $OUT
 <th class="d-none d-lg-table-cell">$TOTALUPD</th>
 <th class="d-none d-lg-table-cell">$TOTALMATCH</th>
 <th class="d-none d-lg-table-cell">$TOTALREMUNMATCH</th>
+<th class="d-none d-lg-table-cell">$TOTALDEL</th>
 <th class="d-none d-sm-table-cell">$TOTALADD</th>
 <th>$((100*(TOTALUPD+TOTALMATCH)/TOTALGURS))%</th>
 </tr>
