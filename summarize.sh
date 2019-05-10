@@ -18,7 +18,7 @@ cat << EOF > $OUT
 </head>
 <body>
 
-<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
 	<a class="navbar-brand" href="#">GURS Addresses for OSM</a>
 	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
 	<span class="navbar-toggler-icon"></span>
@@ -30,6 +30,9 @@ cat << EOF > $OUT
 		<a class="nav-link" href="https://wiki.openstreetmap.org/wiki/Slovenia_Address_Import">Wiki</a>
 		</li>
 		<li class="nav-item">
+		<a class="nav-link" href="https://forum.openstreetmap.org/viewtopic.php?id=66162">Forum</a>
+		</li>
+		<li class="nav-item">
 		<a class="nav-link" href="https://taginfo.openstreetmap.org/projects/slovenia_address_import#tags">TagInfo</a>
 		</li>
 		<li class="nav-item">
@@ -37,6 +40,9 @@ cat << EOF > $OUT
 		</li>
 		<li class="nav-item">
 		<a class="nav-link" href="https://metrics.improveosm.org/address-points/total-metrics-per-interval?duration=weekly&locationType=country&locationId=196&unit=km&from=2016-02-14&to=$(date -dlast-sunday +%Y-%m-%d)">Progress</a>
+		</li>
+		<li class="nav-item">
+		<a class="nav-link" href="https://github.com/openstreetmap-si/GursAddressesForOSM/">Github</a>
 		</li>
 	</ul>
 	</div>
@@ -126,7 +132,7 @@ cat << EOF > "$MUNOUT"
 </head>
 <body>
 
-<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
 	<a class="navbar-brand" href="..">GURS Addresses for OSM</a>
 	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
 	<span class="navbar-toggler-icon"></span>
@@ -138,6 +144,9 @@ cat << EOF > "$MUNOUT"
 		<a class="nav-link" href="https://wiki.openstreetmap.org/wiki/Slovenia_Address_Import">Wiki</a>
 		</li>
 		<li class="nav-item">
+		<a class="nav-link" href="https://forum.openstreetmap.org/viewtopic.php?id=66162">Forum</a>
+		</li>
+		<li class="nav-item">
 		<a class="nav-link" href="https://taginfo.openstreetmap.org/projects/slovenia_address_import#tags">TagInfo</a>
 		</li>
 		<li class="nav-item">
@@ -145,6 +154,9 @@ cat << EOF > "$MUNOUT"
 		</li>
 		<li class="nav-item">
 		<a class="nav-link" href="https://metrics.improveosm.org/address-points/total-metrics-per-interval?duration=weekly&locationType=country&locationId=196&unit=km&from=2016-02-14&to=$(date -dlast-sunday +%Y-%m-%d)">Progress</a>
+		</li>
+		<li class="nav-item">
+		<a class="nav-link" href="https://github.com/openstreetmap-si/GursAddressesForOSM/">Github</a>
 		</li>
 	</ul>
 	</div>
