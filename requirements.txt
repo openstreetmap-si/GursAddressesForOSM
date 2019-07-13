@@ -4,4 +4,4 @@ idna==2.8
 kdtree==0.16
 osm-conflate==1.4.0
 requests==2.21.0
-urllib3==1.24.2
+urllib3==1.25.3
