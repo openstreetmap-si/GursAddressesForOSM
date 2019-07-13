@@ -3,7 +3,7 @@ DownloadDest="${1}"
 TempDest="${2}"
 credentialsFile="CREDENTIALS-egp.gu.gov.si.txt"
 maxAge=720
-baseUrl="http://egp.gu.gov.si/egp/"
+baseUrl="https://egp.gu.gov.si/egp/"
 
 SEDCMD="sed"
 STATCMD="stat"
