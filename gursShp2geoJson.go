@@ -471,7 +471,11 @@ func main() {
 
 		dir := filepath.Dir(catGeoJSONFileName)
 		// log.Println("Creating directory:", dir)
-		os.MkdirAll(dir, 0755)
+		err = os.MkdirAll(dir, 0755)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		err = ioutil.WriteFile(catGeoJSONFileName, rawJSON, 0644)
 		if err != nil {
 			log.Fatal(err)
