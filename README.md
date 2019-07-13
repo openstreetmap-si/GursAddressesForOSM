@@ -9,6 +9,7 @@ Do **NOT** import anything until the process is defined and approved by communit
 [![Maintainability](https://api.codeclimate.com/v1/badges/9f6ae8b5b2c751481e6c/maintainability)](https://codeclimate.com/github/openstreetmap-si/GursAddressesForOSM/maintainability)
 [![codecov](https://codecov.io/gh/openstreetmap-si/GursAddressesForOSM/branch/master/graph/badge.svg)](https://codecov.io/gh/openstreetmap-si/GursAddressesForOSM)
 [![Requirements Status](https://requires.io/github/openstreetmap-si/GursAddressesForOSM/requirements.svg?branch=master)](https://requires.io/github/openstreetmap-si/GursAddressesForOSM/requirements/?branch=master)
+[![GolangCI](https://golangci.com/badges/github.com/openstreetmap-si/GursAddressesForOSM-lint.svg)](https://golangci.com/r/github.com/openstreetmap-si/GursAddressesForOSM)
 
 ## Steps
 
