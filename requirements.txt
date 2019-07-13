@@ -2,6 +2,6 @@ certifi==2019.6.16
 chardet==3.0.4
 idna==2.8
 kdtree==0.16
-osm-conflate==1.4.0
+osm-conflate==1.4.1
 requests==2.22.0
 urllib3==1.25.3
