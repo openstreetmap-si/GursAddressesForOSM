@@ -1,3 +1,4 @@
+unexport GOFLAGS
 SHELL:=/bin/bash
 DATAFOLDER = data/
 DLFOLDER = $(DATAFOLDER)downloaded/
