@@ -330,7 +330,11 @@ fi
 	fi
 	TOTALDEL=$((TOTALDEL+DELCOUNT))
 	MUNTOTALDEL=$((MUNTOTALDEL+DELCOUNT))
-	echo "<td class=\"d-none d-lg-table-cell\">$DELCOUNT</td>"  >> "$MUNOUT"
+	if [ "$DELCOUNT" -eq "0" ]; then
+		echo "<td class=\"d-none d-lg-table-cell text-muted\">$DELCOUNT</td>"  >> "$MUNOUT";
+	else
+		echo "<td class=\"d-none d-lg-table-cell text-danger\">$DELCOUNT</td>"  >> "$MUNOUT";
+	fi
 
 	#Adding 170 unmatched dataset points
 	ADDCOUNT=$(echo "$conlog" | grep -o -E "Adding [0-9]* unmatched dataset points" | sed 's/[^0-9]*//g')

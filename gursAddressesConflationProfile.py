@@ -8,8 +8,8 @@ source = 'GURS'
 
 # aggiunge tag ref:<dataset_id>=<id del Comune di Milano (IDMASTER)>
 # True -> relying only on geometric matching every time
-#no_dataset_id = True
-dataset_id = 'gurs:hs_mid'
+no_dataset_id = True
+#dataset_id = 'gurs:hs_mid'
 
 #A boolean value, False by default. If True, objects with ref:whatever tag are downloaded only for the import region, not for the whole world.
 bounded_update = True
@@ -55,7 +55,7 @@ delete_unmatched = False
 
 
 # max distance to search for a match in meters
-max_distance = 30
+max_distance = 10
 
 # Dataset points that are closer than this distance (in meters) will be considered duplicates of each other.
 # Eg: 5 hišnih številk na popolnoma istem mestu (razdalja 0), 30 na razdalji 1 m ... pod 10 m jih je 40939.
