@@ -1,6 +1,6 @@
 certifi==2020.6.20
 chardet==3.0.4
-idna==2.10
+idna==3.2
 kdtree==0.16
 osm-conflate==1.4.1
 requests==2.24.0
