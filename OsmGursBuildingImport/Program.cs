@@ -63,6 +63,34 @@ namespace OsmGursBuildingImport
             public List<StmTask> Tasks { get; set; }
         }
 
+        public class JsonPolygon
+        {
+            [JsonProperty("file_name")]
+            public string FileName { get; set; }
+
+            [JsonProperty("file_type")]
+            public string FileType { get; set; }
+        }
+
+        public class Extract
+        {
+            [JsonProperty("output")]
+            public string Output { get; set; }
+
+            [JsonProperty("polygon")]
+            public JsonPolygon Polygon { get; set; }
+        }
+
+        public class Root
+        {
+            [JsonProperty("directory")]
+            public string Directory { get; set; }
+
+            [JsonProperty("extracts")]
+            public List<Extract> Extracts { get; set; }
+        }
+
+
         record GeoOsmWithGeometry(Geometry Geometry, ICompleteOsmGeo OsmGeo);
 
         static int Main(string[] args)
@@ -115,11 +143,10 @@ namespace OsmGursBuildingImport
                 Description = "How to do this, go here: http://example.com"
             };
 
-            var osmosisCommand = new StringBuilder();
-            osmosisCommand.AppendLine("#!/bin/bash");
-            osmosisCommand.AppendLine("osmosis \\");
-            osmosisCommand.AppendLine("  --read-pbf data/download/slovenia-latest.osm.pbf \\");
-            osmosisCommand.AppendLine($"  --tee {model.ProcessingAreas.Count} \\");
+            var json = new Root();
+            json.Directory = "data/output/";
+            json.Extracts = new List<Extract>();
+
             var geoJsonWriter = new GeoJsonWriter();
             foreach (var area in model.ProcessingAreas)
             {
@@ -186,11 +213,31 @@ namespace OsmGursBuildingImport
                 }
                 sw.WriteLine("END");
 
-                osmosisCommand.AppendLine($"  --bp file={Path.Combine("data", "temp", "polygons", area.Name)}.poly \\");
-                osmosisCommand.AppendLine($"  --wx {Path.Combine("data", "output", "polygons", area.Name)}.original.osm.bz2 \\");
+                json.Extracts.Add(new Extract()
+                {
+                    Output = area.Name + ".original.osm",
+                    Polygon = new JsonPolygon()
+                    {
+                        FileType = "poly",
+                        FileName = Path.Combine("data", "temp", "polygons", area.Name + ".poly")
+                    }
+                });
             }
             File.WriteAllText(Path.Combine(outputFolder, "Tasks.json"), JsonConvert.SerializeObject(project));
-            File.WriteAllText("createOriginals.sh", osmosisCommand.ToString());
+            int index = 0;
+            var osmiumFolder = Path.Combine(tempDir, "osmium");
+            Directory.CreateDirectory(osmiumFolder);
+            const int OSMIUM_EXPORTS_AT_ONCE = 50;
+            while (json.Extracts.Count > 0)
+            {
+                index++;
+                File.WriteAllText(Path.Combine(osmiumFolder, $"export{index}.json"), JsonConvert.SerializeObject(new Root()
+                {
+                    Directory = json.Directory,
+                    Extracts = new(json.Extracts.Take(OSMIUM_EXPORTS_AT_ONCE))
+                }));
+                json.Extracts.RemoveRange(0, Math.Min(json.Extracts.Count, OSMIUM_EXPORTS_AT_ONCE));
+            }
 
             Parallel.ForEach(model.ProcessingAreas, (processingArea) =>
             {
