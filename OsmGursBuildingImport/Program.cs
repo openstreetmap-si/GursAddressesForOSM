@@ -102,7 +102,7 @@ namespace OsmGursBuildingImport
             var model = new GursData(tempDir, overridesDir);
             STRtree<GeoOsmWithGeometry> osmIndex = osmIndexTask.Result;
 
-            var baseUrlForBlobs = "https://osmstorage.blob.core.windows.net/gurs-import/";
+            var baseUrlForBlobs = "https://osm-func.azurewebsites.net/api/BlobDownloader/";
 
             var ljubljana = model.Settlements.Values.Single(s => s.Name.Name == "Ljubljana").Geometry;
             var project = new StmProject()
