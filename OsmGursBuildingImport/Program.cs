@@ -124,20 +124,11 @@ namespace OsmGursBuildingImport
             foreach (var area in model.ProcessingAreas)
             {
                 var josmCommands = new List<string>{
-                    $"http://localhost:8111/import?new_layer=true&layer_locked=true&layer_name=All%20Buildings&url={baseUrlForBlobs}{area.Name}.full.osm",
-                    $"http://localhost:8111/import?new_layer=true&layer_name=Merge%20This&url={baseUrlForBlobs}{area.Name}.merge.osm" 
-                    //$"http://localhost:8111/import?new_layer=true&layer_name=OSM%20Data&url={baseUrlForBlobs}{area.Name}.original.osm.bz2"
+                    $"http://localhost:8111/import?new_layer=true&layer_locked=true&layer_name=All%20Buildings&url={HttpUtility.UrlEncode($"{baseUrlForBlobs}{area.Name}.full.osm")}",
+                    $"http://localhost:8111/import?new_layer=true&layer_name=Merge%20This&url={HttpUtility.UrlEncode($"{baseUrlForBlobs}{area.Name}.merge.osm")}",
+                    $"http://localhost:8111/import?new_layer=true&layer_name=OSM%20Data&url={HttpUtility.UrlEncode($"{baseUrlForBlobs}{area.Name}.original.osm")}"
                 };
 
-                var str = "[out:xml];"
-                + "("
-                + $"node({area.Geometry.EnvelopeInternal.MinY},{area.Geometry.EnvelopeInternal.MinX},{area.Geometry.EnvelopeInternal.MaxY},{area.Geometry.EnvelopeInternal.MaxX});"
-                + "<;"
-                + ");"
-                + "(._;>;);"
-                + "out meta;";
-
-                josmCommands.Add($"http://localhost:8111/import?new_layer=true&layer_name=OSM%20Data&url=https://overpass.kumi.systems/api/interpreter?data={HttpUtility.UrlEncode(str)}");
                 josmCommands.Add($"http://localhost:8111/zoom?left={area.Geometry.EnvelopeInternal.MinX}&right={area.Geometry.EnvelopeInternal.MaxX}&top={area.Geometry.EnvelopeInternal.MaxY}&bottom={area.Geometry.EnvelopeInternal.MinY}");
 
                 if (ljubljana.Intersects(area.Geometry))
@@ -156,10 +147,10 @@ namespace OsmGursBuildingImport
 
                 project.Tasks.Add(new StmTask()
                 {
-                    Geometry = geoJsonWriter.Write(new Feature(simplePoly
-                         , new AttributesTable(new Dictionary<string, object> {
-                    { "name", area.Name },
-                    { "josmCommands", josmCommands.ToArray()}}))),
+                    Geometry = geoJsonWriter.Write(new Feature(simplePoly,
+                         new AttributesTable(new Dictionary<string, object> {
+                            { "name", area.Name },
+                            { "josmCommands", josmCommands.ToArray()}}))),
                     MaxProcessPoints = area.Buildings.Count,
                     Name = area.Name
                 });
