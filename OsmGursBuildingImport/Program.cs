@@ -18,7 +18,7 @@ namespace OsmGursBuildingImport
     {
         record GeoOsmWithGeometry(Geometry Geometry, ICompleteOsmGeo OsmGeo);
 
-        static int Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
             Directory.SetCurrentDirectory("/Users/davidkarlas/Projects/shp1234/");
             var currentDirectory = Directory.GetCurrentDirectory();
@@ -53,7 +53,7 @@ namespace OsmGursBuildingImport
             FeatureInterpreter.DefaultInterpreter = new OsmToNtsConvert();
             var osmIndexTask = Task.Run(() => LoadOsmData(pbfFile));
             var model = new GursData(tempDir, overridesDir);
-            STRtree<GeoOsmWithGeometry> osmIndex = osmIndexTask.Result;
+            STRtree<GeoOsmWithGeometry> osmIndex = await osmIndexTask;
             SimpleTaskManager.CreateStmProjectJson(outputFolder, tempDir, model);
 
             Parallel.ForEach(model.ProcessingAreas, (processingArea) =>
