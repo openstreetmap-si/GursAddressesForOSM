@@ -69,8 +69,6 @@ namespace OsmGursBuildingImport
                     foreach (var aprox in osmIndex.Query(gursBuilding.Geometry.EnvelopeInternal))
                     {
                         var osmGeometry = aprox.Geometry;
-                        if (osmGeometry is LinearRing ring)
-                            osmGeometry = new Polygon(ring);
                         Geometry intersection;
                         try
                         {

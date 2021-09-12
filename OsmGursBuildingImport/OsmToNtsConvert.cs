@@ -125,8 +125,8 @@ namespace OsmSharp.Geo
                     {
                         if (isArea)
                         { // area tags leads to simple polygon
-                            var lineairRing = new Feature(new LinearRing(coordinates.
-                                ToArray<Coordinate>()), TagsAndIdToAttributes(osmObject));
+                            var lineairRing = new Feature(new Polygon(new LinearRing(coordinates.
+                                ToArray<Coordinate>())), TagsAndIdToAttributes(osmObject));
                             collection.Add(lineairRing);
                         }
                         else
@@ -251,6 +251,10 @@ namespace OsmSharp.Geo
             var geometry = this.GroupRings(rings);
             if (geometry != null)
             {
+                if(geometry is LinearRing ring)
+                {
+                    geometry = new Polygon(ring);
+                }
                 feature = new Feature(geometry, TagsAndIdToAttributes(relation));
             }
             return feature;
