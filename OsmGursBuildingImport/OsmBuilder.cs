@@ -143,7 +143,7 @@ namespace OsmGursBuildingImport
             // We want to add village only when it's not already mentioned, so when user enters
             // some address into navigation it re-assuress them when seeing also correct village name...
             // It is pretty common in Slovenia for people to be more fimiliar with village name than street names.
-            if (!address.PostInfo.Name.StartsWith(address.StreetName.Name) &&
+            if (!address.PostInfo.Name.StartsWith(address.VillageName.Name) &&
                 address.StreetName.Name != address.VillageName.Name)
             {
                 anythingWasSet |= UpdateAttribute(attributes, "addr:village", address.VillageName.Name);
