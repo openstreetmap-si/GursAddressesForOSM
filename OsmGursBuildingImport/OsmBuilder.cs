@@ -93,8 +93,13 @@ namespace OsmGursBuildingImport
                 }
 
                 attributes[attributeName] = newValue;
-                AddFixmeAttribute(attributes,
-                    $"\"{attributeName}\" changed from {attributes[attributeName]} to {newValue}.");
+
+                // Don't emit fixme for change from 128A to 128a.
+                if (!attributes[attributeName].Equals(newValue, StringComparison.OrdinalIgnoreCase))
+                {
+                    AddFixmeAttribute(attributes,
+                        $"\"{attributeName}\" changed from {attributes[attributeName]} to {newValue}.");
+                }
                 return true;
             }
             else
