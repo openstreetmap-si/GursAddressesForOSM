@@ -34,7 +34,7 @@ namespace OsmGursBuildingImport
         public bool UpdateBuilding(ICompleteOsmGeo building, BuildingInfo gursBuilding, bool setAddressOnBuilding)
         {
             var attributes = building.Tags;
-            attributes["ref:gurs:sta_sid"] = gursBuilding.Id.ToString();
+            var anythingUpdated = UpdateAttribute(attributes, "ref:gurs:sta_sid", gursBuilding.Id.ToString());
             var addresses = gursBuilding.Addresses;
             if (addresses != null && setAddressOnBuilding)
             {
@@ -47,12 +47,11 @@ namespace OsmGursBuildingImport
                 }
                 else
                 {
-                    SetAddressAttributes(addresses[0], attributes);
+                    anythingUpdated |= SetAddressAttributes(addresses[0], attributes);
                 }
-                return true;
             }
 
-            return false;
+            return anythingUpdated;
         }
 
         public void CreateNewNodeFromAddress(Address addr)
