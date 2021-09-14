@@ -112,13 +112,10 @@ namespace OsmGursBuildingImport
 
                 josmCommands.Add($"http://localhost:8111/zoom?left={area.Geometry.EnvelopeInternal.MinX}&right={area.Geometry.EnvelopeInternal.MaxX}&top={area.Geometry.EnvelopeInternal.MaxY}&bottom={area.Geometry.EnvelopeInternal.MinY}");
 
+                josmCommands.Add("http://localhost:8111/imagery?id=GURS-DOF025");
                 if (ljubljana.Intersects(area.Geometry))
                 {
                     josmCommands.Add("http://localhost:8111/imagery?id=LJUBLJANA-DOF-2020");
-                }
-                else
-                {
-                    josmCommands.Add("http://localhost:8111/imagery?id=GURS-DOF025");
                 }
 
                 josmCommands.Add("http://localhost:8111/imagery?id=GURS-buildings");
