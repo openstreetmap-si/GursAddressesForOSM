@@ -98,13 +98,16 @@ namespace OsmGursBuildingImport
             json.Directory = "data/output/";
             json.Extracts = new List<Extract>();
 
+            var poliesDir = Path.Combine(tempDir, "polygons");
+            Directory.CreateDirectory(poliesDir);
+
             var geoJsonWriter = new GeoJsonWriter();
             foreach (var area in model.ProcessingAreas)
             {
                 var josmCommands = new List<string>{
-                    $"http://localhost:8111/import?new_layer=true&layer_locked=true&layer_name=All%20Buildings&url={HttpUtility.UrlEncode($"{baseUrlForBlobs}{area.Name}.full.osm")}",
-                    $"http://localhost:8111/import?new_layer=true&layer_name=Merge%20This&url={HttpUtility.UrlEncode($"{baseUrlForBlobs}{area.Name}.merge.osm")}",
-                    $"http://localhost:8111/import?new_layer=true&layer_name=OSM%20Data&url={HttpUtility.UrlEncode($"{baseUrlForBlobs}{area.Name}.original.osm")}"
+                    $"http://localhost:8111/import?new_layer=true&layer_locked=true&layer_name=All%20Buildings&url={HttpUtility.UrlEncode($"{baseUrlForBlobs}{area.Name}.full.osm.bz2")}",
+                    $"http://localhost:8111/import?new_layer=true&layer_name=Merge%20This&url={HttpUtility.UrlEncode($"{baseUrlForBlobs}{area.Name}.merge.osm.bz2")}",
+                    $"http://localhost:8111/import?new_layer=true&layer_name=OSM%20Data&url={HttpUtility.UrlEncode($"{baseUrlForBlobs}{area.Name}.original.osm.bz2")}"
                 };
 
                 josmCommands.Add($"http://localhost:8111/zoom?left={area.Geometry.EnvelopeInternal.MinX}&right={area.Geometry.EnvelopeInternal.MaxX}&top={area.Geometry.EnvelopeInternal.MaxY}&bottom={area.Geometry.EnvelopeInternal.MinY}");
@@ -148,9 +151,7 @@ namespace OsmGursBuildingImport
                 {
                     throw new Exception(area.Geometry.GetType().ToString());
                 }
-
-
-                string polyPath = Path.Combine(tempDir, "polygons", area.Name + ".poly");
+                string polyPath = Path.Combine(poliesDir, area.Name + ".poly");
                 using var sw = new StreamWriter(polyPath);
                 sw.WriteLine(area.Name + ".original");
                 for (int i = 0; i < polygons.Length; i++)
@@ -170,7 +171,7 @@ namespace OsmGursBuildingImport
                     Polygon = new JsonPolygon()
                     {
                         FileType = "poly",
-                        FileName = Path.Combine("data", "temp", "polygons", area.Name + ".poly")
+                        FileName = Path.Combine("..", "polygons", area.Name + ".poly")
                     }
                 });
             }

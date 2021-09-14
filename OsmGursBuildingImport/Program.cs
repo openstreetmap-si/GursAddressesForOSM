@@ -48,8 +48,6 @@ namespace OsmGursBuildingImport
                 return 3;
             }
 
-            Directory.CreateDirectory(Path.Combine(tempDir, "polygons"));
-
             FeatureInterpreter.DefaultInterpreter = new OsmToNtsConvert();
             var osmIndexTask = Task.Run(() => LoadOsmData(pbfFile));
             var model = new GursData(tempDir, overridesDir);
