@@ -31,25 +31,23 @@ namespace OsmGursBuildingImport
             });
         }
 
-        public bool UpdateBuilding(ICompleteOsmGeo building, BuildingInfo gursBuilding)
+        public bool UpdateBuilding(ICompleteOsmGeo building, BuildingInfo gursBuilding, bool setAddressOnBuilding)
         {
             var attributes = building.Tags;
             attributes["ref:gurs:sta_sid"] = gursBuilding.Id.ToString();
             var addresses = gursBuilding.Addresses;
-            if (addresses != null)
+            if (addresses != null && setAddressOnBuilding)
             {
                 if (addresses.Count > 1)
                 {
                     foreach (var addr in addresses)
                     {
-                        var newNode = GetOrCreateNode(addr.Geometry.Centroid);
-                        newNode.Tags = new TagsCollection();
-                        SetAttributes(addr, newNode.Tags, gursBuilding.Geometry.Coordinate);
+                        CreateNewNodeFromAddress(addr);
                     }
                 }
                 else
                 {
-                    SetAttributes(addresses[0], attributes, gursBuilding.Geometry.Coordinate);
+                    SetAddressAttributes(addresses[0], attributes);
                 }
                 return true;
             }
@@ -57,6 +55,12 @@ namespace OsmGursBuildingImport
             return false;
         }
 
+        public void CreateNewNodeFromAddress(Address addr)
+        {
+            var newNode = GetOrCreateNode(addr.Geometry.Centroid);
+            newNode.Tags = new TagsCollection();
+            SetAddressAttributes(addr, newNode.Tags);
+        }
 
         private static IEnumerable<ICompleteOsmGeo> GetNodes(ICompleteOsmGeo building)
         {
@@ -109,7 +113,7 @@ namespace OsmGursBuildingImport
             }
         }
 
-        private static void AddFixmeAttribute(TagsCollectionBase attributes, string fixmeMessage)
+        public static void AddFixmeAttribute(TagsCollectionBase attributes, string fixmeMessage)
         {
             if (attributes.ContainsKey("fixme"))
             {
@@ -133,14 +137,14 @@ namespace OsmGursBuildingImport
             return coordinate.X > 14.815333 ? ":hu" : ":it";
         }
 
-        private static void SetAttributes(Address address, TagsCollectionBase attributes, Coordinate coordinate)
+        public static bool SetAddressAttributes(Address address, TagsCollectionBase attributes)
         {
             var anythingWasSet = false;
             anythingWasSet |= UpdateAttribute(attributes, "addr:housenumber", address.HouseNumber);
             anythingWasSet |= UpdateAttribute(attributes, "addr:street", address.StreetName.Name);
             if (!string.IsNullOrEmpty(address.StreetName.NameSecondLanguage))
             {
-                anythingWasSet |= UpdateAttribute(attributes, "addr:street" + Suffix(coordinate), address.StreetName.NameSecondLanguage);
+                anythingWasSet |= UpdateAttribute(attributes, "addr:street" + Suffix(address.Geometry.Coordinate), address.StreetName.NameSecondLanguage);
             }
             anythingWasSet |= UpdateAttribute(attributes, "addr:postcode", address.PostInfo.Id.ToString());
             anythingWasSet |= UpdateAttribute(attributes, "addr:city", address.PostInfo.Name);
@@ -154,23 +158,23 @@ namespace OsmGursBuildingImport
                 anythingWasSet |= UpdateAttribute(attributes, "addr:village", address.VillageName.Name);
                 if (!string.IsNullOrEmpty(address.StreetName.NameSecondLanguage))
                 {
-                    anythingWasSet |= UpdateAttribute(attributes, "addr:village" + Suffix(coordinate), address.VillageName.NameSecondLanguage);
+                    anythingWasSet |= UpdateAttribute(attributes, "addr:village" + Suffix(address.Geometry.Coordinate), address.VillageName.NameSecondLanguage);
                 }
             }
 
-            // If only thing GURS is contributing is ID...
-            // lets not state it is as source, because someone else
-            // already got all relavant data elsewhere...
-            UpdateAttribute(attributes, "ref:gurs:hs_mid", address.Id.ToString());
             if (anythingWasSet)
             {
                 UpdateAttribute(attributes, "source:addr", "GURS");
                 if (!string.IsNullOrEmpty(address.Date))
                     UpdateAttribute(attributes, "source:addr:date", address.Date);
             }
+            // If only thing GURS is contributing is ID...
+            // lets not state it is as source, because someone else
+            // already got all relavant data elsewhere...
+            return UpdateAttribute(attributes, "ref:gurs:hs_mid", address.Id.ToString()) | anythingWasSet;
         }
 
-        internal void AddBuilding(BuildingInfo gursBuilding)
+        internal void AddBuilding(BuildingInfo gursBuilding, bool setAddressOnBuilding)
         {
             var newBuilding = GeometryToOsmGeo(gursBuilding.Geometry);
             newBuilding.Tags = new TagsCollection(
@@ -179,7 +183,7 @@ namespace OsmGursBuildingImport
 
             if (!string.IsNullOrEmpty(gursBuilding.Date))
                 newBuilding.Tags.Add(new Tag("source:geometry:date", gursBuilding.Date));
-            UpdateBuilding(newBuilding, gursBuilding);
+            UpdateBuilding(newBuilding, gursBuilding, setAddressOnBuilding);
         }
 
         public ICompleteOsmGeo GeometryToOsmGeo(Geometry geometry)

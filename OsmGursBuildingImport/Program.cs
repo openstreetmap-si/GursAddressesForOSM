@@ -11,6 +11,7 @@ using OsmSharp.Db;
 using OsmSharp.Db.Impl;
 using OsmSharp.Geo;
 using OsmSharp.Streams;
+using OsmSharp.Tags;
 
 namespace OsmGursBuildingImport
 {
@@ -61,34 +62,115 @@ namespace OsmGursBuildingImport
                 var osmModifiedList = new List<ICompleteOsmGeo>();
                 foreach (var gursBuilding in processingArea.Buildings)
                 {
-                    osmBuilderFull.AddBuilding(gursBuilding);
-
-                    bool foundMatch = false;
-                    foreach (var aprox in osmIndex.Query(gursBuilding.Geometry.EnvelopeInternal))
+                    osmBuilderFull.AddBuilding(gursBuilding, true);
+                    var queriedElements = osmIndex.Query(gursBuilding.Geometry.EnvelopeInternal).ToArray();
+                    var intersectingBuildings = queriedElements.Where(g =>
                     {
-                        var osmGeometry = aprox.Geometry;
+                        try
+                        {
+                            return (g.OsmGeo is CompleteWay || g.OsmGeo is CompleteRelation) && gursBuilding.Geometry.Intersects(g.Geometry);
+                        }
+                        catch (TopologyException)
+                        {
+                            return false;
+                        }
+                    });
+
+                    GeoOsmWithGeometry? intersectingBuilding = null;
+                    foreach (var building in intersectingBuildings)
+                    {
+                        var osmGeometry = building.Geometry;
                         Geometry intersection;
                         try
                         {
                             intersection = osmGeometry.Intersection(gursBuilding.Geometry);
                         }
-                        catch (TopologyException ex)
+                        catch (TopologyException)
                         {
-                            Console.WriteLine(ex.Message);
                             continue;
                         }
                         if (intersection.Area > gursBuilding.Geometry.Area * 0.7 && intersection.Area > osmGeometry.Area * 0.7)
                         {
-                            foundMatch = true;
-                            if (osmBuilder.UpdateBuilding(aprox.OsmGeo, gursBuilding))
-                                osmModifiedList.Add(aprox.OsmGeo);
+                            intersectingBuilding = building;
                             break;
                         }
                     }
 
-                    if (foundMatch)
-                        continue;
-                    osmBuilder.AddBuilding(gursBuilding);
+                    bool setAddressOnBuilding = true;
+                    var nodesOfIntrest = queriedElements
+                            .Where(n => n.OsmGeo is Node && n.OsmGeo.Tags.Any(k => k.Key.StartsWith("addr:")))
+                            .Where(n =>
+                            {
+                                try
+                                {
+                                    return intersectingBuilding?.Geometry.Intersects(n.Geometry) ?? false
+                                    || gursBuilding.Geometry.Intersects(n.Geometry);
+                                }
+                                catch (TopologyException)
+                                {
+                                    return false;
+                                }
+                            })
+                            .ToList();
+
+                    if (nodesOfIntrest.Count > 0)
+                    {
+                        setAddressOnBuilding = false;
+                        if (nodesOfIntrest.Count == 1 && gursBuilding.Addresses?.Count == 1)
+                        {
+                            // So we have one existing addr: node + gurs only has 1 address, win-win...
+                            if (OsmBuilder.SetAddressAttributes(gursBuilding.Addresses[0], nodesOfIntrest[0].OsmGeo.Tags))
+                                osmModifiedList.Add(nodesOfIntrest[0].OsmGeo);
+                        }
+                        else if ((gursBuilding.Addresses?.Count ?? 0) == 0)
+                        {
+                            foreach (var node in nodesOfIntrest)
+                            {
+                                OsmBuilder.AddFixmeAttribute(node.OsmGeo.Tags, "This node was inside building without addresses.");
+                                osmModifiedList.Add(node.OsmGeo);
+                            }
+                        }
+                        else
+                        {
+                            // So we have at least multiple of something, either existing or imported...
+                            // Lets try to match them...
+
+                            foreach (var imported in gursBuilding.Addresses!)
+                            {
+                                bool foundAddressMatch = false;
+                                foreach (var existing in nodesOfIntrest.ToArray())
+                                {
+                                    if (existing.OsmGeo.Tags.TryGetValue("addr:housenumber", out var houseNumber) &&
+                                    houseNumber.Equals(imported.HouseNumber, StringComparison.OrdinalIgnoreCase) &&
+                                    (!existing.OsmGeo.Tags.TryGetValue("addr:street", out var street) ||
+                                    street.Equals(imported.StreetName.Name, StringComparison.OrdinalIgnoreCase)))
+                                    {
+                                        nodesOfIntrest.Remove(existing);
+                                        if (OsmBuilder.SetAddressAttributes(imported, existing.OsmGeo.Tags))
+                                            osmModifiedList.Add(existing.OsmGeo);
+                                        foundAddressMatch = true;
+                                    }
+                                }
+                                if (!foundAddressMatch)
+                                    osmBuilder.CreateNewNodeFromAddress(imported);
+                            }
+                            foreach (var unmatched in nodesOfIntrest)
+                            {
+                                OsmBuilder.AddFixmeAttribute(unmatched.OsmGeo.Tags, "This node was inside building but didn't match any of its addresses.");
+                                osmModifiedList.Add(unmatched.OsmGeo);
+                            }
+                        }
+                    }
+
+                    if (intersectingBuilding != null)
+                    {
+                        if (osmBuilder.UpdateBuilding(intersectingBuilding.OsmGeo, gursBuilding, setAddressOnBuilding))
+                            osmModifiedList.Add(intersectingBuilding.OsmGeo);
+                    }
+                    else
+                    {
+                        osmBuilder.AddBuilding(gursBuilding, setAddressOnBuilding);
+                    }
                 }
 
                 string areaPath = Path.Combine(outputFolder, $"{processingArea.Name}.merge");
@@ -111,7 +193,10 @@ namespace OsmGursBuildingImport
                 var featureCollection = interpreter.Interpret(osmGeoComplete);
                 if (featureCollection.Count != 1)
                 {
-                    Console.WriteLine("TODO: Warning, skipping: " + osmGeo);
+                    if (osmGeo is not Node)
+                    {
+                        Console.WriteLine("TODO: Warning, skipping: " + osmGeo);
+                    }
                     continue;
                 }
 
