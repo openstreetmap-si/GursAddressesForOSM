@@ -179,7 +179,11 @@ namespace OsmGursBuildingImport
             newBuilding.Tags = new TagsCollection(
                 new Tag("building", "yes"),
                 new Tag("source:geometry", "GURS"));
-
+            //Building bigger than aprox. 1000m2
+            if (gursBuilding.Geometry.Area > 0.0000001)
+            {
+                AddFixmeAttribute(newBuilding.Tags, "This is big building, double check its size to make sure it doesn't have underground garage...");
+            }
             if (!string.IsNullOrEmpty(gursBuilding.Date))
                 newBuilding.Tags.Add(new Tag("source:geometry:date", gursBuilding.Date));
             UpdateBuilding(newBuilding, gursBuilding, setAddressOnBuilding);
