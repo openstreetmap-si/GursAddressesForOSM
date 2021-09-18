@@ -79,6 +79,15 @@ namespace OsmGursBuildingImport
                     GeoOsmWithGeometry? intersectingBuilding = null;
                     foreach (var building in intersectingBuildings)
                     {
+                        if (building.OsmGeo.Tags.TryGetValue("ref:gurs:sta_sid", out var sta_sid) &&
+                            sta_sid == gursBuilding.Id.ToString())
+                        {
+                            // Looks like this area was already imported and we have matching ID
+                            // it doesn't matter if intersecting area is smaller than 70%, match it.
+                            intersectingBuilding = building;
+                            break;
+                        }
+
                         var osmGeometry = building.Geometry;
                         Geometry intersection;
                         try
