@@ -172,7 +172,7 @@ namespace OsmGursBuildingImport
                     }
                 });
             }
-            File.WriteAllText(Path.Combine(outputFolder, "Tasks.json"), JsonConvert.SerializeObject(project));
+            File.WriteAllText(Path.Combine(outputFolder, "project.json"), JsonConvert.SerializeObject(project));
             int index = 0;
             var osmiumFolder = Path.Combine(tempDir, "osmium");
             Directory.CreateDirectory(osmiumFolder);

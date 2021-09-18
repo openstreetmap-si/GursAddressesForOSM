@@ -32,7 +32,6 @@ namespace OsmGursBuildingImport
             var dataFolder = Path.Combine(currentDirectory, "data");
             var outputFolder = Path.Combine(dataFolder, "output");
             Directory.CreateDirectory(outputFolder);
-            Directory.CreateDirectory(Path.Combine(outputFolder, "polygons"));
             var tempDir = Path.Combine(dataFolder, "temp");
 
             var pbfFile = Path.Combine(tempDir, "filtered.pbf");
