@@ -21,7 +21,6 @@ namespace OsmGursBuildingImport
 
         static async Task<int> Main(string[] args)
         {
-            Directory.SetCurrentDirectory("/Users/davidkarlas/Projects/shp1234/");
             var currentDirectory = Directory.GetCurrentDirectory();
             var overridesDir = Path.Combine(currentDirectory, "overrides");
             if (!Directory.Exists(overridesDir))
