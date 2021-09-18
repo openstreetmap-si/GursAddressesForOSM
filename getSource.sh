@@ -24,6 +24,7 @@ esac
 echo Running on: "${machine}", using $SEDCMD and $STATCMD commands
 
 function extractDownloaded() {
+	mkdir -p "${TempDest}"
 	#----- extract: -------
 	for file in "${DownloadDest}"*.{zip,ZIP}; do
 		extdir=$(basename "$file" .ZIP)
@@ -40,9 +41,10 @@ countTooOld=${#files[@]}
 
 for filename in "${files[@]}"; do
 	fullfilename="${DownloadDest}${filename}"
-	echo $fullfilename
-	if [ $(find "${fullfilename}" -mmin -${maxAge} | wc -l) -gt "0" ]; then
-		countTooOld=$((countTooOld-1))
+	if [ -f "$fullfilename" ]; then
+		if [ $(find "${fullfilename}" -mmin -${maxAge} | wc -l) -gt "0" ]; then
+			countTooOld=$((countTooOld-1))
+		fi
 	fi
 done
 
