@@ -105,7 +105,7 @@ namespace OsmGursBuildingImport
             foreach (var area in model.ProcessingAreas)
             {
                 var josmCommands = new List<string>{
-                    $"http://localhost:8111/import?new_layer=true&layer_locked=true&layer_name=All%20Buildings&url={HttpUtility.UrlEncode($"{baseUrlForBlobs}{area.Name}.full.osm.bz2")}",
+                    $"http://localhost:8111/import?new_layer=true&layer_name=All%20Buildings&url={HttpUtility.UrlEncode($"{baseUrlForBlobs}{area.Name}.full.osm.bz2")}",
                     $"http://localhost:8111/import?new_layer=true&layer_name=Merge%20This&url={HttpUtility.UrlEncode($"{baseUrlForBlobs}{area.Name}.merge.osm.bz2")}",
                     $"http://localhost:8111/import?new_layer=true&layer_name=OSM%20Data&url={HttpUtility.UrlEncode($"{baseUrlForBlobs}{area.Name}.original.osm.bz2")}"
                 };
