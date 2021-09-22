@@ -110,18 +110,6 @@ func assertEqual(t *testing.T, testedValue, expected interface{}) {
 	}
 }
 
-func assertGreater(t *testing.T, testedValue, lowBound int) {
-	if testedValue <= lowBound {
-		t.Errorf("%d should be greater than %d", testedValue, lowBound)
-	}
-}
-
-func assertSmaller(t *testing.T, testedValue, upperBound int) {
-	if testedValue >= upperBound {
-		t.Errorf("%d should be smaller than %d", testedValue, upperBound)
-	}
-}
-
 func assertBetween(t *testing.T, testedValue, lowBound, upperBound int) {
 	if testedValue <= lowBound || testedValue >= upperBound {
 		t.Errorf("%d should be between %d and %d", testedValue, lowBound, upperBound)
@@ -149,15 +137,7 @@ func BenchmarkReadShapefile(b *testing.B) {
 	b.ReportAllocs()
 	ReadLookups()
 	b.ResetTimer()
-	featureCollections := ReadShapefile("data/temp/HS-epsg4326/HS-epsg4326.shp")
-
-	b.StopTimer()
-
-	b.N = 0
-
-	for _, c := range featureCollections {
-		b.N += len(c.Features)
-	}
+	_ = ReadShapefile("data/temp/HS-epsg4326/HS-epsg4326.shp")
 }
 
 func BenchmarkSort(b *testing.B) {
@@ -168,14 +148,10 @@ func BenchmarkSort(b *testing.B) {
 	ReadLookups()
 	featureCollections := ReadShapefile("data/temp/HS-epsg4326/HS-epsg4326.shp")
 
-	b.N = 0
-
 	b.ResetTimer()
 	for _, c := range featureCollections {
-		b.N += len(c.Features)
 		SortFeatureCollection(*c)
 	}
-
 }
 
 func BenchmarkReadLookups(b *testing.B) {
@@ -183,11 +159,10 @@ func BenchmarkReadLookups(b *testing.B) {
 		b.Skip("skipping test in short mode.")
 	}
 	b.ReportAllocs()
-	//for n := 0; n < b.N; n++ {
 	ReadLookups()
-	//}
-	b.StopTimer()
-	b.N = len(ptCodeMap) + len(ptNameMap) + len(ulNameMap) + len(ulNameDjMap) + len(naNameMap) + len(naNameDjMap) + len(obNameMap)
+	b.ResetTimer()
+
+	ReadLookups()
 }
 
 func TestReadLookups(t *testing.T) {
