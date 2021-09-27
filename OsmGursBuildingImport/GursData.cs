@@ -290,6 +290,8 @@ namespace OsmGursBuildingImport
             using var csv = Sylvan.Data.Csv.CsvDataReader.Create(Path.Combine(dir, "UL_VSE", "UL_VSE.csv"));
             while (csv.Read())
             {
+                if (csv.GetInt32(2) == 0)
+                    continue;
                 Streets.Add(
                     csv.GetInt32(1),
                     new BilingualName(
@@ -350,15 +352,17 @@ namespace OsmGursBuildingImport
                 shapeReader.Geometry.Apply(D96Converter.Instance);
                 int id = shapeReader.GetInt32(2);
                 var date = shapeReader.GetDateTime(11);
-                Addresses.Add(id, new Address(
-                    id,
-                    shapeReader.Geometry,
-                    date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                    shapeReader.GetString(5).ToLower(),
-                    Streets[shapeReader.GetInt32(6)],
-                    Posts[shapeReader.GetInt32(9)],
-                    Settlements[shapeReader.GetInt32(7)].Name
-                ));
+                BilingualName settlementName = Settlements[shapeReader.GetInt32(7)].Name;
+                Address addr = new Address(
+                                    id,
+                                    shapeReader.Geometry,
+                                    date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                                    shapeReader.GetString(5).ToLower(),
+                                    Streets.TryGetValue(shapeReader.GetInt32(6), out var street) ? street : settlementName,
+                                    Posts[shapeReader.GetInt32(9)],
+                                    settlementName
+                                );
+                Addresses.Add(id, addr);
             }
         }
 
