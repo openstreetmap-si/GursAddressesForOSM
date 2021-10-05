@@ -251,7 +251,7 @@ namespace OsmSharp.Geo
             var geometry = this.GroupRings(rings);
             if (geometry != null)
             {
-                if(geometry is LinearRing ring)
+                if (geometry is LinearRing ring)
                 {
                     geometry = new Polygon(ring);
                 }

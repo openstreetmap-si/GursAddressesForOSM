@@ -155,7 +155,7 @@ namespace OsmGursBuildingImport
                 address.StreetName.Name != address.VillageName.Name)
             {
                 anythingWasSet |= UpdateAttribute(attributes, "addr:village", address.VillageName.Name);
-                if (!string.IsNullOrEmpty(address.StreetName.NameSecondLanguage))
+                if (!string.IsNullOrEmpty(address.VillageName.NameSecondLanguage))
                 {
                     anythingWasSet |= UpdateAttribute(attributes, "addr:village" + Suffix(address.Geometry.Coordinate), address.VillageName.NameSecondLanguage);
                 }

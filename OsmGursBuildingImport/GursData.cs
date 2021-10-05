@@ -4,12 +4,15 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using NetTopologySuite;
 using NetTopologySuite.Algorithm;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Index.Strtree;
 using NetTopologySuite.IO;
+using Newtonsoft.Json;
 
 namespace OsmGursBuildingImport
 {
@@ -19,7 +22,7 @@ namespace OsmGursBuildingImport
     record BuildingInfo(int Id, Geometry Geometry, string? Date, List<Address>? Addresses);
     record SettlementInfo(Geometry Geometry, BilingualName Name);
     record Address(int Id, Geometry Geometry, string Date, string HouseNumber, BilingualName StreetName, PostInfo PostInfo, BilingualName VillageName);
-    record ProcessingArea(Geometry Geometry, string Name, List<BuildingInfo> Buildings)
+    record ProcessingArea(Geometry Geometry, string Name, List<BuildingInfo> Buildings, string pathToPoly)
     {
         public bool Process { get; set; }
     }
@@ -27,19 +30,17 @@ namespace OsmGursBuildingImport
     class GursData
     {
         private static GeometryFactory D96Factory = NtsGeometryServices.Instance.CreateGeometryFactory(new PrecisionModel(), 3794);
-        public List<ProcessingArea> ProcessingAreas = new();
+        public Dictionary<int, ProcessingArea> ProcessingAreas = new();
 
         Dictionary<int, BilingualName> Streets = new();
         public Dictionary<int, SettlementInfo> Settlements = new();
         Dictionary<int, PostInfo> Posts = new();
         Dictionary<int, Address> Addresses = new();
-        List<BuildingInfo> Buildings = new();
         List<VotingArea> VotingAreas = new();
         Dictionary<string, Dictionary<string, string>> Overrides = new();
-        STRtree<(int Id, Geometry Geometry)> SettlementsIndex = new();
-        STRtree<VotingArea> VotingAreasIndex = new();
+        STRtree<BuildingInfo> BuildingsIndex = new();
 
-        public GursData(string dir, string overridesDir)
+        public GursData(string dir, string overridesDir, string tempDir)
         {
             LoadOverrides(overridesDir);
             LoadStreets(dir);
@@ -49,225 +50,67 @@ namespace OsmGursBuildingImport
             LoadBuildings(dir);
             LoadVotingAreas(dir);
 
-            BuildProcessingAreas();
+            BuildProcessingAreas(tempDir);
         }
 
-        private void BuildProcessingAreas()
+        private static string WritePoly(string poliesDir, Geometry geometry, string id)
         {
-            var processingAreasIndex = new STRtree<ProcessingArea>();
-#if true || VOTING_AREAS
-            foreach (var votingArea in VotingAreas)
+            Polygon[] polygons;
+            if (geometry is MultiPolygon mp)
             {
-                var newArea = new ProcessingArea(
-                    votingArea.Geometry,
-                    $"{votingArea.Id}".Replace("/", "_"),
-                    new List<BuildingInfo>());
-                ProcessingAreas.Add(newArea);
-                processingAreasIndex.Insert(votingArea.Geometry.EnvelopeInternal, newArea);
+                polygons = mp.Geometries.OfType<Polygon>().ToArray();
+                if (polygons.Length != mp.Geometries.Length)
+                    throw new Exception(string.Join(", ", mp.Geometries.Select(g => g.GetType().ToString())));
             }
-
-            processingAreasIndex.Build();
-            Parallel.ForEach(Buildings, (building) =>
+            else if (geometry is Polygon poly2)
             {
-                foreach (var aprox in processingAreasIndex.Query(building.Geometry.EnvelopeInternal))
-                {
-                    if (!building.Geometry.Intersects(aprox.Geometry))
-                        continue;
-                    lock (aprox.Buildings)
-                    {
-                        aprox.Buildings.Add(building);
-                    }
-                    return;
-                }
-            });
-#elif true || SPLIT_BY_VOTING_AREAS_AND_SEATTLEMENTS
-            foreach (var votingArea in VotingAreas)
-            {
-                foreach (var aproxSeattlement in SettlementsIndex.Query(votingArea.Geometry.EnvelopeInternal))
-                {
-                    var intersection = aproxSeattlement.Geometry.Intersection(votingArea.Geometry);
-                    if (intersection.Area > 0)
-                    {
-                        var newArea = new ProcessingArea(
-                            intersection,
-                            $"{Settlements[aproxSeattlement.Id].Name}-{votingArea.Id}".Replace("/", "_"),
-                            new List<BuildingInfo>());
-                        ProcessingAreas.Add(newArea);
-                        processingAreasIndex.Insert(intersection.EnvelopeInternal, newArea);
-                    }
-                }
+                polygons = new[] { poly2 };
             }
-            
-            processingAreasIndex.Build();
-            Parallel.ForEach(Buildings, (building) =>
+            else
             {
-                foreach (var aprox in processingAreasIndex.Query(building.Geometry.EnvelopeInternal))
+                throw new Exception(geometry.GetType().ToString());
+            }
+            string polyPath = Path.Combine(poliesDir, id + ".poly");
+            var sw = new StreamWriter(polyPath);
+            sw.WriteLine(id + ".original");
+            for (int i = 0; i < polygons.Length; i++)
+            {
+                sw.WriteLine("poly" + (i + 1));
+                foreach (var cord in polygons[i].Coordinates)
                 {
-                    if (!building.Geometry.Intersects(aprox.Geometry))
-                        continue;
-                    lock (aprox.Buildings)
-                    {
-                        aprox.Buildings.Add(building);
-                    }
-                    return;
+                    sw.WriteLine($"\t{cord.X} {cord.Y}");
                 }
-            });
+                sw.WriteLine("END");
+            }
+            sw.WriteLine("END");
+            return polyPath;
+        }
 
-#elif true || SPLIT_BY_VOTING_AREAS_AND_SEATTLEMENTS_AS_NEEDED
+
+        private void BuildProcessingAreas(string tempDir)
+        {
+            var poliesDir = Path.Combine(tempDir, "polygons");
+            Directory.CreateDirectory(poliesDir);
+
             foreach (var votingArea in VotingAreas)
             {
                 var newArea = new ProcessingArea(
                     votingArea.Geometry,
                     votingArea.Id,
-                    new List<BuildingInfo>());
-                ProcessingAreas.Add(newArea);
-                processingAreasIndex.Insert(newArea.Geometry.EnvelopeInternal, newArea);
+                    new List<BuildingInfo>(),
+                    WritePoly(poliesDir, votingArea.Geometry, votingArea.Id));
+                ProcessingAreas.Add(int.Parse(votingArea.Id), newArea);
             }
 
-            Parallel.ForEach(Buildings, (building) =>
+            Parallel.ForEach(ProcessingAreas.Values, (area) =>
             {
-                foreach (var aprox in processingAreasIndex.Query(building.Geometry.EnvelopeInternal))
+                foreach (var aprox in BuildingsIndex.Query(area.Geometry.EnvelopeInternal))
                 {
-                    if (!building.Geometry.Intersects(aprox.Geometry))
+                    if (!area.Geometry.Intersects(aprox.Geometry))
                         continue;
-                    lock (aprox.Buildings)
-                    {
-                        aprox.Buildings.Add(building);
-                    }
-                    return;
+                    area.Buildings.Add(aprox);
                 }
             });
-
-            foreach (var area in ProcessingAreas.ToArray())
-            {
-                if (area.Buildings.Count < 1000)
-                {
-                    continue;
-                }
-                ProcessingAreas.Remove(area);
-                foreach (var aprox in SettlementsIndex.Query(area.Geometry.EnvelopeInternal))
-                {
-                    var intersection = aprox.Geometry.Intersection(area.Geometry);
-                    if (intersection.Area > 0)
-                    {
-                        var newArea = new ProcessingArea(
-                            intersection,
-                            $"{area.Name}-{aprox.Id}".Replace("/", "_"),
-                            new List<BuildingInfo>());
-                        ProcessingAreas.Add(newArea);
-
-                        foreach (var building in area.Buildings)
-                        {
-                            if (building.Geometry.Intersects(newArea.Geometry))
-                            {
-                                newArea.Buildings.Add(building);
-                            }
-                        }
-                    }
-                }
-            }
-#elif SQUARE_BLOCKS
-            int id = 1;
-            const int blockSizeX = 10;
-            const int blockSizeY = 5;
-            const int startX = 13300;
-            const int endX = 16600;
-            const int startY = 45400;
-            const int endY = 46900;
-            const double scale = 1000;
-            const int MAX_BUILDINGS_PER_AREA = 1000;
-            ProcessingArea?[,] processingAreas = new ProcessingArea[(endX - startX) / blockSizeX, (endY - startY) / blockSizeY];
-            for (int x = startX; x < endX; x += blockSizeX)
-            {
-                for (int y = startY; y < endY; y += blockSizeY)
-                {
-                    var newArea = new ProcessingArea(
-                        D96Factory.ToGeometry(new Envelope(x / scale, (x + blockSizeX) / scale, y / scale, (y + blockSizeY) / scale)),
-                        id++.ToString(),
-                        new List<BuildingInfo>());
-                    processingAreasIndex.Insert(newArea.Geometry.EnvelopeInternal, newArea);
-                    processingAreas[(x - startX) / blockSizeX, (y - startY) / blockSizeY] = newArea;
-                }
-            }
-            processingAreasIndex.Build();
-            Parallel.ForEach(Buildings, (building) =>
-            {
-                foreach (var aprox in processingAreasIndex.Query(building.Geometry.EnvelopeInternal))
-                {
-                    if (!building.Geometry.Intersects(aprox.Geometry))
-                        continue;
-                    lock (aprox.Buildings)
-                    {
-                        aprox.Buildings.Add(building);
-                    }
-                    return;
-                }
-            });
-
-
-            var xLength = processingAreas.GetLength(0);
-            var yLength = processingAreas.GetLength(1);
-
-            // This loop is merging 4 squares into 1 square as long as number of buildings is less than MAX_BUILDINGS_PER_AREA
-            for (int p = 2; p < 8; p *= 2)
-            {
-                for (int i = 0; i < xLength; i += p)
-                {
-                    for (int j = 0; j < yLength; j += p)
-                    {
-                        var maxN = Math.Min(xLength, i + p);
-                        var maxM = Math.Min(yLength, j + p);
-                        var buildings = new List<BuildingInfo>();
-                        var envolope = processingAreas[i, j]!.Geometry.EnvelopeInternal;
-                        for (int n = i; n < maxN; n++)
-                        {
-                            for (int m = j; m < maxM; m++)
-                            {
-                                if (processingAreas[n, m] is ProcessingArea area)
-                                {
-                                    buildings.AddRange(area.Buildings);
-                                    envolope.ExpandToInclude(area.Geometry.EnvelopeInternal);
-                                }
-                            }
-                        }
-                        buildings = new List<BuildingInfo>(buildings.Distinct());
-                        if (buildings.Count < MAX_BUILDINGS_PER_AREA)
-                        {
-                            var nameOf1st = processingAreas[i, j]!.Name;
-                            for (int n = i; n < maxN; n++)
-                            {
-                                for (int m = j; m < maxM; m++)
-                                {
-                                    processingAreas[n, m] = null;
-                                }
-                            }
-                            processingAreas[i, j] = new ProcessingArea(
-                                D96Factory.ToGeometry(envolope),
-                                nameOf1st,
-                                buildings);
-                        }
-                    }
-                }
-            }
-
-            for (int i = 0; i < xLength; i++)
-            {
-                for (int j = 0; j < yLength; j++)
-                {
-                    if (processingAreas[i, j] is ProcessingArea area && area.Buildings.Count > 0)
-                    {
-                        ProcessingAreas.Add(area);
-                    }
-                }
-            }
-#endif
-
-
-            //foreach (var abc in ProcessingAreas.OrderBy(p => p.Buildings.Count))
-            //{
-            //    Console.WriteLine(abc.Name + " " + abc.Buildings.Count);
-            //}
-            //Console.WriteLine();
         }
 
         private void LoadOverrides(string overridesDir)
@@ -307,16 +150,13 @@ namespace OsmGursBuildingImport
             while (shapeReader.Read())
             {
                 shapeReader.Geometry.Apply(D96Converter.Instance);
-                var id = shapeReader.GetInt32(2);
-                SettlementsIndex.Insert(shapeReader.Geometry.EnvelopeInternal, (id, shapeReader.Geometry));
-                Settlements.Add(id,
+                Settlements.Add(shapeReader.GetInt32(2),
                     new SettlementInfo(
                         shapeReader.Geometry,
                         new BilingualName(
                             OverrideString(dict, shapeReader.GetString(4)),
-                            shapeReader.GetString(5))));
+                            shapeReader.GetString(5).Replace("\0", ""))));
             }
-            SettlementsIndex.Build();
         }
 
         void LoadPosts(string dir)
@@ -379,7 +219,6 @@ namespace OsmGursBuildingImport
                                     shapeReader.GetString(4),
                                     shapeReader.GetString(3));
                 VotingAreas.Add(votingArea);
-                VotingAreasIndex.Insert(votingArea.Geometry.EnvelopeInternal, votingArea);
             }
         }
 
@@ -427,12 +266,13 @@ namespace OsmGursBuildingImport
 
                 if (!buildingToAddresses.TryGetValue(id, out var addresses))
                     addresses = null;
-                Buildings.Add(new BuildingInfo(
+                BuildingsIndex.Insert(shapeReader.Geometry.EnvelopeInternal, new BuildingInfo(
                     id,
                     shapeReader.Geometry,
                     buildingToInfo[id],
                     addresses));
             }
+            BuildingsIndex.Build();
         }
     }
 }
