@@ -23,16 +23,21 @@ namespace OsmGursBuildingImport
 
         static async Task<int> Main(string[] args)
         {
-            var overridesDir = Path.Combine(Directory.GetCurrentDirectory(), "overrides");
+            var repoRoot=Path.Combine(Directory.GetCurrentDirectory(), "..");
+            var overridesDir = Path.Combine(repoRoot, "overrides");
             if (!Directory.Exists(overridesDir))
             {
                 Console.WriteLine("Overrides directory not found, are you running from inside root of repository?");
                 return 1;
             }
 
-            var dataFolder = Path.Combine(Directory.GetCurrentDirectory(), "data");
+            var dataFolder = Path.Combine(repoRoot, "data");
             var tempDir = Path.Combine(dataFolder, "temp/");
-            await Process.Start("getSource.sh", new[] { "data/download/", tempDir }).WaitForExitAsync();
+            await Process.Start(new ProcessStartInfo(){
+               FileName=  Path.Combine(repoRoot, "getSource.sh"),
+               Arguments = $"{Path.Combine(dataFolder, "download/")} {tempDir}",
+               WorkingDirectory = repoRoot
+            })!.WaitForExitAsync();
 
             var cacheDir = Path.Combine(dataFolder, "cache");
             if (Directory.Exists(cacheDir))
@@ -41,8 +46,11 @@ namespace OsmGursBuildingImport
             Directory.CreateDirectory(cacheDir);
 
             FeatureInterpreter.DefaultInterpreter = new OsmToNtsConvert();
+            Console.WriteLine("Loading GURS data");
             GursData gursData = new GursData(tempDir, overridesDir, tempDir);
+            Console.WriteLine("Loaded GURS data");
             SimpleTaskManager.CreateStmProjectJson(tempDir, gursData);
+            Console.WriteLine("Generated project.json.");
 
             var fullFileCacheFolder = Path.Combine(cacheDir, "full");
             Directory.CreateDirectory(fullFileCacheFolder);
@@ -50,6 +58,7 @@ namespace OsmGursBuildingImport
             {
                 CreateFull(processingArea.Value, fullFileCacheFolder);
             });
+            Console.WriteLine("Generated all .full.osm.bz2 files.");
 
             string originalsCacheFolder = Path.Combine(cacheDir, "original");
             Directory.CreateDirectory(originalsCacheFolder);
@@ -97,6 +106,7 @@ namespace OsmGursBuildingImport
             });
 
             app.Urls.Add("http://*:2009");
+            Console.WriteLine("Starting WebServer.");
             await app.RunAsync();
             return 0;
         }
