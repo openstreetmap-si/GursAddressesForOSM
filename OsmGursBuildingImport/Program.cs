@@ -73,15 +73,12 @@ namespace OsmGursBuildingImport
                 {
                     return Results.BadRequest("Invalid file name.");
                 }
-                var pathToFile = await osmDataDownloader.GetOriginalPbfFileAsync(area);
+                var pathToFile = await osmDataDownloader.GetOriginalXmlFileAsync(area);
                 using var fs = new FileStream(pathToFile, FileMode.Open);
-                var pbfSource = new PBFOsmStreamSource(fs);
                 var memoryStream = new MemoryStream();
                 using (var bzip2Stream = new BZip2OutputStream(memoryStream) { IsStreamOwner = false })
                 {
-                    var xmlTarget = new XmlOsmStreamTarget(bzip2Stream);
-                    xmlTarget.RegisterSource(pbfSource);
-                    xmlTarget.Pull();
+                    await fs.CopyToAsync(bzip2Stream);
                 }
                 memoryStream.Position = 0;
                 return Results.Stream(memoryStream, fileDownloadName: filename);
@@ -97,7 +94,7 @@ namespace OsmGursBuildingImport
                 {
                     return Results.BadRequest("Invalid file name.");
                 }
-                var pathToFile = await osmDataDownloader.GetOriginalPbfFileAsync(area);
+                var pathToFile = await osmDataDownloader.GetOriginalXmlFileAsync(area);
                 var memoryStream = new MemoryStream();
                 using (var bzip2Stream = new BZip2OutputStream(memoryStream) { IsStreamOwner = false })
                     CreateMergeFile(area, LoadOsmData(pathToFile), bzip2Stream);
@@ -281,8 +278,8 @@ namespace OsmGursBuildingImport
 
         private static STRtree<GeoOsmWithGeometry> LoadOsmData(string path)
         {
-            var fs = new FileStream(path, FileMode.Open);
-            var osmStream = new PBFOsmStreamSource(fs);
+            using var fs = new FileStream(path, FileMode.Open);
+            using var osmStream = new XmlOsmStreamSource(fs);
             var db = new SnapshotDb(new MemorySnapshotDb(osmStream));
             var interpreter = new OsmToNtsConvert();
             var osmIndex = new STRtree<GeoOsmWithGeometry>();

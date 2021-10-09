@@ -23,21 +23,21 @@ namespace OsmGursBuildingImport
 
         ConcurrentDictionary<string, SemaphoreSlim> semaphors = new();
 
-        public async Task<string> GetOriginalPbfFileAsync(ProcessingArea area)
+        public async Task<string> GetOriginalXmlFileAsync(ProcessingArea area)
         {
-            var pbfFile = Path.Combine(cacheFolder, area.Name + ".original.pbf");
-            var semaphor = semaphors.GetOrAdd(pbfFile, (k) => new SemaphoreSlim(1, 1));
+            var xmlOutputFile = Path.Combine(cacheFolder, area.Name + ".original.xml");
+            var semaphor = semaphors.GetOrAdd(xmlOutputFile, (k) => new SemaphoreSlim(1, 1));
             await semaphor.WaitAsync();
             try
             {
-                if (!FileUpToDate(pbfFile))
+                if (!FileUpToDate(xmlOutputFile))
                 {
                     var unclipped = Path.Combine(cacheFolder, "unclipped-" + area.Name + ".original.pbf");
                     await Process.Start("osmx", new[] { "extract", "/home/davidkarlas/slo.osmx", unclipped, "--region", area.pathToPoly }).WaitForExitAsync();
-                    await Process.Start("osmconvert", new[] { unclipped, "--complete-ways", "--complete-multipolygons", "-B=" + area.pathToPoly, "-o=" + pbfFile }).WaitForExitAsync();
+                    await Process.Start("osmconvert", new[] { unclipped, "--complete-ways", "--complete-multipolygons", "-B=" + area.pathToPoly, "-o=" + xmlOutputFile }).WaitForExitAsync();
                     File.Delete(unclipped);
                 }
-                return pbfFile;
+                return xmlOutputFile;
             }
             finally
             {
