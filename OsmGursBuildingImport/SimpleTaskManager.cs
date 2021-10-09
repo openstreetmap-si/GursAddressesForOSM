@@ -73,7 +73,7 @@ namespace OsmGursBuildingImport
                 var josmCommands = new List<string>{
                     $"http://localhost:8111/import?new_layer=true&layer_name=All%20Buildings&url={HttpUtility.UrlEncode($"{baseUrlForBlobs}full/{area.Name}.full.osm.bz2")}",
                     $"http://localhost:8111/import?new_layer=true&layer_name=Merge%20This&url={HttpUtility.UrlEncode($"{baseUrlForBlobs}merge/{area.Name}.merge.osm.bz2")}",
-                    $"http://localhost:8111/import?new_layer=true&layer_name=OSM%20Data&url={HttpUtility.UrlEncode($"{baseUrlForBlobs}original/{area.Name}.original.osm.bz2")}"
+                    $"http://localhost:8111/import?new_layer=true&layer_name=OSM%20Data&changeset_tags=source=GURS%7Ccomment={HttpUtility.UrlEncode($"Slovenia building and address import area {area.Name} #slobuildings")}&url={HttpUtility.UrlEncode($"{baseUrlForBlobs}original/{area.Name}.original.osm.bz2")}"
                 };
 
                 josmCommands.Add($"http://localhost:8111/zoom?left={area.Geometry.EnvelopeInternal.MinX}&right={area.Geometry.EnvelopeInternal.MaxX}&top={area.Geometry.EnvelopeInternal.MaxY}&bottom={area.Geometry.EnvelopeInternal.MinY}");
