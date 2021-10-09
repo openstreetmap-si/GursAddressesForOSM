@@ -54,7 +54,7 @@ namespace OsmGursBuildingImport
 
         public static void CreateStmProjectJson(string tempDir, GursData model)
         {
-            var baseUrlForBlobs = "https://osm.karlas.si:2009/";
+            var baseUrlForBlobs = "http://osm.karlas.si:2009/";
 
             var ljubljana = model.Settlements.Values.Single(s => s.Name.Name == "Ljubljana").Geometry;
             var project = new StmProject()
