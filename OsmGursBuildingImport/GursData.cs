@@ -71,7 +71,7 @@ namespace OsmGursBuildingImport
                 throw new Exception(geometry.GetType().ToString());
             }
             string polyPath = Path.Combine(poliesDir, id + ".poly");
-            var sw = new StreamWriter(polyPath);
+            using var sw = new StreamWriter(polyPath);
             sw.WriteLine(id + ".original");
             for (int i = 0; i < polygons.Length; i++)
             {
