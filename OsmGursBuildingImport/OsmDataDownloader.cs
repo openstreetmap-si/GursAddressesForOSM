@@ -32,20 +32,10 @@ namespace OsmGursBuildingImport
             {
                 if (!FileUpToDate(pbfFile))
                 {
-                    // TEMPORARY UNTIL WE GET KEY FOR https://protomaps.com/extracts
-                    var tempFile = Path.GetTempFileName() + ".osm.xml";
-                    using (var stream = await httpClient.GetStreamAsync($"https://osmstorage.blob.core.windows.net/gurs-import/{area.Name}.original.osm.bz2"))
-                    using (var decompress = new BZip2InputStream(stream))
-                    using (var fileStream = new FileStream(tempFile, FileMode.Create))
-                        await decompress.CopyToAsync(fileStream);
                     var unclipped = Path.Combine(cacheFolder, "unclipped-" + area.Name + ".original.pbf");
-                    await Process.Start("osmconvert", new[] { tempFile, "-o=" + unclipped }).WaitForExitAsync();
-                    // END OF TEMPORARY
-
+                    await Process.Start("osmx", new[] { "extract", "/home/davidkarlas/slo.osmx", unclipped, "--region", area.pathToPoly }).WaitForExitAsync();
                     await Process.Start("osmconvert", new[] { unclipped, "--complete-ways", "--complete-multipolygons", "-B=" + area.pathToPoly, "-o=" + pbfFile }).WaitForExitAsync();
-
                     File.Delete(unclipped);
-                    File.Delete(tempFile);
                 }
                 return pbfFile;
             }
