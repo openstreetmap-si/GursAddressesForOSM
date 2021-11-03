@@ -163,6 +163,11 @@ namespace OsmGursBuildingImport
 
             if (anythingWasSet)
             {
+                attributes.RemoveAll(t => t.Key.StartsWith("addr:place"));
+            }
+
+            if (anythingWasSet)
+            {
                 UpdateAttribute(attributes, "source:addr", "GURS");
                 if (!string.IsNullOrEmpty(address.Date))
                     UpdateAttribute(attributes, "source:addr:date", address.Date);
