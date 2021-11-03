@@ -164,6 +164,7 @@ namespace OsmGursBuildingImport
             if (anythingWasSet)
             {
                 attributes.RemoveAll(t => t.Key.StartsWith("addr:place"));
+                attributes.RemoveAll(t => t.Key.StartsWith("addr:hamlet"));
             }
 
             if (anythingWasSet)
