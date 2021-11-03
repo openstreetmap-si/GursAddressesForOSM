@@ -76,7 +76,7 @@ namespace OsmGursBuildingImport
             for (int i = 0; i < polygons.Length; i++)
             {
                 sw.WriteLine("poly" + (i + 1));
-                foreach (var cord in polygons[i].Coordinates)
+                foreach (var cord in polygons[i].ExteriorRing.Coordinates)
                 {
                     sw.WriteLine($"\t{cord.X} {cord.Y}");
                 }
