@@ -23,7 +23,7 @@ namespace OsmGursBuildingImport
 
         static async Task<int> Main(string[] args)
         {
-            var repoRoot=Path.Combine(Directory.GetCurrentDirectory(), "..");
+            var repoRoot = Path.Combine(Directory.GetCurrentDirectory(), "..");
             var overridesDir = Path.Combine(repoRoot, "overrides");
             if (!Directory.Exists(overridesDir))
             {
@@ -33,10 +33,13 @@ namespace OsmGursBuildingImport
 
             var dataFolder = Path.Combine(repoRoot, "data");
             var tempDir = Path.Combine(dataFolder, "temp/");
-            await Process.Start(new ProcessStartInfo(){
-               FileName=  Path.Combine(repoRoot, "getSource.sh"),
-               Arguments = $"{Path.Combine(dataFolder, "download/")} {tempDir}",
-               WorkingDirectory = repoRoot
+            Directory.Delete(tempDir, true);
+
+            await Process.Start(new ProcessStartInfo()
+            {
+                FileName = Path.Combine(repoRoot, "getSource.sh"),
+                Arguments = $"{Path.Combine(dataFolder, "download/")} {tempDir}",
+                WorkingDirectory = repoRoot
             })!.WaitForExitAsync();
 
             var cacheDir = Path.Combine(dataFolder, "cache");
