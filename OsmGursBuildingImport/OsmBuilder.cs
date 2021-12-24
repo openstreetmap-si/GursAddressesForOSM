@@ -140,13 +140,24 @@ namespace OsmGursBuildingImport
         {
             var anythingWasSet = false;
             anythingWasSet |= UpdateAttribute(attributes, "addr:housenumber", address.HouseNumber);
-            anythingWasSet |= UpdateAttribute(attributes, "addr:street", address.StreetName.Name);
-            if (!string.IsNullOrEmpty(address.StreetName.NameSecondLanguage))
+            if (string.IsNullOrEmpty(address.StreetName.NameSecondLanguage))
             {
+                anythingWasSet |= UpdateAttribute(attributes, "addr:street", address.StreetName.Name);
+            }
+            else
+            {
+                anythingWasSet |= UpdateAttribute(attributes, "addr:street", address.StreetName.Name + " / " + address.StreetName.NameSecondLanguage);
+                anythingWasSet |= UpdateAttribute(attributes, "addr:street:sl", address.StreetName.Name);
                 anythingWasSet |= UpdateAttribute(attributes, "addr:street" + Suffix(address.Geometry.Coordinate), address.StreetName.NameSecondLanguage);
             }
-            anythingWasSet |= UpdateAttribute(attributes, "addr:postcode", address.PostInfo.Id.ToString());
+
             anythingWasSet |= UpdateAttribute(attributes, "addr:city", address.PostInfo.Name);
+            if (address.PostInfo.Name.Contains("/"))
+            {
+                anythingWasSet |= UpdateAttribute(attributes, "addr:city:sl", address.PostInfo.Name.Remove(address.PostInfo.Name.IndexOf(" / ")));
+                anythingWasSet |= UpdateAttribute(attributes, "addr:city" + Suffix(address.Geometry.Coordinate), address.PostInfo.Name.Substring(address.PostInfo.Name.IndexOf(" / ") + 3));
+            }
+            anythingWasSet |= UpdateAttribute(attributes, "addr:postcode", address.PostInfo.Id.ToString());
 
             // We want to add village only when it's not already mentioned, so when user enters
             // some address into navigation it re-assuress them when seeing also correct village name...
@@ -154,9 +165,14 @@ namespace OsmGursBuildingImport
             if (!address.PostInfo.Name.StartsWith(address.VillageName.Name) &&
                 address.StreetName.Name != address.VillageName.Name)
             {
-                anythingWasSet |= UpdateAttribute(attributes, "addr:village", address.VillageName.Name);
-                if (!string.IsNullOrEmpty(address.VillageName.NameSecondLanguage))
+                if (string.IsNullOrEmpty(address.VillageName.NameSecondLanguage))
                 {
+                    anythingWasSet |= UpdateAttribute(attributes, "addr:village", address.VillageName.Name);
+                }
+                else
+                {
+                    anythingWasSet |= UpdateAttribute(attributes, "addr:village", address.VillageName.Name + " / " + address.VillageName.NameSecondLanguage);
+                    anythingWasSet |= UpdateAttribute(attributes, "addr:village:sl", address.VillageName.Name);
                     anythingWasSet |= UpdateAttribute(attributes, "addr:village" + Suffix(address.Geometry.Coordinate), address.VillageName.NameSecondLanguage);
                 }
             }
