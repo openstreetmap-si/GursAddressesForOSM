@@ -124,7 +124,7 @@ namespace OsmGursBuildingImport
             _writer.WriteStartElement("node");
             if (node.Id > 0)
             {
-                _writer.WriteAttribute("action", "modified");
+                _writer.WriteAttribute("action", "modify");
             }
             _writer.WriteAttribute("id", node.Id);
             _writer.WriteAttribute("lat", node.Latitude);
@@ -157,7 +157,7 @@ namespace OsmGursBuildingImport
             _writer.WriteStartElement("way");
             if (way.Id > 0)
             {
-                _writer.WriteAttribute("action", "modified");
+                _writer.WriteAttribute("action", "modify");
             }
             _writer.WriteAttribute("id", way.Id);
             _writer.WriteAttribute("user", way.UserName);
@@ -198,7 +198,7 @@ namespace OsmGursBuildingImport
             _writer.WriteStartElement("relation");
             if (relation.Id > 0)
             {
-                _writer.WriteAttribute("action", "modified");
+                _writer.WriteAttribute("action", "modify");
             }
             _writer.WriteAttribute("id", relation.Id);
             _writer.WriteAttribute("user", relation.UserName);
