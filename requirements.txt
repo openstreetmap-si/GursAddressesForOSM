@@ -3,5 +3,5 @@ chardet==4.0.0
 idna==3.2
 kdtree==0.16
 osm-conflate==1.4.1
-requests==2.26.0
+requests==2.27.1
 urllib3==1.26.7
