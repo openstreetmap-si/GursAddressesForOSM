@@ -198,9 +198,9 @@ namespace OsmGursBuildingImport
         internal void AddBuilding(BuildingInfo gursBuilding, bool setAddressOnBuilding)
         {
             var newBuilding = GeometryToOsmGeo(gursBuilding.Geometry);
-            newBuilding.Tags = new TagsCollection(
-                new Tag("building", "yes"),
-                new Tag("source:geometry", "GURS"));
+            newBuilding.Tags ??= new TagsCollection();
+            newBuilding.Tags.Add("building", "yes");
+            newBuilding.Tags.Add("source:geometry", "GURS");
             if (!string.IsNullOrEmpty(gursBuilding.Date))
                 newBuilding.Tags.Add(new Tag("source:geometry:date", gursBuilding.Date));
             UpdateBuilding(newBuilding, gursBuilding, setAddressOnBuilding);
@@ -240,7 +240,11 @@ namespace OsmGursBuildingImport
                             return Add(new CompleteRelation()
                             {
                                 Id = newIdCounter--,
-                                Members = members.ToArray()
+                                Members = members.ToArray(),
+                                Tags = new TagsCollection()
+                                {
+                                    { "type", "multipolygon" }
+                                }
                             });
                         }
                     }
@@ -252,14 +256,19 @@ namespace OsmGursBuildingImport
                             var osmGeo = GeometryToOsmGeo(pol);
                             members.Add(new CompleteRelationMember()
                             {
-                                Member = osmGeo
+                                Member = osmGeo,
+                                Role = "outer"
                             });
                         }
 
                         return Add(new CompleteRelation()
                         {
                             Id = newIdCounter--,
-                            Members = members.ToArray()
+                            Members = members.ToArray(),
+                            Tags = new TagsCollection()
+                                {
+                                    { "type", "multipolygon" }
+                                }
                         });
                     }
                 default:
