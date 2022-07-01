@@ -1,5 +1,5 @@
 certifi==2021.5.30
-chardet==4.0.0
+chardet==5.0.0
 idna==3.2
 kdtree==0.16
 osm-conflate==1.4.1
