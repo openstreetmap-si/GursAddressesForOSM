@@ -24,7 +24,7 @@
         { "key": "addr:postcode",                      "object_types": [ "node", "area", "relation" ], "description": "4-digit Slovenian post code" },
         { "key": "addr:city",                          "object_types": [ "node", "area", "relation" ], "description": "City name - postal code description" },
         { "key": "source:addr",      "value": "GURS",  "object_types": [ "node", "area", "relation" ], "description": "The address was obtained from The Surveying and Mapping Authority of Republic of Slovenia (GURS)" },
-        { "key": "source:geometry",  "value": "GURS",  "object_types": [ "node", "area", "relation" ], "description": "The geometry was obtained from The Surveying and Mapping Authority of Republic of Slovenia (GURS)" },
+        { "key": "source:geometry",  "value": "GURS",  "object_types": [         "area", "relation" ], "description": "The geometry was obtained from The Surveying and Mapping Authority of Republic of Slovenia (GURS)" },
         { "key": "source:addr:date",                   "object_types": [ "node", "area", "relation" ], "description": "Date of validity in GURS source database" },
         { "key": "ref:gurs:hs_mid",                    "object_types": [ "node", "area", "relation" ], "description": "Preserving numeric address id from GURS source database for future updates" },
         { "key": "ref:gurs:sta_sid",                   "object_types": [         "area", "relation" ], "description": "Preserving numeric building id from GURS source database for future updates" }
