@@ -215,6 +215,8 @@ namespace OsmGursBuildingImport
             var features = reader.Read<FeatureCollection>(sr.ReadToEnd());
             foreach (var feature in features)
             {
+                if (feature.Attributes["ENOTA"].ToString() != "LV")
+                    continue;
                 var id = feature.Attributes["VLV_ID"].ToString();
                 var name = feature.Attributes["VLV_UIME"].ToString();
                 var geometry = feature.Geometry;
