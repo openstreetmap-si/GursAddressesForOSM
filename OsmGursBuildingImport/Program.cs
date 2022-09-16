@@ -33,7 +33,8 @@ namespace OsmGursBuildingImport
 
             var dataFolder = Path.Combine(repoRoot, "data");
             var tempDir = Path.Combine(dataFolder, "temp/");
-            Directory.Delete(tempDir, true);
+            if (Directory.Exists(tempDir))
+                Directory.Delete(tempDir, true);
 
             await Process.Start(new ProcessStartInfo()
             {

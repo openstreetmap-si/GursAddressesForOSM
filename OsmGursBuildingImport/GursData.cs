@@ -9,6 +9,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using NetTopologySuite;
 using NetTopologySuite.Algorithm;
+using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Index.Strtree;
 using NetTopologySuite.IO;
@@ -48,7 +49,8 @@ namespace OsmGursBuildingImport
             LoadPosts(dir);
             LoadAddresses(dir);
             LoadBuildings(dir);
-            LoadVotingAreas(dir);
+            //LoadVotingAreas(dir);
+            LoadVotingAreasGeoJson();
 
             BuildProcessingAreas(tempDir);
         }
@@ -203,6 +205,20 @@ namespace OsmGursBuildingImport
                                     settlementName
                                 );
                 Addresses.Add(id, addr);
+            }
+        }
+
+        void LoadVotingAreasGeoJson()
+        {
+            using var sr = new StreamReader("VLV.geojson");
+            var reader = new GeoJsonReader();
+            var features = reader.Read<FeatureCollection>(sr.ReadToEnd());
+            foreach (var feature in features)
+            {
+                var id = feature.Attributes["VLV_ID"].ToString();
+                var name = feature.Attributes["VLV_UIME"].ToString();
+                var geometry = feature.Geometry;
+                VotingAreas.Add(new VotingArea(geometry, name, id));
             }
         }
 
