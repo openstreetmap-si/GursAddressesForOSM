@@ -58,34 +58,50 @@ namespace OsmGursBuildingImport
 
         private static string WritePoly(string poliesDir, Geometry geometry, string id)
         {
-            Polygon[] polygons;
+            List<Polygon> polygons;
             if (geometry is MultiPolygon mp)
             {
-                polygons = mp.Geometries.OfType<Polygon>().ToArray();
-                if (polygons.Length != mp.Geometries.Length)
+                polygons = mp.Geometries.OfType<Polygon>().ToList();
+                if (polygons.Count != mp.Geometries.Length)
                     throw new Exception(string.Join(", ", mp.Geometries.Select(g => g.GetType().ToString())));
             }
             else if (geometry is Polygon poly2)
             {
-                polygons = new[] { poly2 };
+                polygons = new() { poly2 };
             }
             else
             {
                 throw new Exception(geometry.GetType().ToString());
             }
 
-            for (int i = 0; i < polygons.Length; i++)
+            var fixedPolygons = new List<Polygon>();
+            foreach (var poly in polygons)
             {
-                polygons[i] = (Polygon)GeometryFixer.Fix(polygons[i]);
+                var fixedPoly = GeometryFixer.Fix(poly);
+                if (fixedPoly is Polygon poly2)
+                {
+                    fixedPolygons.Add(poly2);
+                }
+                else if (fixedPoly is MultiPolygon multiPolygon)
+                {
+                    foreach (var poly3 in multiPolygon.Geometries.OfType<Polygon>())
+                    {
+                        fixedPolygons.Add(poly3);
+                    }
+                }
+                else
+                {
+                    throw new NotImplementedException(fixedPoly.GetType().ToString());
+                }
             }
 
             string polyPath = Path.Combine(poliesDir, id + ".poly");
             using var sw = new StreamWriter(polyPath);
             sw.WriteLine(id + ".original");
-            for (int i = 0; i < polygons.Length; i++)
+            for (int i = 0; i < fixedPolygons.Count; i++)
             {
                 sw.WriteLine("poly" + (i + 1));
-                foreach (var cord in polygons[i].ExteriorRing.Coordinates)
+                foreach (var cord in fixedPolygons[i].ExteriorRing.Coordinates)
                 {
                     sw.WriteLine($"\t{cord.X} {cord.Y}");
                 }
