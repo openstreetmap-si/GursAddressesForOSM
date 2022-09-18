@@ -11,6 +11,7 @@ using NetTopologySuite;
 using NetTopologySuite.Algorithm;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries.Utilities;
 using NetTopologySuite.Index.Strtree;
 using NetTopologySuite.IO;
 using Newtonsoft.Json;
@@ -72,6 +73,12 @@ namespace OsmGursBuildingImport
             {
                 throw new Exception(geometry.GetType().ToString());
             }
+
+            for (int i = 0; i < polygons.Length; i++)
+            {
+                polygons[i] = (Polygon)GeometryFixer.Fix(polygons[i]);
+            }
+
             string polyPath = Path.Combine(poliesDir, id + ".poly");
             using var sw = new StreamWriter(polyPath);
             sw.WriteLine(id + ".original");
