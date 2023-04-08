@@ -144,13 +144,14 @@ const (
 	roundingFactor = 10000000
 
 	// OpenStreetMap tags:
-	tagHousenumber   = "addr:housenumber"
-	tagCity          = "addr:city"
-	tagPostCode      = "addr:postcode"
-	tagStreet        = "addr:street"
-	tagSourceDate    = "source:addr:date"
-	tagSource        = "source:addr"
-	tagSourceValue   = "GURS"
+	tagHousenumber = "addr:housenumber"
+	tagCity        = "addr:city"
+	tagPostCode    = "addr:postcode"
+	tagStreet      = "addr:street"
+	tagVillage     = "addr:village"
+	tagSourceDate  = "source:addr:date"
+	tagSource      = "source:addr"
+	tagSourceValue = "GURS"
 
 	// could be either "source:addr:ref", "source:ref", "ref:GURS:HS_MID"
 	tagRef = "ref:gurs:hs_mid"
@@ -292,6 +293,8 @@ func processRecord(shapeReader *shp.Reader) (*geojson.Feature, string, string) {
 
 	f.SetProperty(tagCity, ptNameMap[ptMid])
 
+	setVillageIfNeeded(shapeReader, f, lon)
+
 	dateOd := shapeReader.Attribute(10)
 	// slice it up into nice iso YYYY-MM-DD format:
 	f.SetProperty(tagSourceDate, dateOd[0:4]+"-"+dateOd[4:6]+"-"+dateOd[6:8])
@@ -349,6 +352,34 @@ func determineStreetOrPlaceName(shapeReader *shp.Reader, f *geojson.Feature, lon
 		}
 
 		// f.SetProperty(tagStreet, "") // remove default street it if exists
+	}
+}
+
+func setVillageIfNeeded(shapeReader *shp.Reader, f *geojson.Feature, lon float64) {
+	ulMid := shapeReader.Attribute(5)
+
+	naMid := shapeReader.Attribute(6)
+	naName := naNameMap[naMid]
+
+	ptMid := shapeReader.Attribute(8)
+	ptName := ptNameMap[ptMid]
+
+	if ulName, streetNameExists := ulNameMap[ulMid]; streetNameExists {
+		// street name exists
+
+		if (!strings.HasPrefix(ptName, naName)) && (ulName != naName) {
+			// village name not in post or street name, should add addr:village tag
+
+			if naNameDj, bilingualPlaceNameExists := naNameDjMap[naMid]; bilingualPlaceNameExists && naNameDj != naName {
+				// bilingual place name exists
+				f.SetProperty(tagVillage, naName+bilingualSeparator+naNameDj)
+				f.SetProperty(tagVillage+tagLangPostfixSlovenian, naName)
+				f.SetProperty(ApplyTagLanguagePostfix(tagVillage, lon), naNameDj)
+			} else {
+				// only slovenian name
+				f.SetProperty(tagVillage, naName)
+			}
+		}
 	}
 }
 
