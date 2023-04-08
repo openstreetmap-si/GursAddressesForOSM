@@ -148,11 +148,8 @@ const (
 	tagCity          = "addr:city"
 	tagPostCode      = "addr:postcode"
 	tagStreet        = "addr:street"
-	tagPlace         = "addr:place"
 	tagSourceDate    = "source:addr:date"
-	tagSourceDateOld = "source:date"
 	tagSource        = "source:addr"
-	tagSourceOld     = "source"
 	tagSourceValue   = "GURS"
 
 	// could be either "source:addr:ref", "source:ref", "ref:GURS:HS_MID"
@@ -298,10 +295,8 @@ func processRecord(shapeReader *shp.Reader) (*geojson.Feature, string, string) {
 	dateOd := shapeReader.Attribute(10)
 	// slice it up into nice iso YYYY-MM-DD format:
 	f.SetProperty(tagSourceDate, dateOd[0:4]+"-"+dateOd[4:6]+"-"+dateOd[6:8])
-	f.SetProperty(tagSourceDateOld, "") // remove old it if exists
 
 	f.SetProperty(tagSource, tagSourceValue)
-	f.SetProperty(tagSourceOld, "") // remove old it if exists
 
 	hsMid := shapeReader.Attribute(1)
 	f.SetProperty(tagRef, hsMid)
@@ -341,19 +336,19 @@ func determineStreetOrPlaceName(shapeReader *shp.Reader, f *geojson.Feature, lon
 
 		if naNameDj, bilingualPlaceNameExists := naNameDjMap[naMid]; bilingualPlaceNameExists && naNameDj != naName {
 			// bilingual place name exists
-			f.SetProperty(tagPlace, naName+bilingualSeparator+naNameDj)
+			f.SetProperty(tagStreet, naName+bilingualSeparator+naNameDj)
 			//f.SetProperty(tagStreet, strings.Join([]string{naName, bilingualSeparator, naNameDj}, ""))
-			f.SetProperty(tagPlace+tagLangPostfixSlovenian, naName)
-			f.SetProperty(ApplyTagLanguagePostfix(tagPlace, lon), naNameDj)
+			f.SetProperty(tagStreet+tagLangPostfixSlovenian, naName)
+			f.SetProperty(ApplyTagLanguagePostfix(tagStreet, lon), naNameDj)
 
 			f.SetProperty(tagStreet+tagLangPostfixSlovenian, "")       // remove slovenian street name it if exists
 			f.SetProperty(ApplyTagLanguagePostfix(tagStreet, lon), "") // remove bilingual street it if exists
 		} else {
 			// only slovenian name
-			f.SetProperty(tagPlace, naName)
+			f.SetProperty(tagStreet, naName)
 		}
 
-		f.SetProperty(tagStreet, "") // remove default street it if exists
+		// f.SetProperty(tagStreet, "") // remove default street it if exists
 	}
 }
 
@@ -371,13 +366,6 @@ func SortFeatureCollection(featureCollection geojson.FeatureCollection) {
 		}
 
 		switch compareTags(featureCollection.Features[i].Properties[tagStreet], featureCollection.Features[j].Properties[tagStreet]) {
-		case -1:
-			return true
-		case 1:
-			return false
-		}
-
-		switch compareTags(featureCollection.Features[i].Properties[tagPlace], featureCollection.Features[j].Properties[tagPlace]) {
 		case -1:
 			return true
 		case 1:
