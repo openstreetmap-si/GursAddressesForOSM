@@ -52,6 +52,7 @@ master_tags = ('addr:housenumber', 'addr:street', 'addr:postcode', 'addr:place',
 # delete_unmatched = True cancellerebbe anche i POI con indirizzo
 delete_unmatched = False
 #tag_unmatched = { 'fixme':'this addr is missing from source dataset: please check in range >10meters' }
+tag_unmatched = { 'fixme':'this addr wasn\'t found nearby in OSM: please check in range >10meters' }
 
 
 # max distance to search for a match in meters
