@@ -291,7 +291,16 @@ func processRecord(shapeReader *shp.Reader) (*geojson.Feature, string, string) {
 	ptMid := shapeReader.Attribute(8)
 	f.SetProperty(tagPostCode, ptCodeMap[ptMid])
 
-	f.SetProperty(tagCity, ptNameMap[ptMid])
+	ptName := ptNameMap[ptMid]
+	f.SetProperty(tagCity, ptName)
+	if strings.Contains(ptName, bilingualSeparator) {
+		names := strings.Split(ptName, bilingualSeparator)
+		if len(names) != 2 {
+			panic(fmt.Sprintf("Multilingual post name %q should have exactly 2 parts", ptName))
+		}
+		f.SetProperty(tagCity+tagLangPostfixSlovenian, names[0])
+		f.SetProperty(ApplyTagLanguagePostfix(tagCity, lon), names[1])
+	}
 
 	setVillageIfNeeded(shapeReader, f, lon)
 
