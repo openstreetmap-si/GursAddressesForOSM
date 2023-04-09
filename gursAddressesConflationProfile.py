@@ -47,12 +47,12 @@ query = [('addr:housenumber',)]
 
 # tags to replace on matched OSM objects
 #master_tags = ('addr:housenumber', 'addr:street')
-master_tags = ('addr:housenumber', 'addr:street', 'addr:postcode', 'addr:place', 'addr:city' )
+master_tags = ('addr:housenumber', 'addr:street', 'addr:postcode', 'addr:village', 'addr:city' )
 
 # delete_unmatched = True cancellerebbe anche i POI con indirizzo
 delete_unmatched = False
 #tag_unmatched = { 'fixme':'this addr is missing from source dataset: please check in range >10meters' }
-tag_unmatched = { 'fixme':'this addr is missing in GURS: please check in range >10meters' }
+#tag_unmatched = { 'fixme':'this addr is missing in GURS: please check in range >10meters' }
 
 
 # max distance to search for a match in meters
