@@ -264,7 +264,7 @@ func processRecord(shapeReader *shp.Reader) (*geojson.Feature, string, string) {
 	f := geojson.NewPointFeature([]float64{lon, lat})
 
 	/*
-	   http://www.e-prostor.gov.si/fileadmin/struktura/RPE_struktura.pdf
+	   https://www.e-prostor.gov.si/fileadmin/struktura/EGP/RPE_struktura.docx
 	   idx#	Ime polja Definicija polja Opis polja
 	   0	ENOTA C 2 Šifra enote
 	   1	HS_MID N 8.0 Identifikator hišne številke
@@ -279,8 +279,8 @@ func processRecord(shapeReader *shp.Reader) (*geojson.Feature, string, string) {
 	   10	D_OD D 8 Datum veljavnosti
 	   11	DV_OD D 8 Datum vnosa v bazo
 	   12	STATUS C 1 Status veljavnosti zapisa (V – veljavno stanje)
-	   13	Y_C N 6.0 Y koordinata centroida hišne številke
-	   14	X_C N 6.0 X koordinata centroida hišne številke
+	   13	CEN_E ali Y_C N 6.0 E (D96/TM) ali Y (D48/GK) koordinata centroida hišne številke 
+	   14	CEN_N ali X_C N 6.0 N (D96/TM) ali X (D48/GK) koordinata centroida hišne številke 
 	*/
 	labela := shapeReader.Attribute(4)
 

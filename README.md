@@ -18,7 +18,7 @@ Do **NOT** import anything until the process is defined and approved by communit
 ## To manually download the data you should
 
 1. Register as user at [https://egp.gu.gov.si/egp/](https://egp.gu.gov.si/egp/?lang=en), wait for the email with the password, login
-2. Expand section "10. Register prostorskih enot" / "10. Register of Spatial Units"
+2. Expand section "2. Register prostorskih enot" / "2. Register of Spatial Units"
 3. Download the data "Prostorske enote" / "Spatial units" -> `RPE_PE.ZIP` and put it in the `data/downloaded` folder
 4. Download the data "Ulice" / "Streets" -> `RPE_PUL.ZIP` and put it in the `data/downloaded` folder
 5. Download the data "Hišne številke" / "House numbers" -> `RPE_PE.ZIP` and put it in the `data/downloaded` folder
@@ -27,11 +27,11 @@ Do **NOT** import anything until the process is defined and approved by communit
 
 Encoding in source shapefiles is Windows-1250 (`CP1250` in `iconv`), result is UTF8
 
-Source shapefile structure is described in [RPE_struktura.pdf](http://www.e-prostor.gov.si/fileadmin/struktura/RPE_struktura.pdf) (only in Slovenian so far)
+Source shapefile structure is described in [RPE_struktura.docx](https://www.e-prostor.gov.si/fileadmin/struktura/EGP/RPE_struktura.docx) (only in Slovenian so far)
 
 ## Dataset source
 
-Data can be obtained from Geodetska  uprava  Republike  Slovenije - [https://egp.gu.gov.si/egp/](https://egp.gu.gov.si/egp/?lang=en) under CreativeCommons attribution license - [CC-BY 2.5](http://creativecommons.org/licenses/by/2.5/si/legalcode), attribution details in  [General_terms.pdf](http://www.e-prostor.gov.si/fileadmin/struktura/ANG/General_terms.pdf) (or slovene [preberi_me.pdf](http://www.e-prostor.gov.si/fileadmin/struktura/preberi_me.pdf)).
+Data can be obtained from Geodetska  uprava  Republike  Slovenije - [https://egp.gu.gov.si/egp/](https://egp.gu.gov.si/egp/?lang=en) under CreativeCommons attribution license - [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0), attribution details in  [General_terms.pdf](https://www.e-prostor.gov.si/fileadmin/struktura/EGP/General_terms.pdf) (or slovene [preberi_me.pdf](https://www.e-prostor.gov.si/fileadmin/struktura/EGP/preberi_me.pdf)).
 
 ## Dependancies
 
@@ -46,7 +46,6 @@ Data can be obtained from Geodetska  uprava  Republike  Slovenije - [https://egp
 
 ## TODO
 
-* [ ] Use buffered channels + goroutines for concurrent processing when reading shapefile
 * [X] Split into smaller files by areas (municipalities/občine, cities/naselja)
 * [X] add golang ~~[gometalinter](https://github.com/alecthomas/gometalinter)~~ [golangci-lint](https://github.com/golangci/golangci-lint) [DONE](https://github.com/openstreetmap-si/GursAddressesForOSM/commit/dcd875f7adc7ddcfb346ff213ffbafb9ce248f6a)
 * [X] use [OSM conflator](https://wiki.openstreetmap.org/wiki/OSM_Conflator) [source code](https://github.com/mapsme/osm_conflate) to prepare .osc files
