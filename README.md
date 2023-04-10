@@ -48,7 +48,6 @@ Data can be obtained from Geodetska  uprava  Republike  Slovenije - [https://egp
 
 * [ ] Use buffered channels + goroutines for concurrent processing when reading shapefile
 * [X] Split into smaller files by areas (municipalities/občine, cities/naselja)
-* [X] Travis CI, with badges etc
 * [X] add golang ~~[gometalinter](https://github.com/alecthomas/gometalinter)~~ [golangci-lint](https://github.com/golangci/golangci-lint) [DONE](https://github.com/openstreetmap-si/GursAddressesForOSM/commit/dcd875f7adc7ddcfb346ff213ffbafb9ce248f6a)
 * [X] use [OSM conflator](https://wiki.openstreetmap.org/wiki/OSM_Conflator) [source code](https://github.com/mapsme/osm_conflate) to prepare .osc files
 * [X] create [`taginfo.json`](taginfo.json)
