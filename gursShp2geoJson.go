@@ -353,8 +353,8 @@ func determineStreetOrPlaceName(shapeReader *shp.Reader, f *geojson.Feature, lon
 			f.SetProperty(tagStreet+tagLangPostfixSlovenian, naName)
 			f.SetProperty(ApplyTagLanguagePostfix(tagStreet, lon), naNameDj)
 
-			f.SetProperty(tagStreet+tagLangPostfixSlovenian, "")       // remove slovenian street name it if exists
-			f.SetProperty(ApplyTagLanguagePostfix(tagStreet, lon), "") // remove bilingual street it if exists
+			// f.SetProperty(tagStreet+tagLangPostfixSlovenian, "")       // remove slovenian street name it if exists
+			// f.SetProperty(ApplyTagLanguagePostfix(tagStreet, lon), "") // remove bilingual street it if exists
 		} else {
 			// only slovenian name
 			f.SetProperty(tagStreet, naName)
