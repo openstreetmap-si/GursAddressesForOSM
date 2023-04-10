@@ -8,9 +8,6 @@ TSYYYY = $$(cat $(TMP)timestamp.txt | cut -b 1-4)
 
 all: download reproject geojson conflate reconflate reconflate summary
 
-.PHONY: travis
-travis: download reproject geojson # conflate summary
-
 .PHONY: download
 download:
 	mkdir -p $(TMP) || true

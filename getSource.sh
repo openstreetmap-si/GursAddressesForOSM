@@ -112,14 +112,6 @@ function login() {
 
 	echo "Got CSRF token: \"${csrftoken}\"."
 
-	echo "TRAVIS=${TRAVIS}"
-	if [ "${TRAVIS}" != "true" ]; then
-		prepareCredentials
-	else
-		echo "Running in TRAVIS CI, using encrypted credentials."
-	fi
-
-
 	loginFormData="username=${username}&password=${password}&_csrf=${csrftoken}"
 	#echo login form data: $loginFormData
 
