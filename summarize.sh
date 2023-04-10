@@ -129,6 +129,25 @@ cat << EOF > "$MUNOUT"
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css" crossorigin="anonymous">
+
+    <script>
+        async function josmImport(aElement) {
+            try {
+                osmLink=aElement.getAttribute('href');
+                console.log(osmLink);
+                const response = await fetch(osmLink);
+                if (!response.ok) {
+                    alert('Error! Is JOSM running and JOSM remote enabled? status: ' + response.status);
+                }
+                const responseText = await response.text();
+                console.log(responseText);
+                aElement.innerHTML = responseText;
+            } catch (err) {
+                alert('Error! Is JOSM running and JOSM remote enabled?');
+                console.log(err);
+            }
+        }
+    </script>
 </head>
 <body>
 
@@ -361,7 +380,7 @@ fi
 	echo "<td class=\"d-none d-xl-table-cell\">$OSMLINK</td>" >> "$MUNOUT"
 
 	# JOSM import - https://wiki.openstreetmap.org/wiki/JOSM/RemoteControl#import_command
-	JOSMIMPORT="<a href='http://localhost:8111/import?url=https%3A%2F%2Faddr.openstreetmap.si%2F$MUNDIR%2F$BASENAME.osm'>Load</a>"
+	JOSMIMPORT="<a href='http://localhost:8111/import?url=https%3A%2F%2Faddr.openstreetmap.si%2F$MUNDIR%2F$BASENAME.osm' onclick='javascript:josmImport(this);return false;'>Load</a>"
 	echo "<td class=\"d-none d-lg-table-cell\">$JOSMIMPORT</td>" >> "$MUNOUT"
 
 	echo "</tr>" >> "$MUNOUT"
