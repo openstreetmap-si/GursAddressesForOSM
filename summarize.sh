@@ -352,9 +352,9 @@ fi
 	PREVIEWGJ="<a href='$BASENAME-preview.geojson'>GeoJSON</a>"
 	echo "<td class=\"d-none d-xl-table-cell\">$PREVIEWGJ</td>" >> "$MUNOUT"
 
-	# http://geojson.io/#data=data:text/x-url,https%3A%2F%2Fd2ad6b4ur7yvpq.cloudfront.net%2Fnaturalearth-3.3.0%2Fne_50m_land.geojson
+	# https://geojson.io/#data=data:text/x-url,https%3A%2F%2Fd2ad6b4ur7yvpq.cloudfront.net%2Fnaturalearth-3.3.0%2Fne_50m_land.geojson
 	# Mapshaper alternative: https://github.com/mbloch/mapshaper/wiki/Web-Interface , eg: http://www.mapshaper.org/?files=https://rawgit.com/nvkelso/natural-earth-vector/master/110m_physical/ne_110m_land.shp,https://rawgit.com/nvkelso/natural-earth-vector/master/110m_physical/ne_110m_land.dbf
-	PREVIEWGJIO="<a href='http://geojson.io/#data=data:text/x-url,https%3A%2F%2Faddr.openstreetmap.si%2F$MUNDIR%2F$BASENAME-preview.geojson'>View</a>"
+	PREVIEWGJIO="<a href='https://geojson.io/#data=data:text/x-url,https%3A%2F%2Faddr.openstreetmap.si%2F$MUNDIR%2F$BASENAME-preview.geojson'>View</a>"
 	echo "<td class=\"d-none d-sm-table-cell\">$PREVIEWGJIO</td>" >> "$MUNOUT"
 
 	OSMLINK="<a href='$BASENAME.osm'>.osm</a>"
@@ -397,7 +397,7 @@ cat << EOF >> "$MUNOUT"
 <footer class="footer">
 	<div class="container-fluid py-1 mt-3 mb-0 bg-light">
 		<small class="text-secondary text-center">
-			Data &copy; <a href="http://www.gu.gov.si">GURS</a> &amp; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, $(date)
+			Data &copy; <a href="https://www.gov.si/drzavni-organi/organi-v-sestavi/geodetska-uprava/">GURS</a> &amp; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, $(date)
 		</small>
 	</div>
 </footer>
@@ -451,7 +451,7 @@ cat << EOF >> $OUT
 <footer class="footer">
 	<div class="container-fluid py-1 mt-3 mb-0 bg-light">
 		<small class="text-secondary text-center">
-			Data &copy; <a href="http://www.gu.gov.si">GURS</a> &amp; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, $(date)
+			Data &copy; <a href="https://www.gov.si/drzavni-organi/organi-v-sestavi/geodetska-uprava/">GURS</a> &amp; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, $(date)
 		</small>
 	</div>
 </footer>
