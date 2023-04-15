@@ -373,14 +373,17 @@ fi
 
 	# https://geojson.io/#data=data:text/x-url,https%3A%2F%2Fd2ad6b4ur7yvpq.cloudfront.net%2Fnaturalearth-3.3.0%2Fne_50m_land.geojson
 	# Mapshaper alternative: https://github.com/mbloch/mapshaper/wiki/Web-Interface , eg: http://www.mapshaper.org/?files=https://rawgit.com/nvkelso/natural-earth-vector/master/110m_physical/ne_110m_land.shp,https://rawgit.com/nvkelso/natural-earth-vector/master/110m_physical/ne_110m_land.dbf
-	PREVIEWGJIO="<a href='https://geojson.io/#data=data:text/x-url,https%3A%2F%2Faddr.openstreetmap.si%2F$MUNDIR%2F$BASENAME-preview.geojson'>View</a>"
+	MUNDIRURL=$(echo -n $MUNDIR|sed 's/Č/%C4%8C/g'|sed 's/Ž/%C5%BD/g'|sed 's/Š/%C5%A0/g' |sed 's/č/%C4%8D/g'|sed 's/ž/%C5%BE/g'|sed 's/š/%C5%A1/g' )
+	BASENAMEURL=$(echo -n $BASENAME|sed 's/Č/%C4%8C/g'|sed 's/Ž/%C5%BD/g'|sed 's/Š/%C5%A0/g' |sed 's/č/%C4%8D/g'|sed 's/ž/%C5%BE/g'|sed 's/š/%C5%A1/g' )
+
+	PREVIEWGJIO="<a href='https://geojson.io/#data=data:text/x-url,https%3A%2F%2Faddr.openstreetmap.si%2F$MUNDIRURL%2F$BASENAMEURL-preview.geojson'>View</a>"
 	echo "<td class=\"d-none d-sm-table-cell\">$PREVIEWGJIO</td>" >> "$MUNOUT"
 
 	OSMLINK="<a href='$BASENAME.osm'>.osm</a>"
 	echo "<td class=\"d-none d-xl-table-cell\">$OSMLINK</td>" >> "$MUNOUT"
 
 	# JOSM import - https://wiki.openstreetmap.org/wiki/JOSM/RemoteControl#import_command
-	JOSMIMPORT="<a href='http://localhost:8111/import?url=https%3A%2F%2Faddr.openstreetmap.si%2F$MUNDIR%2F$BASENAME.osm' onclick='javascript:josmImport(this);return false;'>Load</a>"
+	JOSMIMPORT="<a href='http://localhost:8111/import?url=https%3A%2F%2Faddr.openstreetmap.si%2F$MUNDIRURL%2F$BASENAMEURL.osm' onclick='javascript:josmImport(this);return false;'>Load</a>"
 	echo "<td class=\"d-none d-lg-table-cell\">$JOSMIMPORT</td>" >> "$MUNOUT"
 
 	echo "</tr>" >> "$MUNOUT"
