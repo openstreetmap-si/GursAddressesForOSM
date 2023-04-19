@@ -81,7 +81,7 @@ namespace OsmGursBuildingImport
                 josmCommands.Add("http://localhost:8111/imagery?id=GURS-DOF025");
                 if (ljubljana.Intersects(area.Geometry.EnvelopeInternal))
                 {
-                    josmCommands.Add("http://localhost:8111/imagery?id=LJUBLJANA-DOF-2020");
+                    josmCommands.Add("http://localhost:8111/imagery?id=LJUBLJANA-DOF-2022");
                 }
 
                 josmCommands.Add("http://localhost:8111/imagery?id=GURS-buildings");
