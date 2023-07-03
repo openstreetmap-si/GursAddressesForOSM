@@ -207,6 +207,11 @@ namespace OsmGursBuildingImport
             newBuilding.Tags.Add("source:geometry", "GURS");
             if (!string.IsNullOrEmpty(gursBuilding.Date))
                 newBuilding.Tags.Add(new Tag("source:geometry:date", gursBuilding.Date));
+            if (gursBuilding.ConstructionYear.HasValue)
+            {
+                newBuilding.Tags.Add(new Tag("construction_date", gursBuilding.ConstructionYear.ToString()));
+                newBuilding.Tags.Add(new Tag("source:construction_date", "GURS"));
+            }
             UpdateBuilding(newBuilding, gursBuilding, setAddressOnBuilding);
         }
 

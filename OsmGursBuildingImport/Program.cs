@@ -68,6 +68,7 @@ namespace OsmGursBuildingImport
             await DownloadFileAsync(buildingsUrl, buildingsFile);
             ZipFile.ExtractToDirectory(buildingsFile, Path.Combine(tempDir, "Buildings"));
 
+            ZipFile.ExtractToDirectory(FindFile(Path.Combine(tempDir, "Buildings"), "KN_SLO_STAVBE_SLO_stavbe_[0-9]*\\.zip"), Path.Combine(tempDir, "Buildings", "KN_SLO_STAVBE_SLO_STAVBE"));
             ZipFile.ExtractToDirectory(FindFile(Path.Combine(tempDir, "Buildings"), "KN_SLO_STAVBE_SLO_tloris_[0-9]*\\.zip"), Path.Combine(tempDir, "Buildings", "KN_SLO_STAVBE_SLO_STAVBE_TLORIS"));
             ZipFile.ExtractToDirectory(FindFile(Path.Combine(tempDir, "Buildings"), "KN_SLO_STAVBE_SLO_nadzemni_tloris_[0-9]*\\.zip"), Path.Combine(tempDir, "Buildings", "KN_SLO_STAVBE_SLO_STAVBE_NADZEMNI_TLORIS"));
 

@@ -22,7 +22,7 @@ namespace OsmGursBuildingImport
     record BilingualName(string Name, string NameSecondLanguage);
     record PostInfo(short Id, BilingualName Name);
     record VotingArea(Geometry Geometry, string Name, string Id);
-    record BuildingInfo(long Id, Geometry Geometry, string? Date, List<Address>? Addresses);
+    record BuildingInfo(long Id, Geometry Geometry, string? Date, List<Address>? Addresses, int? ConstructionYear);
     record Address(long Id, Geometry Geometry, string Date, string HouseNumber, BilingualName StreetName, PostInfo PostInfo, BilingualName VillageName);
     record ProcessingArea(Geometry Geometry, string Name, List<BuildingInfo> Buildings, string pathToPoly)
     {
@@ -162,8 +162,8 @@ namespace OsmGursBuildingImport
             var wktReader = new WKTReader(D96Factory.GeometryServices);
             while (csvAddresses.Read())
             {
-                var buildingId = csvAddresses.GetInt64("EID_STAVBA");
-                var id = csvAddresses.GetInt64("EID_HISNA_STEVILKA");
+                var buildingId = ConvertToOldGursBuildingId(csvAddresses.GetInt64("EID_STAVBA"));
+                var id = ConvertToOldGursAddressId(csvAddresses.GetInt64("EID_HISNA_STEVILKA"));
                 var geom = wktReader.Read(csvAddresses.GetString("GEOM"));
                 geom.Apply(D96Converter.Instance);//Convert from D96 to OSM coordinate system
                 var houseNumber = csvAddresses.GetString("HS_STEVILKA") + csvAddresses.GetString("HS_DODATEK");
@@ -177,6 +177,24 @@ namespace OsmGursBuildingImport
                 else
                     BuildingToAddresses.Add(buildingId, new List<Address>() { address });
             }
+        }
+
+        static long ConvertToOldGursBuildingId(long newId)
+        {
+            newId /= 10;//Remove control value
+            var result = newId % 1000_000_000_000;
+            if (result + 10020000000000000 != newId)
+                throw new Exception("Failed converting new GURS building EID to old sta_sid");
+            return result;
+        }
+
+        static long ConvertToOldGursAddressId(long newId)
+        {
+            newId /= 10;//Remove control value
+            var result = newId % 1000_000_000_000;
+            if (result + 10040000000000000 != newId)
+                throw new Exception("Failed converting new GURS building EID to old sta_sid");
+            return result;
         }
 
         void LoadVotingAreasGeoJson()
@@ -197,40 +215,56 @@ namespace OsmGursBuildingImport
 
         void LoadBuildings(string dir)
         {
-            HashSet<long> insertedBuildings = new();
-            var shapeReader = new ShapefileDataReader(Directory.GetFiles(Path.Combine(dir, "Buildings", "KN_SLO_STAVBE_SLO_STAVBE_NADZEMNI_TLORIS"), "*.shp").Single(), D96Factory);
+            var buildingsPolygons = new Dictionary<long, Geometry>();
+            var shapeReader = new ShapefileDataReader(Path.Combine(dir, "Buildings", "KN_SLO_STAVBE_SLO_STAVBE_NADZEMNI_TLORIS", "KN_SLO_STAVBE_SLO_STAVBE_NADZEMNI_TLORIS_poligon.shp"), D96Factory);
             while (shapeReader.Read())
             {
                 shapeReader.Geometry.Apply(D96Converter.Instance);
-                var id = shapeReader.GetInt64(2);
-
-                if (!BuildingToAddresses.TryGetValue(id, out var addresses))
-                    addresses = null;
-                insertedBuildings.Add(id);
-                BuildingsIndex.Insert(shapeReader.Geometry.EnvelopeInternal, new BuildingInfo(
-                    id,
-                    shapeReader.Geometry,
-                    null,
-                    addresses));
+                var id = ConvertToOldGursBuildingId(shapeReader.GetInt64(2));
+                buildingsPolygons.Add(id, shapeReader.Geometry);
             }
 
-            shapeReader = new ShapefileDataReader(Directory.GetFiles(Path.Combine(dir, "Buildings", "KN_SLO_STAVBE_SLO_STAVBE_TLORIS"), "*.shp").Single(), D96Factory);
+            shapeReader = new ShapefileDataReader(Path.Combine(dir, "Buildings", "KN_SLO_STAVBE_SLO_STAVBE_TLORIS", "KN_SLO_STAVBE_SLO_STAVBE_TLORIS_poligon.shp"), D96Factory);
             while (shapeReader.Read())
             {
                 shapeReader.Geometry.Apply(D96Converter.Instance);
-                var id = shapeReader.GetInt64(2);
-
-                // Don't add if KN_SLO_STAVBE_SLO_STAVBE_NADZEMNI_TLORIS already added
-                if (!insertedBuildings.Add(id))
+                var id = ConvertToOldGursBuildingId(shapeReader.GetInt64(2));
+                if (buildingsPolygons.ContainsKey(id))
                     continue;
+                buildingsPolygons.Add(id, shapeReader.Geometry);
+            }
+            shapeReader = new ShapefileDataReader(Path.Combine(dir, "Buildings", "KN_SLO_STAVBE_SLO_STAVBE", "KN_SLO_STAVBE_SLO_STAVBE_tocka.shp"), D96Factory);
+            while (shapeReader.Read())
+            {
+                var id = ConvertToOldGursBuildingId(shapeReader.GetInt64(2));
+
+                if (!buildingsPolygons.TryGetValue(id, out var geometry))
+                {
+                    shapeReader.Geometry.Apply(D96Converter.Instance);
+                    //Console.WriteLine($"Building with id {id} at {shapeReader.Geometry}, does not have tloris polygon!");
+                    continue;
+                }
 
                 if (!BuildingToAddresses.TryGetValue(id, out var addresses))
                     addresses = null;
-                BuildingsIndex.Insert(shapeReader.Geometry.EnvelopeInternal, new BuildingInfo(
+
+                var yearOfConstruction = shapeReader["LETO_IZGRA"] switch {
+                    double val => (int)val,
+                    _ => (int?)null
+                };
+
+                if (yearOfConstruction > 2050 || yearOfConstruction < 1000)
+                {
+                    Console.WriteLine($"Year of construction outside range. {yearOfConstruction}");
+                    yearOfConstruction = null;
+                }
+                BuildingsIndex.Insert(geometry.EnvelopeInternal, new BuildingInfo(
                     id,
-                    shapeReader.Geometry,
+                    geometry,
                     null,
-                    addresses));
+                    addresses,
+                    yearOfConstruction
+                    ));
             }
             BuildingsIndex.Build();
         }
