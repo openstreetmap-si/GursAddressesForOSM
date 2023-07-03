@@ -24,8 +24,7 @@ namespace OsmGursBuildingImport
                 nodes.Add((Node)GeometryToOsmGeo(new Point(coord)));
             }
 
-            return Add(new CompleteWay
-            {
+            return Add(new CompleteWay {
                 Id = newIdCounter--,
                 Nodes = nodes.ToArray()
             });
@@ -151,18 +150,23 @@ namespace OsmGursBuildingImport
                 anythingWasSet |= UpdateAttribute(attributes, "addr:street" + Suffix(address.Geometry.Coordinate), address.StreetName.NameSecondLanguage);
             }
 
-            anythingWasSet |= UpdateAttribute(attributes, "addr:city", address.PostInfo.Name);
-            if (address.PostInfo.Name.Contains("/"))
+            if (string.IsNullOrEmpty(address.PostInfo.Name.NameSecondLanguage))
             {
-                anythingWasSet |= UpdateAttribute(attributes, "addr:city:sl", address.PostInfo.Name.Remove(address.PostInfo.Name.IndexOf(" / ")));
-                anythingWasSet |= UpdateAttribute(attributes, "addr:city" + Suffix(address.Geometry.Coordinate), address.PostInfo.Name.Substring(address.PostInfo.Name.IndexOf(" / ") + 3));
+                anythingWasSet |= UpdateAttribute(attributes, "addr:city", address.PostInfo.Name.Name);
             }
+            else
+            {
+                anythingWasSet |= UpdateAttribute(attributes, "addr:city", address.PostInfo.Name.Name + " / " + address.PostInfo.Name.NameSecondLanguage);
+                anythingWasSet |= UpdateAttribute(attributes, "addr:city:sl", address.PostInfo.Name.Name);
+                anythingWasSet |= UpdateAttribute(attributes, "addr:city" + Suffix(address.Geometry.Coordinate), address.PostInfo.Name.NameSecondLanguage);
+            }
+
             anythingWasSet |= UpdateAttribute(attributes, "addr:postcode", address.PostInfo.Id.ToString());
 
             // We want to add village only when it's not already mentioned, so when user enters
-            // some address into navigation it re-assuress them when seeing also correct village name...
-            // It is pretty common in Slovenia for people to be more fimiliar with village name than street names.
-            if (!address.PostInfo.Name.StartsWith(address.VillageName.Name) &&
+            // some address into navigation it re-assures them when seeing also correct village name...
+            // It is pretty common in Slovenia for people to be more familiar with village name than street names.
+            if (!address.PostInfo.Name.Name.StartsWith(address.VillageName.Name) &&
                 address.StreetName.Name != address.VillageName.Name)
             {
                 if (string.IsNullOrEmpty(address.VillageName.NameSecondLanguage))
@@ -222,23 +226,20 @@ namespace OsmGursBuildingImport
                         {
                             var members = new List<CompleteRelationMember>();
                             var outerWay = LineStringToWay(polygon.Shell);
-                            members.Add(new CompleteRelationMember()
-                            {
+                            members.Add(new CompleteRelationMember() {
                                 Member = outerWay,
                                 Role = "outer"
                             });
                             foreach (var pol in polygon.InteriorRings)
                             {
                                 var osmGeo = LineStringToWay(pol);
-                                members.Add(new CompleteRelationMember
-                                {
+                                members.Add(new CompleteRelationMember {
                                     Member = osmGeo,
                                     Role = "inner"
                                 });
                             }
 
-                            return Add(new CompleteRelation()
-                            {
+                            return Add(new CompleteRelation() {
                                 Id = newIdCounter--,
                                 Members = members.ToArray(),
                                 Tags = new TagsCollection()
@@ -254,15 +255,13 @@ namespace OsmGursBuildingImport
                         foreach (var pol in multiPolygon.Geometries)
                         {
                             var osmGeo = GeometryToOsmGeo(pol);
-                            members.Add(new CompleteRelationMember()
-                            {
+                            members.Add(new CompleteRelationMember() {
                                 Member = osmGeo,
                                 Role = "outer"
                             });
                         }
 
-                        return Add(new CompleteRelation()
-                        {
+                        return Add(new CompleteRelation() {
                             Id = newIdCounter--,
                             Members = members.ToArray(),
                             Tags = new TagsCollection()
@@ -280,8 +279,7 @@ namespace OsmGursBuildingImport
         {
             if (ExistingNodes.TryGetValue(point.Coordinate, out var node))
                 return node;
-            var newNode = new Node()
-            {
+            var newNode = new Node() {
                 Id = newIdCounter--,
                 Longitude = point.X,
                 Latitude = point.Y

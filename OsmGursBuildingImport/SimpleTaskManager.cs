@@ -56,7 +56,7 @@ namespace OsmGursBuildingImport
         {
             var baseUrlForBlobs = "http://osm.karlas.si:2009/";
 
-            var ljubljana = model.Settlements.Values.Single(s => s.Name.Name == "Ljubljana").Geometry;
+            var ljubljana = new Envelope(14.4386637, 14.6000254, 46.0896623, 46.0050702);
             var project = new StmProject()
             {
                 Name = "Gurs Buildings&Addresses Import",
@@ -79,7 +79,7 @@ namespace OsmGursBuildingImport
                 josmCommands.Add($"http://localhost:8111/zoom?left={area.Geometry.EnvelopeInternal.MinX}&right={area.Geometry.EnvelopeInternal.MaxX}&top={area.Geometry.EnvelopeInternal.MaxY}&bottom={area.Geometry.EnvelopeInternal.MinY}");
 
                 josmCommands.Add("http://localhost:8111/imagery?id=GURS-DOF025");
-                if (ljubljana.Intersects(area.Geometry))
+                if (ljubljana.Intersects(area.Geometry.EnvelopeInternal))
                 {
                     josmCommands.Add("http://localhost:8111/imagery?id=LJUBLJANA-DOF-2020");
                 }

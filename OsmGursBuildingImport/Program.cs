@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.BZip2;
 using NetTopologySuite.Geometries;
@@ -23,6 +25,20 @@ namespace OsmGursBuildingImport
 
         static async Task<int> Main(string[] args)
         {
+            while (true)
+            {
+                var restartToken = new CancellationTokenSource();
+                int dayOfWeek = (int)DateTime.UtcNow.DayOfWeek;
+                DateTime nextSunday6AM = DateTime.UtcNow.AddDays(7 - dayOfWeek).Date.AddHours(6);
+                restartToken.CancelAfter(nextSunday6AM - DateTime.UtcNow);
+                var result = await Process(args, restartToken.Token);
+                if (result != 0)
+                    return result;
+            }
+        }
+
+        static async Task<int> Process(string[] args, CancellationToken cancellationToken)
+        {
             var repoRoot = Path.Combine(Directory.GetCurrentDirectory(), "..");
             var overridesDir = Path.Combine(repoRoot, "overrides");
             if (!Directory.Exists(overridesDir))
@@ -35,19 +51,26 @@ namespace OsmGursBuildingImport
             var tempDir = Path.Combine(dataFolder, "temp/");
             if (Directory.Exists(tempDir))
                 Directory.Delete(tempDir, true);
-
-            await Process.Start(new ProcessStartInfo()
-            {
-                FileName = Path.Combine(repoRoot, "getSource.sh"),
-                Arguments = $"{Path.Combine(dataFolder, "download/")} {tempDir}",
-                WorkingDirectory = repoRoot
-            })!.WaitForExitAsync();
+            Directory.CreateDirectory(tempDir);
 
             var cacheDir = Path.Combine(dataFolder, "cache");
             if (Directory.Exists(cacheDir))
                 Directory.Delete(cacheDir, true);
-
             Directory.CreateDirectory(cacheDir);
+
+            var addressesUrl = "https://ipi.eprostor.gov.si/jgp-service-api/display-views/groups/121/composite-products/141/file?filterParam=DRZAVA&filterValue=1";
+            var addressesFile = Path.Combine(tempDir, "addresses.zip");
+            await DownloadFileAsync(addressesUrl, addressesFile);
+            ZipFile.ExtractToDirectory(addressesFile, Path.Combine(tempDir, "Addresses"));
+
+            var buildingsUrl = "https://ipi.eprostor.gov.si/jgp-service-api/display-views/groups/121/composite-products/14/file?filterParam=DRZAVA&filterValue=1";
+            var buildingsFile = Path.Combine(tempDir, "buildings.zip");
+            await DownloadFileAsync(buildingsUrl, buildingsFile);
+            ZipFile.ExtractToDirectory(buildingsFile, Path.Combine(tempDir, "Buildings"));
+
+            ZipFile.ExtractToDirectory(FindFile(Path.Combine(tempDir, "Buildings"), "KN_SLO_STAVBE_SLO_tloris_[0-9]*\\.zip"), Path.Combine(tempDir, "Buildings", "KN_SLO_STAVBE_SLO_STAVBE_TLORIS"));
+            ZipFile.ExtractToDirectory(FindFile(Path.Combine(tempDir, "Buildings"), "KN_SLO_STAVBE_SLO_nadzemni_tloris_[0-9]*\\.zip"), Path.Combine(tempDir, "Buildings", "KN_SLO_STAVBE_SLO_STAVBE_NADZEMNI_TLORIS"));
+
 
             FeatureInterpreter.DefaultInterpreter = new OsmToNtsConvert();
             Console.WriteLine("Loading GURS data");
@@ -58,8 +81,7 @@ namespace OsmGursBuildingImport
 
             var fullFileCacheFolder = Path.Combine(cacheDir, "full");
             Directory.CreateDirectory(fullFileCacheFolder);
-            Parallel.ForEach(gursData.ProcessingAreas, (processingArea) =>
-            {
+            Parallel.ForEach(gursData.ProcessingAreas, (processingArea) => {
                 CreateFull(processingArea.Value, fullFileCacheFolder);
             });
             Console.WriteLine("Generated all .full.osm.bz2 files.");
@@ -70,8 +92,7 @@ namespace OsmGursBuildingImport
 
             var app = WebApplication.Create(args);
 
-            app.MapGet("/original/{filename}", async (string filename) =>
-            {
+            app.MapGet("/original/{filename}", async (string filename) => {
                 var area = FileNameToArea(filename, gursData);
                 if (area == null)
                 {
@@ -87,12 +108,10 @@ namespace OsmGursBuildingImport
                 memoryStream.Position = 0;
                 return Results.Stream(memoryStream, fileDownloadName: filename);
             });
-            app.MapGet("/full/{filename}", (string filename) =>
-            {
+            app.MapGet("/full/{filename}", (string filename) => {
                 return Results.File(Path.Combine(fullFileCacheFolder, filename));
             });
-            app.MapGet("/merge/{filename}", async (string filename) =>
-            {
+            app.MapGet("/merge/{filename}", async (string filename) => {
                 var area = FileNameToArea(filename, gursData);
                 if (area == null)
                 {
@@ -108,7 +127,7 @@ namespace OsmGursBuildingImport
 
             app.Urls.Add("http://*:2009");
             Console.WriteLine("Starting WebServer.");
-            await app.RunAsync();
+            await app.RunAsync(cancellationToken);
             return 0;
         }
 
@@ -140,6 +159,21 @@ namespace OsmGursBuildingImport
             return null;
         }
 
+        private static async Task DownloadFileAsync(string url, string filePath)
+        {
+            var http = new HttpClient();
+            using var stream = await http.GetStreamAsync(url);
+            using var fileStream = new FileStream(filePath, FileMode.Create);
+            await stream.CopyToAsync(fileStream);
+        }
+
+        private static string FindFile(string folder, string regex)
+        {
+            var reg = new Regex(regex);
+            return Directory.GetFiles(folder).Single(f => reg.IsMatch(Path.GetFileName(f)));
+        }
+
+
         private static void CreateMergeFile(ProcessingArea processingArea, STRtree<GeoOsmWithGeometry> osmIndex, Stream writeTo)
         {
             var osmBuilder = new OsmBuilder();
@@ -147,8 +181,7 @@ namespace OsmGursBuildingImport
             foreach (var gursBuilding in processingArea.Buildings)
             {
                 var queriedElements = osmIndex.Query(gursBuilding.Geometry.EnvelopeInternal).ToArray();
-                var intersectingBuildings = queriedElements.Where(g =>
-                {
+                var intersectingBuildings = queriedElements.Where(g => {
                     try
                     {
                         return (g.OsmGeo is CompleteWay || g.OsmGeo is CompleteRelation) && gursBuilding.Geometry.Intersects(g.Geometry);
@@ -191,8 +224,7 @@ namespace OsmGursBuildingImport
                 bool setAddressOnBuilding = true;
                 var nodesOfIntrest = queriedElements
                         .Where(n => n.OsmGeo is Node && n.OsmGeo.Tags.Any(k => k.Key.StartsWith("addr:")))
-                        .Where(n =>
-                        {
+                        .Where(n => {
                             try
                             {
                                 return intersectingBuilding?.Geometry.Intersects(n.Geometry) ?? false
@@ -322,8 +354,7 @@ namespace OsmGursBuildingImport
         private static void SaveData(Stream stream, IEnumerable<ICompleteOsmGeo> geos)
         {
             var writer = new XmlOsmStreamTarget(stream);
-            writer.RegisterSource(geos.Select(o =>
-            {
+            writer.RegisterSource(geos.Select(o => {
                 if (o is Node n)
                     return n;
                 return ((CompleteOsmGeo)o).ToSimple();
