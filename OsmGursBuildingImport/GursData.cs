@@ -164,7 +164,7 @@ namespace OsmGursBuildingImport
             {
                 var buildingId = ConvertToOldGursBuildingId(csvAddresses.GetInt64("EID_STAVBA"));
                 var id = ConvertToOldGursAddressId(csvAddresses.GetInt64("EID_HISNA_STEVILKA"));
-                var geom = wktReader.Read(csvAddresses.GetString("GEOM"));
+                var geom = new Point(csvAddresses.GetDouble("E"), csvAddresses.GetDouble("N"));
                 geom.Apply(D96Converter.Instance);//Convert from D96 to OSM coordinate system
                 var houseNumber = csvAddresses.GetString("HS_STEVILKA") + csvAddresses.GetString("HS_DODATEK");
                 var streetName = new BilingualName(OverrideString(streetNameOverride, csvAddresses.GetString("ULICA_NAZIV")), OverrideString(streetNameSecondaryLanguageOverride, csvAddresses.GetString("ULICA_NAZIV_DJ")));
