@@ -4,8 +4,6 @@ TempDest="${2}"
 credentialsFile="CREDENTIALS-egp.gu.gov.si.txt"
 maxAge=720
 baseUrl="https://egp.gu.gov.si/egp/"
-files=("RPE_PE.ZIP" "RPE_UL.ZIP" "RPE_HS.ZIP" "KS_SLO_CSV_A_U.zip" "KS_SLO_SHP_G.zip")
-#files=("RPE_PE.ZIP" "RPE_UL.ZIP" "RPE_HS.ZIP" "KS_SLO_CSV_A_U.zip" "KS_SLO_SHP_G.zip" "ko_zk_slo.zip")
 
 SEDCMD="sed"
 STATCMD="stat"
@@ -24,29 +22,27 @@ esac
 echo Running on: "${machine}", using $SEDCMD and $STATCMD commands
 
 function extractDownloaded() {
-	mkdir -p "${TempDest}"
 	#----- extract: -------
-	for file in "${DownloadDest}"*.{zip,ZIP}; do
+	for file in "${DownloadDest}"RPE_*.ZIP; do
 		extdir=$(basename "$file" .ZIP)
-		extdir=$(basename "$extdir" .zip)
 		echo "$extdir"
 		unzip -o -d "${TempDest}$extdir" "$file"
 	done
 	for file in "${TempDest}"RPE_*/*.zip; do unzip -o -d "${TempDest}" "$file"; done
 
+	#unzip -o -d "${dest}/ko_zk_slo" "${DownloadDest}ko_zk_slo.zip"
+
 	$STATCMD -c '%y' "${TempDest}HS/HS.shp" | cut -d' ' -f1 >"${TempDest}timestamp.txt"
 }
 
-countTooOld=${#files[@]}
+countTooOld=3
 
-for filename in "${files[@]}"; do
-	fullfilename="${DownloadDest}${filename}"
-	if [ -f "$fullfilename" ]; then
-		if [ $(find "${fullfilename}" -mmin -${maxAge} | wc -l) -gt "0" ]; then
-			countTooOld=$((countTooOld-1))
-		fi
-	fi
-done
+#if [ -f "${DownloadDest}RPE_PE.ZIP"  -a -f "${DownloadDest}RPE_UL.ZIP" -a -f "${DownloadDest}RPE_HS.ZIP" -a -f "${DownloadDest}ko_zk_slo.zip" ] ; then
+if [ -f "${DownloadDest}RPE_PE.ZIP" ] && [ -f "${DownloadDest}RPE_UL.ZIP" ] && [ -f "${DownloadDest}RPE_HS.ZIP" ]; then
+	#check age of existing files
+	#countTooOld=`find ${DownloadDest}RPE_PE.ZIP ${DownloadDest}RPE_UL.ZIP ${DownloadDest}RPE_HS.ZIP ${DownloadDest}ko_zk_slo.zip -mmin +${maxAge} | wc -l`
+	countTooOld=$(find "${DownloadDest}RPE_PE.ZIP" "${DownloadDest}RPE_UL.ZIP" "${DownloadDest}RPE_HS.ZIP" -mmin +${maxAge} | wc -l)
+fi
 
 # exit if all are newer than max age
 if [ "$countTooOld" -gt "0" ]; then
@@ -147,12 +143,6 @@ downloadFile 106
 
 #RPE_HS.ZIP
 downloadFile 107
-
-#KS_SLO_SHP_G.zip
-downloadFile 191
-
-#KS_SLO_CSV_A_U.zip, calling wget dirrectly because different format and d96
-wget "${commonWgetParams[@]}" --content-disposition -N "${baseUrl}download-file.html?id=192&format=50&d96=4"
 
 #ko_zk_slo.zip
 #downloadFile 108
