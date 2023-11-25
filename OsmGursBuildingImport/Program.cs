@@ -147,12 +147,7 @@ namespace OsmGursBuildingImport
                 return null;
             }
 
-            if (!int.TryParse(filename[..dot], out var id))
-            {
-                return null;
-            }
-
-            if (gursData.ProcessingAreas.TryGetValue(id, out var area))
+            if (gursData.ProcessingAreas.TryGetValue(filename[..dot], out var area))
             {
                 return area;
             }

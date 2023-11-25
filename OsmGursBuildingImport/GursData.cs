@@ -32,7 +32,7 @@ namespace OsmGursBuildingImport
     class GursData
     {
         private static GeometryFactory D96Factory = NtsGeometryServices.Instance.CreateGeometryFactory(new PrecisionModel(), 3794);
-        public Dictionary<int, ProcessingArea> ProcessingAreas = new();
+        public Dictionary<string, ProcessingArea> ProcessingAreas = new();
 
         Dictionary<long, Address> Addresses = new();
         List<VotingArea> VotingAreas = new();
@@ -118,7 +118,7 @@ namespace OsmGursBuildingImport
                     votingArea.Id,
                     new List<BuildingInfo>(),
                     WritePoly(poliesDir, votingArea.Geometry, votingArea.Id));
-                ProcessingAreas.Add(int.Parse(votingArea.Id), newArea);
+                ProcessingAreas.Add(votingArea.Id, newArea);
             }
 
             Parallel.ForEach(ProcessingAreas.Values, (area) => {
@@ -199,17 +199,33 @@ namespace OsmGursBuildingImport
 
         void LoadVotingAreasGeoJson()
         {
-            using var sr = new StreamReader("VLV.geojson");
+            using var sr = new StreamReader(File.OpenRead(@"C:\Users\davkar\Documents\NewVLV.geojson"));
             var reader = new GeoJsonReader();
             var features = reader.Read<FeatureCollection>(sr.ReadToEnd());
+            var duplicatedVotingAreas = new List<VotingArea>();
             foreach (var feature in features)
             {
-                if (feature.Attributes["ENOTA"].ToString() != "LV")
+                if (feature.Attributes["ENOTA"]?.ToString() != "LV")
                     continue;
                 var id = feature.Attributes["VLV_ID"].ToString();
                 var name = feature.Attributes["VLV_UIME"].ToString();
                 var geometry = feature.Geometry;
-                VotingAreas.Add(new VotingArea(geometry, name, id));
+                duplicatedVotingAreas.Add(new VotingArea(geometry, name, id));
+            }
+
+            foreach (var groupedById in duplicatedVotingAreas.GroupBy(v => v.Id))
+            {
+                if (groupedById.Count() == 1)
+                {
+                    VotingAreas.Add(groupedById.Single());
+                    continue;
+                }
+                int index = 0;
+                foreach (var area in groupedById.OrderByDescending(g => g.Geometry.Area))
+                {
+                    VotingAreas.Add(new(area.Geometry, area.Name + " #" + index, area.Id + "_" + index));
+                    index++;
+                }
             }
         }
 
