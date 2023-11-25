@@ -199,7 +199,7 @@ namespace OsmGursBuildingImport
 
         void LoadVotingAreasGeoJson()
         {
-            using var sr = new StreamReader(File.OpenRead(@"C:\Users\davkar\Documents\NewVLV.geojson"));
+            using var sr = new StreamReader("VLV.geojson");
             var reader = new GeoJsonReader();
             var features = reader.Read<FeatureCollection>(sr.ReadToEnd());
             var duplicatedVotingAreas = new List<VotingArea>();
