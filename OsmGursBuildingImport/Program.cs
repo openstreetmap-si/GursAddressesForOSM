@@ -27,13 +27,21 @@ namespace OsmGursBuildingImport
         {
             while (true)
             {
-                var restartToken = new CancellationTokenSource();
-                int dayOfWeek = (int)DateTime.UtcNow.DayOfWeek;
-                DateTime nextSunday6AM = DateTime.UtcNow.AddDays(7 - dayOfWeek).Date.AddHours(6);
-                restartToken.CancelAfter(nextSunday6AM - DateTime.UtcNow);
-                var result = await Process(args, restartToken.Token);
-                if (result != 0)
-                    return result;
+                try
+                {
+                    var restartToken = new CancellationTokenSource();
+                    int dayOfWeek = (int)DateTime.UtcNow.DayOfWeek;
+                    DateTime nextSunday6AM = DateTime.UtcNow.AddDays(7 - dayOfWeek).Date.AddHours(6);
+                    restartToken.CancelAfter(nextSunday6AM - DateTime.UtcNow);
+                    var result = await Process(args, restartToken.Token);
+                    if (result != 0)
+                        return result;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    await Task.Delay(TimeSpan.FromMinutes(1));
+                }
             }
         }
 
@@ -82,8 +90,18 @@ namespace OsmGursBuildingImport
 
             var fullFileCacheFolder = Path.Combine(cacheDir, "full");
             Directory.CreateDirectory(fullFileCacheFolder);
+            int allAreasCount = gursData.ProcessingAreas.Count;
+            int lastPercent = 0;
+            int processedAreas = 0;
             Parallel.ForEach(gursData.ProcessingAreas, (processingArea) => {
                 CreateFull(processingArea.Value, fullFileCacheFolder);
+                var num = Interlocked.Increment(ref processedAreas);
+                var percent = (int)((num / (double)allAreasCount) * 100);
+                if (percent != lastPercent)
+                {
+                    lastPercent = percent;
+                    Console.WriteLine($"Generated {percent}% of .full.osm.bz2 files.");
+                }
             });
             Console.WriteLine("Generated all .full.osm.bz2 files.");
 
