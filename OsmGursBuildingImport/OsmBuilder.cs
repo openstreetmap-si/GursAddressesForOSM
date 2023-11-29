@@ -98,10 +98,10 @@ namespace OsmGursBuildingImport
                     return false;
                 }
 
-                attributes[attributeName] = newValue;
-
                 AddFixmeAttribute(attributes,
                     $"\"{attributeName}\" changed from {attributes[attributeName]} to {newValue}.");
+
+                attributes[attributeName] = newValue;
                 return true;
             }
             else
