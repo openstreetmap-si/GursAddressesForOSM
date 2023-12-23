@@ -54,7 +54,7 @@ func readShapefileToMap(shapeFileName string, keyColumnName, valueColumnName str
 
 			key := DecodeWindows1250(shapeReader.Attribute(keyColumnIndex))
 
-			if override, overriden := overrides[valueUtf]; overriden {
+			if override, overridden := overrides[valueUtf]; overridden {
 				result[key] = override
 			} else {
 				result[key] = valueUtf
