@@ -117,18 +117,18 @@ func assertBetween(t *testing.T, testedValue, lowBound, upperBound int) {
 }
 
 /*
-func TestAll(t *testing.T) {
-	ReadLookups()
-	ProcessOne("data/temp/HS-epsg4326/HS-epsg4326.shp")
-}
-
-func BenchmarkAll(b *testing.B) {
-	b.ReportAllocs()
-	ReadLookups()
-	for n := 0; n < b.N; n++ {
+	func TestAll(t *testing.T) {
+		ReadLookups()
 		ProcessOne("data/temp/HS-epsg4326/HS-epsg4326.shp")
 	}
-}
+
+	func BenchmarkAll(b *testing.B) {
+		b.ReportAllocs()
+		ReadLookups()
+		for n := 0; n < b.N; n++ {
+			ProcessOne("data/temp/HS-epsg4326/HS-epsg4326.shp")
+		}
+	}
 */
 func BenchmarkReadShapefile(b *testing.B) {
 	if testing.Short() {

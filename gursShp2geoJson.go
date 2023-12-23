@@ -279,8 +279,8 @@ func processRecord(shapeReader *shp.Reader) (*geojson.Feature, string, string) {
 	   10	D_OD D 8 Datum veljavnosti
 	   11	DV_OD D 8 Datum vnosa v bazo
 	   12	STATUS C 1 Status veljavnosti zapisa (V – veljavno stanje)
-	   13	CEN_E ali Y_C N 6.0 E (D96/TM) ali Y (D48/GK) koordinata centroida hišne številke 
-	   14	CEN_N ali X_C N 6.0 N (D96/TM) ali X (D48/GK) koordinata centroida hišne številke 
+	   13	CEN_E ali Y_C N 6.0 E (D96/TM) ali Y (D48/GK) koordinata centroida hišne številke
+	   14	CEN_N ali X_C N 6.0 N (D96/TM) ali X (D48/GK) koordinata centroida hišne številke
 	*/
 	labela := shapeReader.Attribute(4)
 
