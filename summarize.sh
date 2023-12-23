@@ -71,7 +71,7 @@ cat << EOF > $OUT
 		    columnDefs: [
 		        //{ targets: [10, 11, 12, 13, 14], "orderable": false},
 		        { targets: [1], visible: false },
-		        { targets: [2,3,4,5,6,7,8,9,10], className: 'text-right' },
+		        { targets: [2,3,4,5,6,7,8,9,10,11], className: 'text-right' },
 		        //{ targets: '_all', visible: false }
 		    ]
 		});
@@ -203,8 +203,8 @@ cat << EOF > "$MUNOUT"
 	    \$('#list').DataTable({
 		    stateSave: true,
 		    columnDefs: [
-		        { targets: [11,12,13,14], "orderable": false},
-		        { targets: [1,3,4,5,6,7,8,9,10], className: 'text-right' },
+		        { targets: [2,12,13,14,15], "orderable": false},
+		        { targets: [1,3,4,5,6,7,8,9,10,11], className: 'text-right' },
                         //{ targets: '_all', visible: false }
 		    ]
 		});
@@ -215,6 +215,7 @@ cat << EOF > "$MUNOUT"
 <tr>
 <th>City</th>
 <th>#GURS</th>
+<th class="d-none d-lg-table-cell"></th>
 <th class="d-none d-sm-table-cell">Conflated</th>
 <th class="d-none d-lg-table-cell">#Dups</th>
 <th class="d-none d-lg-table-cell">#DLed</th>
@@ -225,7 +226,7 @@ cat << EOF > "$MUNOUT"
 <th class="d-none d-sm-table-cell">#Add</th>
 <th>%Done</th>
 <th class="d-none d-xl-table-cell">Preview</th>
-<th class="d-none d-sm-table-cell">View</th>
+<th class="d-none d-sm-table-cell"></th>
 <th class="d-none d-xl-table-cell">.osm</th>
 <th class="d-none d-lg-table-cell">JOSM</th>
 </tr>
@@ -260,6 +261,15 @@ do
 
 	echo "<tr><td>$CITY</td><td>$GURS</td>" >> "$MUNOUT"
 
+	# GURS preview
+	# https://geojson.io/#data=data:text/x-url,https%3A%2F%2Fd2ad6b4ur7yvpq.cloudfront.net%2Fnaturalearth-3.3.0%2Fne_50m_land.geojson
+	# Mapshaper alternative: https://github.com/mbloch/mapshaper/wiki/Web-Interface , eg: http://www.mapshaper.org/?files=https://rawgit.com/nvkelso/natural-earth-vector/master/110m_physical/ne_110m_land.shp,https://rawgit.com/nvkelso/natural-earth-vector/master/110m_physical/ne_110m_land.dbf
+	MUNDIRURL=$(echo -n $MUNDIR|sed 's/Č/%25C4%258C/g'|sed 's/Ž/%25C5%25BD/g'|sed 's/Š/%25C5%25A0/g' |sed 's/č/%25C4%258D/g'|sed 's/ž/%25C5%25BE/g'|sed 's/š/%25C5%25A1/g' )
+	BASENAMEURL=$(echo -n $BASENAME|sed 's/Č/%25C4%258C/g'|sed 's/Ž/%25C5%25BD/g'|sed 's/Š/%25C5%25A0/g' |sed 's/č/%25C4%258D/g'|sed 's/ž/%25C5%25BE/g'|sed 's/š/%25C5%25A1/g' )
+
+	GURSPREVIEWGJIO="<a href='https://geojson.io/#data=data:text/x-url,https%3A%2F%2Faddr.openstreetmap.si%2F$MUNDIRURL%2F$BASENAMEURL-gurs.geojson'>🌍</a>"
+	echo "<td class=\"d-none d-lg-table-cell\">$GURSPREVIEWGJIO</td>" >> "$MUNOUT"
+
 if [ ! -f "$DIRNAME/$BASENAME-conflate-log.txt" ]; then
     echo -n "?"
 	echo "<td class='text-center'>Not yet!</td><td class='d-none d-lg-table-cell'></td><td class='d-none d-lg-table-cell'></td><td class='d-none d-lg-table-cell'></td><td class='d-none d-lg-table-cell'></td><td class='d-none d-lg-table-cell'></td><td class='d-none d-sm-table-cell'></td><td class='d-none d-lg-table-cell'></td><td class='d-none d-sm-table-cell'></td><td class='d-none d-xl-table-cell'></td><td class='d-none d-sm-table-cell'></td><td class='d-none d-xl-table-cell'></td><td class='d-none d-lg-table-cell'></td></tr>"  >> "$MUNOUT"
@@ -272,7 +282,7 @@ if [ ! -f "$DIRNAME/$BASENAME-conflate-log.txt" ]; then
 # <th class="d-none d-sm-table-cell">#Add</th>
 # <th>%Done</th>
 # <th class="d-none d-xl-table-cell">Preview</th>
-# <th class="d-none d-sm-table-cell">View</th>
+# <th class="d-none d-sm-table-cell"></th>
 # <th class="d-none d-xl-table-cell">.osm</th>
 # <th class="d-none d-lg-table-cell">JOSM</th>
         continue
@@ -371,12 +381,7 @@ fi
 	PREVIEWGJ="<a href='$BASENAME-preview.geojson'>GeoJSON</a>"
 	echo "<td class=\"d-none d-xl-table-cell\">$PREVIEWGJ</td>" >> "$MUNOUT"
 
-	# https://geojson.io/#data=data:text/x-url,https%3A%2F%2Fd2ad6b4ur7yvpq.cloudfront.net%2Fnaturalearth-3.3.0%2Fne_50m_land.geojson
-	# Mapshaper alternative: https://github.com/mbloch/mapshaper/wiki/Web-Interface , eg: http://www.mapshaper.org/?files=https://rawgit.com/nvkelso/natural-earth-vector/master/110m_physical/ne_110m_land.shp,https://rawgit.com/nvkelso/natural-earth-vector/master/110m_physical/ne_110m_land.dbf
-	MUNDIRURL=$(echo -n $MUNDIR|sed 's/Č/%25C4%258C/g'|sed 's/Ž/%25C5%25BD/g'|sed 's/Š/%25C5%25A0/g' |sed 's/č/%25C4%258D/g'|sed 's/ž/%25C5%25BE/g'|sed 's/š/%25C5%25A1/g' )
-	BASENAMEURL=$(echo -n $BASENAME|sed 's/Č/%25C4%258C/g'|sed 's/Ž/%25C5%25BD/g'|sed 's/Š/%25C5%25A0/g' |sed 's/č/%25C4%258D/g'|sed 's/ž/%25C5%25BE/g'|sed 's/š/%25C5%25A1/g' )
-
-	PREVIEWGJIO="<a href='https://geojson.io/#data=data:text/x-url,https%3A%2F%2Faddr.openstreetmap.si%2F$MUNDIRURL%2F$BASENAMEURL-preview.geojson'>View</a>"
+	PREVIEWGJIO="<a href='https://geojson.io/#data=data:text/x-url,https%3A%2F%2Faddr.openstreetmap.si%2F$MUNDIRURL%2F$BASENAMEURL-preview.geojson'>🌍</a>"
 	echo "<td class=\"d-none d-sm-table-cell\">$PREVIEWGJIO</td>" >> "$MUNOUT"
 
 	OSMLINK="<a href='$BASENAME.osm'>.osm</a>"
@@ -397,6 +402,7 @@ cat << EOF >> "$MUNOUT"
 <tr>
 <th>$MUN TOTAL:</th>
 <th>$MUNTOTALGURS</th>
+<th class="d-none d-lg-table-cell"></th>
 <th class="d-none d-sm-table-cell">$((100*MUNTOTALCONF/MUNTOTALGURS))%</th>
 <th class="d-none d-lg-table-cell">$MUNTOTALDUPES</th>
 <th class="d-none d-lg-table-cell">$MUNTOTALDL</th>
