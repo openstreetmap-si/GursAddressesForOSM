@@ -284,7 +284,7 @@ func processRecord(shapeReader *shp.Reader) (*geojson.Feature, string, string) {
 	*/
 	labela := shapeReader.Attribute(4)
 
-	f.SetProperty(tagHousenumber, strings.ToLower(DecodeWindows1250(labela)))
+	f.SetProperty(tagHousenumber, DecodeWindows1250(labela))
 
 	determineStreetOrPlaceName(shapeReader, f, lon)
 
