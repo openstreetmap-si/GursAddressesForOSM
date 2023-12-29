@@ -1,5 +1,5 @@
 # addressed update 
-# based on https://github.com/cascafico/MilanoHousenumbers/blob/master/conflation/profile.py
+# based on https://github.com/cascafico/MilanoHousenumbers/blob/master/profile.py
 # aggiunge tag source=pippo
 #add_source = False
 source = 'GURS'
@@ -56,7 +56,7 @@ delete_unmatched = False
 
 
 # max distance to search for a match in meters
-max_distance = 10
+max_distance = 20
 
 # Dataset points that are closer than this distance (in meters) will be considered duplicates of each other.
 # Eg: 5 hišnih številk na popolnoma istem mestu (razdalja 0), 30 na razdalji 1 m ... pod 10 m jih je 40939.
