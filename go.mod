@@ -1,6 +1,6 @@
 module github.com/openstreetmap-si/GursAddressesForOSM
 
-go 1.12
+go 1.21
 
 require (
 	github.com/jonas-p/go-shp v0.1.1
