@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io/fs"
 	"log"
 	"math"
 	"os"
@@ -504,7 +504,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		err = ioutil.WriteFile(catGeoJSONFileName, rawJSON, 0644)
+		err = os.WriteFile(catGeoJSONFileName, rawJSON, fs.FileMode(0644))
 		if err != nil {
 			log.Fatal(err)
 		}
