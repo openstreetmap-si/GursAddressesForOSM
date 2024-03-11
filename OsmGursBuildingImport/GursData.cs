@@ -170,6 +170,8 @@ namespace OsmGursBuildingImport
                 var streetName = new BilingualName(OverrideString(streetNameOverride, csvAddresses.GetString("ULICA_NAZIV")), OverrideString(streetNameSecondaryLanguageOverride, csvAddresses.GetString("ULICA_NAZIV_DJ")));
                 var postInfo = new PostInfo(csvAddresses.GetInt16("POSTNI_OKOLIS_SIFRA"), new BilingualName(OverrideString(postalNameOverride, csvAddresses.GetString("POSTNI_OKOLIS_NAZIV")), csvAddresses.GetString("POSTNI_OKOLIS_NAZIV_DJ")));
                 var villageName = new BilingualName(OverrideString(settlementNameOverride, csvAddresses.GetString("NASELJE_NAZIV")), csvAddresses.GetString("NASELJE_NAZIV_DJ"));
+                if (streetName.Name == "")
+                    streetName = villageName;
                 var address = new Address(id, geom, null, houseNumber, streetName, postInfo, villageName);
                 Addresses.Add(id, address);
                 if (BuildingToAddresses.TryGetValue(buildingId, out var list))
