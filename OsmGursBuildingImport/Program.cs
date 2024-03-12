@@ -336,7 +336,15 @@ namespace OsmGursBuildingImport
             foreach (var osmGeo in osmStream)
             {
                 var osmGeoComplete = osmGeo.CreateComplete(db);
-                var featureCollection = interpreter.Interpret(osmGeoComplete);
+                NetTopologySuite.Features.FeatureCollection? featureCollection = null;
+                try
+                {
+                    featureCollection = interpreter.Interpret(osmGeoComplete);
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
                 if (featureCollection.Count != 1)
                 {
                     if (osmGeo is not Node)
