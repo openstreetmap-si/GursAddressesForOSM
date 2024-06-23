@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.BZip2;
@@ -173,10 +174,16 @@ namespace OsmGursBuildingImport
             return null;
         }
 
+        class RedirectJson
+        {
+            public string? url { get; set; }
+        }
+
         private static async Task DownloadFileAsync(string url, string filePath)
         {
             var http = new HttpClient();
-            using var stream = await http.GetStreamAsync(url);
+            var redirectJson = await http.GetFromJsonAsync<RedirectJson>(url);
+            using var stream = await http.GetStreamAsync(redirectJson.url);
             using var fileStream = new FileStream(filePath, FileMode.Create);
             await stream.CopyToAsync(fileStream);
         }
