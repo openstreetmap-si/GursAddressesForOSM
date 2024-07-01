@@ -1,4 +1,4 @@
-certifi==2024.2.*
+certifi==2024.6.*
 chardet==5.2.*
 idna==3.6
 kdtree==0.16
