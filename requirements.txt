@@ -1,6 +1,6 @@
 certifi==2026.1.*
 chardet==5.2.*
-idna==3.11
+idna==3.13
 kdtree==0.16
 osm-conflate==1.4.1
 requests==2.31.*
